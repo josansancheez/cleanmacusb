@@ -305,10 +305,12 @@ $logoForWiz.Dispose()
 
 $titleFont = New-Object System.Drawing.Font("Segoe UI", 13, [System.Drawing.FontStyle]::Bold)
 $subFont = New-Object System.Drawing.Font("Segoe UI", 8.5, [System.Drawing.FontStyle]::Regular)
+$isFont = New-Object System.Drawing.Font("Segoe UI", 8, [System.Drawing.FontStyle]::Bold)
 $sf = New-Object System.Drawing.StringFormat
 $sf.Alignment = [System.Drawing.StringAlignment]::Center
 $wg.DrawString("CleanMacUSB", $titleFont, [System.Drawing.Brushes]::White, (New-Object System.Drawing.RectangleF(0, 195, 164, 30)), $sf)
 $wg.DrawString("by Josan Sánchez", $subFont, [System.Drawing.Brushes]::LightSkyBlue, (New-Object System.Drawing.RectangleF(0, 222, 164, 24)), $sf)
+$wg.DrawString("InstallShield Wizard", $isFont, [System.Drawing.Brushes]::Silver, (New-Object System.Drawing.RectangleF(0, 286, 164, 20)), $sf)
 
 $wizPath = Join-Path $AssetsDir "wizard_image.bmp"
 $wizBmp.Save($wizPath, [System.Drawing.Imaging.ImageFormat]::Bmp)

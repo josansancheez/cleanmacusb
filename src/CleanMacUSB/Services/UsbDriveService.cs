@@ -249,9 +249,10 @@ public static class UsbDriveService
                 if (DeviceIoControl(handle, IOCTL_STORAGE_QUERY_PROPERTY, inBuffer, (uint)querySize, outBuffer, 1024, out uint returned, IntPtr.Zero) &&
                     returned >= 32)
                 {
-                    // En STORAGE_DEVICE_DESCRIPTOR, el campo BusType (byte/enum) se encuentra en el offset 28
+                    // En STORAGE_DEVICE_DESCRIPTOR: offset 8 = RemovableMedia (byte), offset 28 = BusType (byte)
+                    byte removableMedia = Marshal.ReadByte(outBuffer, 8);
                     byte busType = Marshal.ReadByte(outBuffer, 28);
-                    return busType == 7; // BusTypeUsb = 0x07
+                    return busType == 7 || removableMedia == 1; // BusTypeUsb = 0x07 o RemovableMedia = 1
                 }
             }
             finally
@@ -280,6 +281,14 @@ public static class UsbDriveService
 
         try
         {
+            // Liberar cualquier handle nativo pendiente de enumeración y asegurar que el directorio actual no apunta al USB
+            if (Environment.CurrentDirectory.StartsWith($"{driveLetter}:", StringComparison.OrdinalIgnoreCase))
+            {
+                Environment.CurrentDirectory = Environment.SystemDirectory;
+            }
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
             int deviceNumber = GetStorageDeviceNumber(driveLetter);
 
             // 1. Intentar vaciar buffers, bloquear y desmontar el volumen

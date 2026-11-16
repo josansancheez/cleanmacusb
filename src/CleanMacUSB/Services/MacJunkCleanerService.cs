@@ -30,7 +30,8 @@ public sealed class CleanSummary
 
 /// <summary>
 /// Motor de escaneo y limpieza recursiva de archivos y carpetas residuales de macOS, Windows, Linux y Smart TVs.
-/// Soporta unidades USB, discos duros internos (protegiendo carpetas críticas del SO) y carpetas específicas.
+/// Soporta rutas extendidas (\\?\), nombres con punto final (README.), atributos Hidden/System/ReadOnly,
+/// protección contra bucles de enlaces simbólicos (ReparsePoint) y protección de carpetas críticas del SO.
 /// </summary>
 public static class MacJunkCleanerService
 {
@@ -47,7 +48,9 @@ public static class MacJunkCleanerService
         "PerfLogs",
         "Config.Msi",
         "Documents and Settings",
-        "MSOCache"
+        "MSOCache",
+        "bootmgr",
+        "EFI"
     };
 
     private static readonly HashSet<string> AppleDoubleFolderNames = new(StringComparer.OrdinalIgnoreCase)
@@ -147,7 +150,10 @@ public static class MacJunkCleanerService
                 var rootDir = new DirectoryInfo(targetPath);
                 if (!rootDir.Exists) return summary;
 
-                bool isDriveRoot = string.Equals(rootDir.FullName, rootDir.Root.FullName, StringComparison.OrdinalIgnoreCase);
+                bool isDriveRoot = string.Equals(
+                    rootDir.FullName.TrimEnd(Path.DirectorySeparatorChar),
+                    rootDir.Root.FullName.TrimEnd(Path.DirectorySeparatorChar),
+                    StringComparison.OrdinalIgnoreCase);
 
                 // Obtener subdirectorios de primer nivel para calcular progreso real
                 DirectoryInfo[] topDirs;
@@ -200,11 +206,11 @@ public static class MacJunkCleanerService
 
                     if (ShouldDeleteDirectory(subDir, options))
                     {
-                        TryDeleteDirectoryTree(subDir, summary, logProgress);
+                        TryDeleteDirectoryTree(subDir, summary, logProgress, cancellationToken);
                     }
-                    else if (!IsSkippedSystemFolder(subDir.Name, options))
+                    else if (!IsSkippedSystemFolder(subDir, options))
                     {
-                        ScanDirectoryRecursive(subDir, options, summary, logProgress, cancellationToken);
+                        ScanDirectoryRecursive(subDir, options, summary, logProgress, cancellationToken, currentDepth: 1);
                     }
 
                     completedSteps++;
@@ -222,9 +228,22 @@ public static class MacJunkCleanerService
         }, CancellationToken.None);
     }
 
-    private static bool IsSkippedSystemFolder(string dirName, CleanOptions options)
+    private static bool IsSkippedSystemFolder(DirectoryInfo dir, CleanOptions options)
     {
-        // Nunca escanear AppData ni paquetes internos del sistema cuando se escanea un disco local o carpeta de usuario
+        string dirName = dir.Name;
+
+        // Evitar seguir enlaces simbólicos o Junction Points (ReparsePoint) para impedir bucles infinitos en NTFS/Linux
+        try
+        {
+            if ((dir.Attributes & FileAttributes.ReparsePoint) != 0)
+                return true;
+        }
+        catch
+        {
+            return true;
+        }
+
+        // Nunca escanear AppData ni carpetas de repositorios/paquetes internos cuando se escanea un disco local o carpeta
         if (string.Equals(dirName, "AppData", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(dirName, ".git", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(dirName, "node_modules", StringComparison.OrdinalIgnoreCase))
@@ -257,9 +276,14 @@ public static class MacJunkCleanerService
         CleanOptions options,
         CleanSummary summary,
         IProgress<CleanLogEntry> logProgress,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        int currentDepth)
     {
         cancellationToken.ThrowIfCancellationRequested();
+
+        // Límite de seguridad de profundidad recursiva (evita desbordamiento de pila en sistemas de archivos corruptos)
+        if (currentDepth > 64)
+            return;
 
         // Primero escanear archivos del directorio actual
         ScanFilesInDirectory(currentDir, options, summary, logProgress, cancellationToken);
@@ -284,16 +308,13 @@ public static class MacJunkCleanerService
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (IsSkippedSystemFolder(subDir.Name, options))
-                continue;
-
             if (ShouldDeleteDirectory(subDir, options))
             {
-                TryDeleteDirectoryTree(subDir, summary, logProgress);
+                TryDeleteDirectoryTree(subDir, summary, logProgress, cancellationToken);
             }
-            else
+            else if (!IsSkippedSystemFolder(subDir, options))
             {
-                ScanDirectoryRecursive(subDir, options, summary, logProgress, cancellationToken);
+                ScanDirectoryRecursive(subDir, options, summary, logProgress, cancellationToken, currentDepth + 1);
             }
         }
     }
@@ -331,7 +352,7 @@ public static class MacJunkCleanerService
         }
     }
 
-    private static bool ShouldDeleteFile(string fileName, CleanOptions options)
+    public static bool ShouldDeleteFile(string fileName, CleanOptions options)
     {
         // 1. macOS AppleDouble (._*)
         if (options.CleanAppleDouble && fileName.StartsWith("._", StringComparison.OrdinalIgnoreCase))
@@ -395,7 +416,7 @@ public static class MacJunkCleanerService
         return false;
     }
 
-    private static bool ShouldDeleteDirectory(DirectoryInfo dir, CleanOptions options)
+    public static bool ShouldDeleteDirectory(DirectoryInfo dir, CleanOptions options)
     {
         string dirName = dir.Name;
 
@@ -452,7 +473,6 @@ public static class MacJunkCleanerService
                 RecurseSubdirectories = true
             });
 
-            // Si contiene únicamente 0 archivos (o solo .nomedia / .DS_Store / ._*) es basura de Smart TV
             return files.All(f =>
                 string.Equals(f.Name, ".nomedia", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(f.Name, ".DS_Store", StringComparison.OrdinalIgnoreCase) ||
@@ -464,27 +484,42 @@ public static class MacJunkCleanerService
         }
     }
 
+    /// <summary>
+    /// Convierte una ruta estándar en ruta extendida Win32 (\\?\) para poder borrar archivos con punto final
+    /// como "README." o rutas mayores de 260 caracteres creadas por macOS/Linux.
+    /// </summary>
+    private static string ToExtendedWin32Path(string fullPath)
+    {
+        if (string.IsNullOrEmpty(fullPath) || fullPath.StartsWith(@"\\?\", StringComparison.Ordinal))
+            return fullPath;
+
+        if (fullPath.StartsWith(@"\\", StringComparison.Ordinal))
+            return @"\\?\UNC\" + fullPath.Substring(2);
+
+        return @"\\?\" + fullPath;
+    }
+
     private static void TryDeleteFile(FileInfo file, CleanSummary summary, IProgress<CleanLogEntry> logProgress)
     {
+        string fullPath = file.FullName;
+        string extPath = ToExtendedWin32Path(fullPath);
+
         try
         {
             long size = 0;
             try { size = file.Length; } catch { /* Ignorar */ }
 
-            // Quitar atributos ReadOnly / Hidden / System antes de borrar
+            // Quitar atributos ReadOnly / Hidden / System usando ruta extendida (soporta "README.")
             try
             {
-                if ((file.Attributes & (FileAttributes.ReadOnly | FileAttributes.Hidden | FileAttributes.System)) != 0)
-                {
-                    File.SetAttributes(file.FullName, FileAttributes.Normal);
-                }
+                File.SetAttributes(extPath, FileAttributes.Normal);
             }
             catch
             {
                 // Continuar intento de borrado
             }
 
-            file.Delete();
+            File.Delete(extPath);
 
             summary.DeletedFilesCount++;
             summary.TotalBytesFreed += size;
@@ -492,23 +527,30 @@ public static class MacJunkCleanerService
             logProgress.Report(new CleanLogEntry
             {
                 Kind = CleanItemKind.File,
-                FullPath = file.FullName,
+                FullPath = fullPath,
                 SizeBytes = size
             });
         }
         catch
         {
-            // Ignorar si algún archivo puntual está bloqueado por el sistema
+            // Ignorar si algún archivo puntual está bloqueado por otro proceso del sistema
         }
     }
 
-    private static void TryDeleteDirectoryTree(DirectoryInfo dir, CleanSummary summary, IProgress<CleanLogEntry> logProgress)
+    private static void TryDeleteDirectoryTree(
+        DirectoryInfo dir,
+        CleanSummary summary,
+        IProgress<CleanLogEntry> logProgress,
+        CancellationToken cancellationToken)
     {
+        string fullPath = dir.FullName;
+        string extPath = ToExtendedWin32Path(fullPath);
+
         try
         {
-            long folderBytes = NormalizeAndCalculateDirectorySize(dir);
+            long folderBytes = NormalizeAndCalculateDirectorySize(dir, cancellationToken);
 
-            dir.Delete(recursive: true);
+            Directory.Delete(extPath, recursive: true);
 
             summary.DeletedFoldersCount++;
             summary.TotalBytesFreed += folderBytes;
@@ -516,9 +558,13 @@ public static class MacJunkCleanerService
             logProgress.Report(new CleanLogEntry
             {
                 Kind = CleanItemKind.Folder,
-                FullPath = dir.FullName,
+                FullPath = fullPath,
                 SizeBytes = folderBytes
             });
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch
         {
@@ -530,13 +576,13 @@ public static class MacJunkCleanerService
     /// Calcula el tamaño total de una carpeta residual y normaliza los atributos
     /// ReadOnly / Hidden / System de todos sus elementos internos para garantizar su eliminación.
     /// </summary>
-    private static long NormalizeAndCalculateDirectorySize(DirectoryInfo dir)
+    private static long NormalizeAndCalculateDirectorySize(DirectoryInfo dir, CancellationToken cancellationToken)
     {
         long total = 0;
 
         try
         {
-            dir.Attributes = FileAttributes.Normal;
+            File.SetAttributes(ToExtendedWin32Path(dir.FullName), FileAttributes.Normal);
         }
         catch { /* Ignorar */ }
 
@@ -551,10 +597,11 @@ public static class MacJunkCleanerService
 
             foreach (var f in files)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 try
                 {
                     total += f.Length;
-                    f.Attributes = FileAttributes.Normal;
+                    File.SetAttributes(ToExtendedWin32Path(f.FullName), FileAttributes.Normal);
                 }
                 catch { /* Ignorar */ }
             }
@@ -568,12 +615,17 @@ public static class MacJunkCleanerService
 
             foreach (var d in subDirs)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 try
                 {
-                    d.Attributes = FileAttributes.Normal;
+                    File.SetAttributes(ToExtendedWin32Path(d.FullName), FileAttributes.Normal);
                 }
                 catch { /* Ignorar */ }
             }
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch
         {

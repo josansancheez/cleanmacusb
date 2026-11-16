@@ -443,11 +443,14 @@ public partial class MainWindow : Window
             CleanSmartTvJunk = cleanSmartTv
         };
 
+        long lastScrollTick = 0;
         var logProgress = new Progress<CleanLogEntry>(entry =>
         {
             LogEntries.Add(entry);
-            if (LogEntries.Count > 0)
+            long now = Environment.TickCount64;
+            if (now - lastScrollTick >= 80)
             {
+                lastScrollTick = now;
                 LogListView.ScrollIntoView(entry);
             }
         });
@@ -486,6 +489,11 @@ public partial class MainWindow : Window
                     FullPath = Loc["LogNoItemsMessage"],
                     SizeBytes = 0
                 });
+            }
+
+            if (LogEntries.Count > 0)
+            {
+                LogListView.ScrollIntoView(LogEntries[^1]);
             }
 
             UpdateLogSummaryTexts(targetDrive.DisplayName, summary);
