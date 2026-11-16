@@ -65,9 +65,11 @@ public sealed class LocalizationService : INotifyPropertyChanged
 
         // Apartado de Ajustes (Settings)
         ["SettingsPanelTitle"] = "Ajustes de la Aplicación",
-        ["SettingsPanelSubtitle"] = "Configura el comportamiento en segundo plano y consulta la versión e información legal",
+        ["SettingsPanelSubtitle"] = "Configura el idioma, el comportamiento en segundo plano y consulta la versión e información legal",
         ["SettingsBackButton"] = "← Volver al inicio",
-        ["SettingsGeneralHeader"] = "Comportamiento y Sistema",
+        ["SettingsGeneralHeader"] = "Idioma y Comportamiento del Sistema",
+        ["SettingsLangTitle"] = "Idioma de la interfaz (Language)",
+        ["SettingsLangDesc"] = "Cambia en tiempo real todos los textos, botones, registros y avisos sin necesidad de reiniciar.",
         ["OptTrayTitle"] = "Ejecutar en segundo plano (Bandeja del sistema)",
         ["OptTrayDesc"] = "Al cerrar la ventana, CleanMacUSB permanece activo junto al reloj de Windows y muestra un aviso automático al conectar un USB nuevo.",
         ["SettingsTrayStatusOn"] = "Estado actual: ACTIVO (Se minimizará en la bandeja del sistema al cerrar)",
@@ -200,9 +202,11 @@ public sealed class LocalizationService : INotifyPropertyChanged
 
         // Apartado de Ajustes (Settings)
         ["SettingsPanelTitle"] = "Application Settings",
-        ["SettingsPanelSubtitle"] = "Configure background behavior and view version & legal information",
+        ["SettingsPanelSubtitle"] = "Configure language, background behavior, and view version & legal information",
         ["SettingsBackButton"] = "← Back to Home",
-        ["SettingsGeneralHeader"] = "Behavior & System",
+        ["SettingsGeneralHeader"] = "Language & System Behavior",
+        ["SettingsLangTitle"] = "Interface Language (Idioma)",
+        ["SettingsLangDesc"] = "Changes all texts, buttons, activity logs, and alerts in real time without restarting.",
         ["OptTrayTitle"] = "Run in background (System Tray)",
         ["OptTrayDesc"] = "When closing the window, CleanMacUSB stays active near the Windows clock and automatically notifies you when a new USB drive is plugged in.",
         ["SettingsTrayStatusOn"] = "Current status: ENABLED (Will minimize to the system tray when closed)",

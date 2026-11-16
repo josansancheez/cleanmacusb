@@ -67,31 +67,14 @@
                                TextTrimming="CharacterEllipsis" />
                 </StackPanel>
 
-                <!-- Selector de Idioma (ES / EN) + Botón de Ajustes (con estado sombreado activo) -->
+                <!-- Botón de Ajustes (con estado sombreado activo cuando estás dentro de Ajustes) -->
                 <StackPanel Grid.Column="2"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Loc[LanguageLabel]}"
-                               VerticalAlignment="Center"
-                               FontSize="12.5"
-                               Foreground="{StaticResource TextSecondaryBrush}"
-                               Margin="0,0,8,0" />
-
-                    <ComboBox x:Name="LanguageComboBox"
-                              Width="128"
-                              Height="34"
-                              VerticalContentAlignment="Center"
-                              FontSize="13"
-                              FontWeight="SemiBold"
-                              Margin="0,0,10,0"
-                              SelectionChanged="LanguageComboBox_SelectionChanged">
-                        <ComboBoxItem Content="🇪🇸 Español (ES)" Tag="es-ES" />
-                        <ComboBoxItem Content="🇬🇧 English (EN)" Tag="en-US" />
-                    </ComboBox>
-
                     <Button x:Name="SettingsHeaderButton"
                             Style="{StaticResource FluentSecondaryButtonStyle}"
-                            Height="34"
+                            Height="36"
+                            Padding="16,0"
                             Click="SettingsButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="⚙" FontSize="14" Margin="0,-1,6,0" VerticalAlignment="Center" />
@@ -621,7 +604,7 @@
                                 Click="CloseSettingsButton_Click" />
                     </Grid>
 
-                    <!-- Bloque 1: Comportamiento en Segundo Plano (Bandeja del sistema) -->
+                    <!-- Bloque 1: Idioma y Comportamiento en Segundo Plano (Bandeja del sistema) -->
                     <Border Grid.Row="1"
                             Background="#F8FAFC"
                             BorderBrush="#E2E8F0"
@@ -634,8 +617,44 @@
                                        FontSize="13.5"
                                        FontWeight="Bold"
                                        Foreground="#0369A1"
-                                       Margin="0,0,0,8" />
+                                       Margin="0,0,0,10" />
 
+                            <!-- Selector de Idioma dentro de Ajustes -->
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,14,0">
+                                    <TextBlock Text="{Binding Loc[SettingsLangTitle]}"
+                                               FontSize="14"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextPrimaryBrush}" />
+                                    <TextBlock Text="{Binding Loc[SettingsLangDesc]}"
+                                               FontSize="12"
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,2,0,0" />
+                                </StackPanel>
+
+                                <ComboBox x:Name="LanguageComboBox"
+                                          Grid.Column="1"
+                                          Width="150"
+                                          Height="34"
+                                          VerticalAlignment="Center"
+                                          VerticalContentAlignment="Center"
+                                          FontSize="13"
+                                          FontWeight="SemiBold"
+                                          SelectionChanged="LanguageComboBox_SelectionChanged">
+                                    <ComboBoxItem Content="🇪🇸 Español (ES)" Tag="es-ES" />
+                                    <ComboBoxItem Content="🇬🇧 English (EN)" Tag="en-US" />
+                                </ComboBox>
+                            </Grid>
+
+                            <Separator Background="#E2E8F0" Margin="0,2,0,10" />
+
+                            <!-- Interruptor de Segundo Plano (Bandeja del sistema) -->
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
