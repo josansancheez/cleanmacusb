@@ -170,20 +170,6 @@
                             </Button>
                         </Grid>
 
-                        <!-- Opción para mostrar también los discos duros internos del PC (C:\, D:\...) -->
-                        <CheckBox x:Name="ChkIncludeInternalDrives"
-                                  IsChecked="False"
-                                  Margin="2,8,0,0"
-                                  Cursor="Hand"
-                                  Checked="ChkIncludeInternalDrives_Changed"
-                                  Unchecked="ChkIncludeInternalDrives_Changed">
-                            <TextBlock Text="{Binding Loc[ChkIncludeInternalDrives]}"
-                                       FontSize="12.5"
-                                       FontWeight="SemiBold"
-                                       Foreground="#334155"
-                                       Margin="4,-1,0,0" />
-                        </CheckBox>
-
                         <TextBlock x:Name="NoDrivesWarningText"
                                    Text="{Binding Loc[NoUsbDetected]}"
                                    FontSize="12"
@@ -209,12 +195,37 @@
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0"
-                                   Text="{Binding Loc[OptionsSectionTitle]}"
-                                   FontSize="15"
-                                   FontWeight="Bold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"
-                                   Margin="0,0,0,8" />
+                        <!-- Cabecera con título y botones Elegir todo / Desmarcar todo -->
+                        <Grid Grid.Row="0" Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"
+                                       Text="{Binding Loc[OptionsSectionTitle]}"
+                                       FontSize="15"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       VerticalAlignment="Center" />
+
+                            <StackPanel Grid.Column="1"
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Center">
+                                <Button Content="{Binding Loc[BtnSelectAll]}"
+                                        Style="{StaticResource FluentSecondaryButtonStyle}"
+                                        Padding="10,4"
+                                        FontSize="12"
+                                        Margin="0,0,8,0"
+                                        Click="SelectAllOptionsButton_Click" />
+
+                                <Button Content="{Binding Loc[BtnDeselectAll]}"
+                                        Style="{StaticResource FluentSecondaryButtonStyle}"
+                                        Padding="10,4"
+                                        FontSize="12"
+                                        Click="DeselectAllOptionsButton_Click" />
+                            </StackPanel>
+                        </Grid>
 
                         <ScrollViewer Grid.Row="1"
                                       VerticalScrollBarVisibility="Auto"

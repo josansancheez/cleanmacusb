@@ -26,12 +26,11 @@ public sealed class LocalizationService : INotifyPropertyChanged
 
         // Selector de Unidad USB / Disco Interno / Carpeta
         ["UsbSectionTitle"] = "Origen a Limpiar (Unidad USB, Disco Duro o Carpeta)",
-        ["UsbSectionSubtitle"] = "Selecciona una memoria USB, activa los discos duros internos del PC o elige una carpeta específica",
+        ["UsbSectionSubtitle"] = "Selecciona una memoria USB, un disco duro del ordenador o elige una carpeta específica",
         ["RefreshDrivesButton"] = "Actualizar",
         ["BrowseFolderButton"] = "📁 Elegir carpeta...",
         ["BrowseFolderDialogTitle"] = "Selecciona la carpeta que deseas analizar y limpiar",
-        ["ChkIncludeInternalDrives"] = "Mostrar también discos duros internos del ordenador (C:\\, D:\\...)",
-        ["NoUsbDetected"] = "No hay unidades USB conectadas. Conecta un USB, marca «Mostrar discos internos» o pulsa «📁 Elegir carpeta...».",
+        ["NoUsbDetected"] = "No se han encontrado unidades disponibles.",
         ["NoLabel"] = "SIN ETIQUETA",
         ["TagUsbDrive"] = "[USB]",
         ["TagInternalDrive"] = "[DISCO LOCAL]",
@@ -39,7 +38,9 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["FolderFormatPattern"] = "[CARPETA] {0}",
 
         // Opciones de limpieza (macOS + Windows + Linux + Smart TV)
-        ["OptionsSectionTitle"] = "Configuración de Limpieza (macOS, Windows, Linux y Smart TV)",
+        ["OptionsSectionTitle"] = "Configuración de Limpieza",
+        ["BtnSelectAll"] = "☑ Elegir todo",
+        ["BtnDeselectAll"] = "☐ Desmarcar todo",
         ["BadgeMacOs"] = "macOS",
         ["BadgeWindows"] = "Windows",
         ["BadgeLinux"] = "Linux",
@@ -160,12 +161,11 @@ public sealed class LocalizationService : INotifyPropertyChanged
 
         // Selector de Unidad USB / Disco Interno / Carpeta
         ["UsbSectionTitle"] = "Target to Clean (USB Drive, Hard Disk, or Folder)",
-        ["UsbSectionSubtitle"] = "Select a removable USB drive, enable internal PC hard disks, or browse for a specific folder",
+        ["UsbSectionSubtitle"] = "Select a removable USB drive, an internal computer hard disk, or browse for a specific folder",
         ["RefreshDrivesButton"] = "Refresh",
         ["BrowseFolderButton"] = "📁 Browse folder...",
         ["BrowseFolderDialogTitle"] = "Select the folder you want to scan and clean",
-        ["ChkIncludeInternalDrives"] = "Also show internal computer hard drives (C:\\, D:\\...)",
-        ["NoUsbDetected"] = "No USB drives connected. Plug in a USB drive, check \"Also show internal hard drives\", or click \"📁 Browse folder...\".",
+        ["NoUsbDetected"] = "No available drives found.",
         ["NoLabel"] = "NO LABEL",
         ["TagUsbDrive"] = "[USB]",
         ["TagInternalDrive"] = "[LOCAL DISK]",
@@ -173,7 +173,9 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["FolderFormatPattern"] = "[FOLDER] {0}",
 
         // Opciones de limpieza (macOS + Windows + Linux + Smart TV)
-        ["OptionsSectionTitle"] = "Cleaning Configuration (macOS, Windows, Linux & Smart TV)",
+        ["OptionsSectionTitle"] = "Cleaning Configuration",
+        ["BtnSelectAll"] = "☑ Select all",
+        ["BtnDeselectAll"] = "☐ Unselect all",
         ["BadgeMacOs"] = "macOS",
         ["BadgeWindows"] = "Windows",
         ["BadgeLinux"] = "Linux",

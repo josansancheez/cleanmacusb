@@ -185,10 +185,26 @@ public partial class MainWindow : Window
 
     // ==================== SELECTOR DE USB, DISCOS INTERNOS Y CARPETAS ====================
 
-    private void ChkIncludeInternalDrives_Changed(object sender, RoutedEventArgs e)
+    private void SelectAllOptionsButton_Click(object sender, RoutedEventArgs e)
     {
-        if (!IsInitialized) return;
-        RefreshUsbDrives(isInitialLoad: false);
+        SetAllCleaningOptions(true);
+    }
+
+    private void DeselectAllOptionsButton_Click(object sender, RoutedEventArgs e)
+    {
+        SetAllCleaningOptions(false);
+    }
+
+    private void SetAllCleaningOptions(bool isChecked)
+    {
+        ChkAppleDouble.IsChecked = isChecked;
+        ChkDsStore.IsChecked = isChecked;
+        ChkSpotlightTrash.IsChecked = isChecked;
+        ChkWinCaches.IsChecked = isChecked;
+        ChkWinRecycle.IsChecked = isChecked;
+        ChkWinTempReadme.IsChecked = isChecked;
+        ChkLinuxJunk.IsChecked = isChecked;
+        ChkSmartTvJunk.IsChecked = isChecked;
     }
 
     private void BrowseFolderButton_Click(object sender, RoutedEventArgs e)
@@ -320,9 +336,9 @@ public partial class MainWindow : Window
     private void RefreshUsbDrives(bool isInitialLoad, string? preferredRoot = null)
     {
         string? targetRoot = preferredRoot ?? (UsbDrivesComboBox.SelectedItem as UsbDriveItem)?.DriveRoot;
-        bool includeInternal = ChkIncludeInternalDrives?.IsChecked == true;
 
-        var detected = UsbDriveService.GetConnectedUsbDrives(includeInternal);
+        // Mostrar directamente todas las unidades USB conectadas y los discos duros internos del ordenador
+        var detected = UsbDriveService.GetConnectedUsbDrives(includeInternalDrives: true);
         Drives.Clear();
         _knownDriveRoots.Clear();
 
