@@ -122,6 +122,8 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["LogFileDrive"] = "Origen analizado",
 
         // Alertas y expulsión segura
+        ["ConfirmCleanTitle"] = "Confirmar limpieza",
+        ["ConfirmCleanBody"] = "¿Estás seguro de que deseas iniciar la limpieza de archivos basura en la siguiente ubicación?\n\n{0}\n\nLos archivos residuales encontrados se eliminarán de forma permanente.",
         ["MsgSelectDriveTitle"] = "Ningún origen seleccionado",
         ["MsgSelectDriveBody"] = "Por favor, selecciona una unidad USB, un disco duro o elige una carpeta antes de continuar.",
         ["MsgSelectOptionTitle"] = "Sin opciones de limpieza",
@@ -259,6 +261,8 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["LogFileDrive"] = "Scanned Target",
 
         // Alertas y expulsión segura
+        ["ConfirmCleanTitle"] = "Confirm Cleaning",
+        ["ConfirmCleanBody"] = "Are you sure you want to start cleaning residual junk files in the following location?\n\n{0}\n\nFound residual files will be permanently deleted.",
         ["MsgSelectDriveTitle"] = "No Target Selected",
         ["MsgSelectDriveBody"] = "Please select a USB drive, an internal hard disk, or browse for a folder before continuing.",
         ["MsgSelectOptionTitle"] = "No Cleaning Options Selected",

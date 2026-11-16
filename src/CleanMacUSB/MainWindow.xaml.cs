@@ -316,7 +316,7 @@ public partial class MainWindow : Window
                     {
                         RestoreFromTray();
                         UsbDrivesComboBox.SelectedItem = newDrive;
-                        _ = ExecuteCleaningAsync(newDrive);
+                        _ = ExecuteCleaningAsync(newDrive, askConfirmation: false);
                     }
                 }
             }
@@ -400,7 +400,7 @@ public partial class MainWindow : Window
         await ExecuteCleaningAsync(selectedDrive);
     }
 
-    private async Task ExecuteCleaningAsync(UsbDriveItem targetDrive)
+    private async Task ExecuteCleaningAsync(UsbDriveItem targetDrive, bool askConfirmation = true)
     {
         if (_isCleaning) return;
 
@@ -424,6 +424,22 @@ public partial class MainWindow : Window
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
             return;
+        }
+
+        if (askConfirmation)
+        {
+            var confirmResult = System.Windows.MessageBox.Show(
+                this,
+                Loc.Format("ConfirmCleanBody", targetDrive.DisplayName),
+                Loc["ConfirmCleanTitle"],
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question,
+                MessageBoxResult.Yes);
+
+            if (confirmResult != MessageBoxResult.Yes)
+            {
+                return;
+            }
         }
 
         _isCleaning = true;
