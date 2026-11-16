@@ -4,6 +4,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
+using System.Windows.Media;
 using CleanMacUSB.Models;
 using CleanMacUSB.Services;
 using CleanMacUSB.Views;
@@ -43,6 +44,7 @@ public partial class MainWindow : Window
 
         InitializeLanguageSelector();
         InitializeSystemTray();
+        UpdateSettingsPanelTexts();
 
         Loc.LanguageChanged += OnLanguageChanged;
 
@@ -102,10 +104,65 @@ public partial class MainWindow : Window
             UpdateLogSummaryTexts(_lastCleanedDriveName, _lastCleanSummary);
         }
 
-        // Actualizar menú de la bandeja del sistema
+        // Actualizar textos del apartado de Ajustes y de la bandeja del sistema
+        UpdateSettingsPanelTexts();
         UpdateTrayLocalization();
 
         BottomStatusText.Text = Loc["StatusReady"];
+    }
+
+    // ==================== APARTADO DE AJUSTES (SETTINGS) ====================
+
+    private void SettingsButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_isCleaning) return;
+
+        if (SettingsPanel.Visibility == Visibility.Visible)
+        {
+            SettingsPanel.Visibility = Visibility.Collapsed;
+            MainConfigPanel.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            UpdateSettingsPanelTexts();
+            MainConfigPanel.Visibility = Visibility.Collapsed;
+            LogActivityPanel.Visibility = Visibility.Collapsed;
+            SettingsPanel.Visibility = Visibility.Visible;
+        }
+    }
+
+    private void CloseSettingsButton_Click(object sender, RoutedEventArgs e)
+    {
+        SettingsPanel.Visibility = Visibility.Collapsed;
+        MainConfigPanel.Visibility = Visibility.Visible;
+    }
+
+    private void ToggleBackgroundTray_Changed(object sender, RoutedEventArgs e)
+    {
+        UpdateTrayStatusIndicator();
+    }
+
+    private void UpdateSettingsPanelTexts()
+    {
+        if (SettingsEulaTextBox != null)
+        {
+            SettingsEulaTextBox.Text = Loc.GetEulaText();
+        }
+        UpdateTrayStatusIndicator();
+    }
+
+    private void UpdateTrayStatusIndicator()
+    {
+        if (TrayStatusIndicatorText == null || ToggleBackgroundTray == null) return;
+
+        bool isEnabled = ToggleBackgroundTray.IsChecked == true;
+        TrayStatusIndicatorText.Text = isEnabled
+            ? Loc["SettingsTrayStatusOn"]
+            : Loc["SettingsTrayStatusOff"];
+
+        TrayStatusIndicatorText.Foreground = isEnabled
+            ? new SolidColorBrush(System.Windows.Media.Color.FromRgb(22, 163, 74))   // Verde activo
+            : new SolidColorBrush(System.Windows.Media.Color.FromRgb(100, 116, 139)); // Gris inactivo
     }
 
     // ==================== DETECCIÓN AUTOMÁTICA DE USB (WM_DEVICECHANGE) ====================
@@ -151,7 +208,7 @@ public partial class MainWindow : Window
                         MessageBoxButton.YesNo,
                         MessageBoxImage.Question,
                         MessageBoxResult.Yes,
-                         System.Windows.MessageBoxOptions.DefaultDesktopOnly);
+                        System.Windows.MessageBoxOptions.DefaultDesktopOnly);
 
                     if (answer == MessageBoxResult.Yes)
                     {
@@ -249,6 +306,7 @@ public partial class MainWindow : Window
         _lastCleanSummary = null;
 
         // Mostrar pestaña / modal de Registro de Actividad (Log)
+        SettingsPanel.Visibility = Visibility.Collapsed;
         MainConfigPanel.Visibility = Visibility.Collapsed;
         LogActivityPanel.Visibility = Visibility.Visible;
 
@@ -381,6 +439,7 @@ public partial class MainWindow : Window
     private void CloseLogButton_Click(object sender, RoutedEventArgs e)
     {
         LogActivityPanel.Visibility = Visibility.Collapsed;
+        SettingsPanel.Visibility = Visibility.Collapsed;
         MainConfigPanel.Visibility = Visibility.Visible;
         RefreshUsbDrives(isInitialLoad: false);
     }

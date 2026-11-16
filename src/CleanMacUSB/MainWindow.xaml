@@ -67,7 +67,7 @@
                                TextTrimming="CharacterEllipsis" />
                 </StackPanel>
 
-                <!-- Selector de Idioma (ES / EN) + Botón Acerca de -->
+                <!-- Selector de Idioma (ES / EN) + Botón de Ajustes -->
                 <StackPanel Grid.Column="2"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
@@ -89,18 +89,23 @@
                         <ComboBoxItem Content="🇬🇧 English (EN)" Tag="en-US" />
                     </ComboBox>
 
-                    <Button Content="{Binding Loc[AboutButton]}"
+                    <Button x:Name="SettingsHeaderButton"
                             Style="{StaticResource FluentSecondaryButtonStyle}"
                             Height="34"
-                            Click="AboutButton_Click" />
+                            Click="SettingsButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚙" FontSize="14" Margin="0,-1,6,0" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding Loc[SettingsButton]}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- ==================== 2. CUERPO CENTRAL (VISTA PRINCIPAL / VISTA DE LOG) ==================== -->
+        <!-- ==================== 2. CUERPO CENTRAL (INICIO / LOG / AJUSTES) ==================== -->
         <Grid Grid.Row="1">
 
-            <!-- VISTA A: PANTALLA PRINCIPAL DE CONFIGURACIÓN Y ACCIÓN -->
+            <!-- VISTA A: PANTALLA PRINCIPAL DE LIMPIEZA Y EXPULSIÓN USB -->
             <Grid x:Name="MainConfigPanel" Visibility="Visible">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -170,120 +175,83 @@
                         BorderBrush="{StaticResource CardBorderBrush}"
                         BorderThickness="1"
                         CornerRadius="12"
-                        Padding="18,14"
+                        Padding="18,16"
                         Margin="0,0,0,14">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Grid.Row="0"
-                                   Text="{Binding Loc[OptionsSectionTitle]}"
+                    <StackPanel>
+                        <TextBlock Text="{Binding Loc[OptionsSectionTitle]}"
                                    FontSize="15"
                                    FontWeight="Bold"
                                    Foreground="{StaticResource TextPrimaryBrush}"
-                                   Margin="0,0,0,10" />
+                                   Margin="0,0,0,12" />
 
-                        <StackPanel Grid.Row="1" VerticalAlignment="Top">
-                            <!-- Opción 1: AppleDouble (._*) -->
-                            <CheckBox x:Name="ChkAppleDouble"
-                                      IsChecked="True"
-                                      Margin="0,4,0,10"
-                                      Cursor="Hand">
-                                <StackPanel Margin="6,-2,0,0">
-                                    <TextBlock Text="{Binding Loc[OptAppleDoubleTitle]}"
-                                               FontSize="13.5"
-                                               FontWeight="SemiBold"
-                                               Foreground="{StaticResource TextPrimaryBrush}" />
-                                    <TextBlock Text="{Binding Loc[OptAppleDoubleDesc]}"
-                                               FontSize="11.5"
-                                               Foreground="{StaticResource TextSecondaryBrush}"
-                                               TextWrapping="Wrap" />
-                                </StackPanel>
-                            </CheckBox>
+                        <!-- Opción 1: AppleDouble (._*) -->
+                        <CheckBox x:Name="ChkAppleDouble"
+                                  IsChecked="True"
+                                  Margin="0,4,0,14"
+                                  Cursor="Hand">
+                            <StackPanel Margin="6,-2,0,0">
+                                <TextBlock Text="{Binding Loc[OptAppleDoubleTitle]}"
+                                           FontSize="13.5"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimaryBrush}" />
+                                <TextBlock Text="{Binding Loc[OptAppleDoubleDesc]}"
+                                           FontSize="12"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,2,0,0" />
+                            </StackPanel>
+                        </CheckBox>
 
-                            <!-- Opción 2: .DS_Store -->
-                            <CheckBox x:Name="ChkDsStore"
-                                      IsChecked="True"
-                                      Margin="0,2,0,10"
-                                      Cursor="Hand">
-                                <StackPanel Margin="6,-2,0,0">
-                                    <TextBlock Text="{Binding Loc[OptDsStoreTitle]}"
-                                               FontSize="13.5"
-                                               FontWeight="SemiBold"
-                                               Foreground="{StaticResource TextPrimaryBrush}" />
-                                    <TextBlock Text="{Binding Loc[OptDsStoreDesc]}"
-                                               FontSize="11.5"
-                                               Foreground="{StaticResource TextSecondaryBrush}"
-                                               TextWrapping="Wrap" />
-                                </StackPanel>
-                            </CheckBox>
+                        <!-- Opción 2: .DS_Store -->
+                        <CheckBox x:Name="ChkDsStore"
+                                  IsChecked="True"
+                                  Margin="0,2,0,14"
+                                  Cursor="Hand">
+                            <StackPanel Margin="6,-2,0,0">
+                                <TextBlock Text="{Binding Loc[OptDsStoreTitle]}"
+                                           FontSize="13.5"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimaryBrush}" />
+                                <TextBlock Text="{Binding Loc[OptDsStoreDesc]}"
+                                           FontSize="12"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,2,0,0" />
+                            </StackPanel>
+                        </CheckBox>
 
-                            <!-- Opción 3: Spotlight, Trashes, fseventsd, TemporaryItems -->
-                            <CheckBox x:Name="ChkSpotlightTrash"
-                                      IsChecked="True"
-                                      Margin="0,2,0,10"
-                                      Cursor="Hand">
-                                <StackPanel Margin="6,-2,0,0">
-                                    <TextBlock Text="{Binding Loc[OptSpotlightTrashTitle]}"
-                                               FontSize="13.5"
-                                               FontWeight="SemiBold"
-                                               Foreground="{StaticResource TextPrimaryBrush}" />
-                                    <TextBlock Text="{Binding Loc[OptSpotlightTrashDesc]}"
-                                               FontSize="11.5"
-                                               Foreground="{StaticResource TextSecondaryBrush}"
-                                               TextWrapping="Wrap" />
-                                </StackPanel>
-                            </CheckBox>
+                        <!-- Opción 3: Spotlight, Trashes, fseventsd, TemporaryItems -->
+                        <CheckBox x:Name="ChkSpotlightTrash"
+                                  IsChecked="True"
+                                  Margin="0,2,0,16"
+                                  Cursor="Hand">
+                            <StackPanel Margin="6,-2,0,0">
+                                <TextBlock Text="{Binding Loc[OptSpotlightTrashTitle]}"
+                                           FontSize="13.5"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimaryBrush}" />
+                                <TextBlock Text="{Binding Loc[OptSpotlightTrashDesc]}"
+                                           FontSize="12"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,2,0,0" />
+                            </StackPanel>
+                        </CheckBox>
 
-                            <!-- Opción Extra: Expulsar automáticamente al terminar -->
-                            <CheckBox x:Name="ChkAutoEject"
-                                      IsChecked="False"
-                                      Margin="0,2,0,6"
-                                      Cursor="Hand">
-                                <TextBlock Text="{Binding Loc[OptAutoEjectTitle]}"
-                                           Margin="6,-1,0,0"
-                                           FontSize="13"
-                                           FontWeight="Medium"
-                                           Foreground="#0369A1" />
-                            </CheckBox>
-                        </StackPanel>
+                        <Separator Background="#E2E8F0" Margin="0,2,0,12" />
 
-                        <!-- Interruptor (Toggle) Segundo Plano / Bandeja del Sistema -->
-                        <Border Grid.Row="2"
-                                Background="#F8FAFC"
-                                BorderBrush="#E2E8F0"
-                                BorderThickness="1"
-                                CornerRadius="10"
-                                Padding="14,10"
-                                Margin="0,6,0,0">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,12,0">
-                                    <TextBlock Text="{Binding Loc[OptTrayTitle]}"
-                                               FontSize="13.5"
-                                               FontWeight="SemiBold"
-                                               Foreground="{StaticResource TextPrimaryBrush}" />
-                                    <TextBlock Text="{Binding Loc[OptTrayDesc]}"
-                                               FontSize="11.5"
-                                               Foreground="{StaticResource TextSecondaryBrush}"
-                                               TextWrapping="Wrap" />
-                                </StackPanel>
-
-                                <CheckBox x:Name="ToggleBackgroundTray"
-                                          Grid.Column="1"
-                                          IsChecked="False"
-                                          Style="{StaticResource FluentToggleSwitchStyle}"
-                                          VerticalAlignment="Center" />
-                            </Grid>
-                        </Border>
-                    </Grid>
+                        <!-- Opción Extra: Expulsar automáticamente al terminar -->
+                        <CheckBox x:Name="ChkAutoEject"
+                                  IsChecked="False"
+                                  Margin="0,2,0,0"
+                                  Cursor="Hand">
+                            <TextBlock Text="{Binding Loc[OptAutoEjectTitle]}"
+                                       Margin="6,-1,0,0"
+                                       FontSize="13.5"
+                                       FontWeight="SemiBold"
+                                       Foreground="#0369A1" />
+                        </CheckBox>
+                    </StackPanel>
                 </Border>
 
                 <!-- Botones de Acción Principales -->
@@ -413,6 +381,205 @@
                     </StackPanel>
                 </Grid>
             </Border>
+
+            <!-- VISTA C: APARTADO DE AJUSTES (SEGUNDO PLANO, VERSIÓN Y ACERCA DE) -->
+            <Border x:Name="SettingsPanel"
+                    Visibility="Collapsed"
+                    Background="{StaticResource CardBgBrush}"
+                    BorderBrush="{StaticResource CardBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="20,16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Cabecera del Apartado de Ajustes + Botón Volver -->
+                    <Grid Grid.Row="0" Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Loc[SettingsPanelTitle]}"
+                                       FontSize="17"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource TextPrimaryBrush}" />
+                            <TextBlock Text="{Binding Loc[SettingsPanelSubtitle]}"
+                                       FontSize="12"
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       Margin="0,2,0,0" />
+                        </StackPanel>
+
+                        <Button Grid.Column="1"
+                                Content="{Binding Loc[SettingsBackButton]}"
+                                Style="{StaticResource FluentPrimaryButtonStyle}"
+                                Height="36"
+                                Padding="16,0"
+                                Click="CloseSettingsButton_Click" />
+                    </Grid>
+
+                    <!-- Bloque 1: Comportamiento en Segundo Plano (Bandeja del sistema) -->
+                    <Border Grid.Row="1"
+                            Background="#F8FAFC"
+                            BorderBrush="#E2E8F0"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Padding="16,12"
+                            Margin="0,0,0,14">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Loc[SettingsGeneralHeader]}"
+                                       FontSize="13.5"
+                                       FontWeight="Bold"
+                                       Foreground="#0369A1"
+                                       Margin="0,0,0,8" />
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,14,0">
+                                    <TextBlock Text="{Binding Loc[OptTrayTitle]}"
+                                               FontSize="14"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextPrimaryBrush}" />
+                                    <TextBlock Text="{Binding Loc[OptTrayDesc]}"
+                                               FontSize="12"
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,2,0,4" />
+                                    <TextBlock x:Name="TrayStatusIndicatorText"
+                                               FontSize="11.5"
+                                               FontWeight="SemiBold"
+                                               Foreground="#64748B" />
+                                </StackPanel>
+
+                                <CheckBox x:Name="ToggleBackgroundTray"
+                                          Grid.Column="1"
+                                          IsChecked="False"
+                                          Style="{StaticResource FluentToggleSwitchStyle}"
+                                          VerticalAlignment="Center"
+                                          Checked="ToggleBackgroundTray_Changed"
+                                          Unchecked="ToggleBackgroundTray_Changed" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Bloque 2: Acerca de CleanMacUSB, Versión y Licencia EULA -->
+                    <Border Grid.Row="2"
+                            Background="#F8FAFC"
+                            BorderBrush="#E2E8F0"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Padding="16,12">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <!-- Cabecera Acerca de + Botón Ventana Completa -->
+                            <Grid Grid.Row="0" Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0"
+                                           Text="{Binding Loc[SettingsAboutSectionHeader]}"
+                                           FontSize="13.5"
+                                           FontWeight="Bold"
+                                           Foreground="#0369A1"
+                                           VerticalAlignment="Center" />
+                                <Button Grid.Column="1"
+                                        Content="{Binding Loc[SettingsViewFullEulaBtn]}"
+                                        Style="{StaticResource FluentSecondaryButtonStyle}"
+                                        Padding="10,4"
+                                        FontSize="11.5"
+                                        Click="AboutButton_Click" />
+                            </Grid>
+
+                            <!-- Ficha de Versión y Autor (Josan Sánchez) -->
+                            <Grid Grid.Row="1" Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Image Grid.Column="0"
+                                       Source="pack://application:,,,/Assets/logo.png"
+                                       Width="60"
+                                       Height="60"
+                                       Margin="0,0,14,0"
+                                       RenderOptions.BitmapScalingMode="HighQuality" />
+
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
+                                        <TextBlock Text="{Binding Loc[SettingsVersionLabel]}"
+                                                   FontWeight="SemiBold"
+                                                   FontSize="12.5"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   Margin="0,0,6,0" />
+                                        <TextBlock Text="{Binding Loc[SettingsVersionValue]}"
+                                                   FontWeight="Bold"
+                                                   FontSize="12.5"
+                                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
+                                        <TextBlock Text="{Binding Loc[SettingsLicenseTypeLabel]}"
+                                                   FontWeight="SemiBold"
+                                                   FontSize="12.5"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   Margin="0,0,6,0" />
+                                        <TextBlock Text="{Binding Loc[SettingsLicenseTypeValue]}"
+                                                   FontWeight="Bold"
+                                                   FontSize="12.5"
+                                                   Foreground="#0284C7" />
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Loc[SettingsAuthorLabel]}"
+                                                   FontWeight="SemiBold"
+                                                   FontSize="12.5"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   Margin="0,0,6,0" />
+                                        <TextBlock Text="{Binding Loc[SettingsAuthorValue]}"
+                                                   FontWeight="Bold"
+                                                   FontSize="12.5"
+                                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Cuadro del Contrato de Licencia (EULA) integrado en Ajustes -->
+                            <Border Grid.Row="2"
+                                    Background="White"
+                                    BorderBrush="#CBD5E1"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="4">
+                                <TextBox x:Name="SettingsEulaTextBox"
+                                         IsReadOnly="True"
+                                         TextWrapping="Wrap"
+                                         VerticalScrollBarVisibility="Auto"
+                                         FontFamily="Consolas"
+                                         FontSize="11"
+                                         Foreground="#334155"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         Padding="8,6" />
+                            </Border>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
         </Grid>
 
         <!-- ==================== 3. BARRA DE ESTADO INFERIOR ==================== -->
@@ -433,7 +600,7 @@
                            VerticalAlignment="Center"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock Grid.Column="1"
-                           Text="© Josan Sánchez"
+                           Text="CleanMacUSB v1.0 — © Josan Sánchez"
                            FontSize="11.5"
                            FontWeight="SemiBold"
                            Foreground="#475569"

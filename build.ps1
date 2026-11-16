@@ -46,6 +46,9 @@ if (-not $DotNetExe) {
 $CsprojPath = Join-Path $RootDir "src\CleanMacUSB\CleanMacUSB.csproj"
 $PublishDir = Join-Path $RootDir "src\CleanMacUSB\bin\Release\net8.0-windows\publish"
 
+Get-Process CleanMacUSB -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+Start-Sleep -Milliseconds 300
+
 if (Test-Path $PublishDir) {
     Remove-Item -Path $PublishDir -Recurse -Force
 }

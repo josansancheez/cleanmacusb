@@ -1,13 +1,12 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
-using System.Windows;
 
 namespace CleanMacUSB.Services;
 
 /// <summary>
 /// Sistema de internacionalización dinámico en tiempo real (es-ES / en-US).
-/// Permite cambiar todo el idioma de la interfaz, logs, diálogos y bandeja del sistema sin reiniciar.
+/// Permite cambiar todo el idioma de la interfaz, ajustes, logs, diálogos y bandeja del sistema sin reiniciar.
 /// </summary>
 public sealed class LocalizationService : INotifyPropertyChanged
 {
@@ -21,6 +20,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
     {
         ["AppTitle"] = "CleanMacUSB",
         ["AppSubtitle"] = "Limpiador nativo de archivos residuales de macOS para unidades USB",
+        ["SettingsButton"] = "Ajustes",
         ["AboutButton"] = "Acerca de",
         ["LanguageLabel"] = "Idioma:",
 
@@ -41,8 +41,24 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["OptSpotlightTrashTitle"] = "Índices de Spotlight y papelera de Mac (.Spotlight-V100, .Trashes, .fseventsd, .TemporaryItems)",
         ["OptSpotlightTrashDesc"] = "Carpetas ocultas de indexación, eventos de sistema de archivos, papeleras y temporales de macOS",
         ["OptAutoEjectTitle"] = "Expulsar automáticamente la unidad USB al terminar la limpieza",
+
+        // Apartado de Ajustes (Settings)
+        ["SettingsPanelTitle"] = "Ajustes de la Aplicación",
+        ["SettingsPanelSubtitle"] = "Configura el comportamiento en segundo plano y consulta la versión e información legal",
+        ["SettingsBackButton"] = "← Volver al inicio",
+        ["SettingsGeneralHeader"] = "Comportamiento y Sistema",
         ["OptTrayTitle"] = "Ejecutar en segundo plano (Bandeja del sistema)",
-        ["OptTrayDesc"] = "Al cerrar la ventana, permanece junto al reloj de Windows y avisa al conectar un USB nuevo",
+        ["OptTrayDesc"] = "Al cerrar la ventana, CleanMacUSB permanece activo junto al reloj de Windows y muestra un aviso automático al conectar un USB nuevo.",
+        ["SettingsTrayStatusOn"] = "Estado actual: ACTIVO (Se minimizará en la bandeja del sistema al cerrar)",
+        ["SettingsTrayStatusOff"] = "Estado actual: DESACTIVADO (La aplicación se cerrará por completo al salir)",
+        ["SettingsAboutSectionHeader"] = "Acerca de CleanMacUSB y Versión",
+        ["SettingsVersionLabel"] = "Versión instalada:",
+        ["SettingsVersionValue"] = "1.0.0 (Release 64-bit — Windows 10 / 11)",
+        ["SettingsLicenseTypeLabel"] = "Tipo de licencia:",
+        ["SettingsLicenseTypeValue"] = "Software Gratuito y Propietario (Freeware)",
+        ["SettingsAuthorLabel"] = "Desarrollador y Autor:",
+        ["SettingsAuthorValue"] = "Josan Sánchez — Todos los derechos reservados",
+        ["SettingsViewFullEulaBtn"] = "Ver licencia en ventana completa",
 
         // Botones principales
         ["BtnCleanUsb"] = "Limpiar USB ahora",
@@ -110,6 +126,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
     {
         ["AppTitle"] = "CleanMacUSB",
         ["AppSubtitle"] = "Native macOS junk & hidden file cleaner for USB flash drives",
+        ["SettingsButton"] = "Settings",
         ["AboutButton"] = "About",
         ["LanguageLabel"] = "Language:",
 
@@ -130,8 +147,24 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["OptSpotlightTrashTitle"] = "Spotlight Indexes & Mac Trash (.Spotlight-V100, .Trashes, .fseventsd, .TemporaryItems)",
         ["OptSpotlightTrashDesc"] = "Hidden macOS indexing databases, file system events, trash folders, and temporary items",
         ["OptAutoEjectTitle"] = "Automatically eject USB drive when cleaning finishes",
+
+        // Apartado de Ajustes (Settings)
+        ["SettingsPanelTitle"] = "Application Settings",
+        ["SettingsPanelSubtitle"] = "Configure background behavior and view version & legal information",
+        ["SettingsBackButton"] = "← Back to Home",
+        ["SettingsGeneralHeader"] = "Behavior & System",
         ["OptTrayTitle"] = "Run in background (System Tray)",
-        ["OptTrayDesc"] = "When closing the window, keep running near the Windows clock and notify when a new USB is plugged in",
+        ["OptTrayDesc"] = "When closing the window, CleanMacUSB stays active near the Windows clock and automatically notifies you when a new USB drive is plugged in.",
+        ["SettingsTrayStatusOn"] = "Current status: ENABLED (Will minimize to the system tray when closed)",
+        ["SettingsTrayStatusOff"] = "Current status: DISABLED (The application will exit completely when closed)",
+        ["SettingsAboutSectionHeader"] = "About CleanMacUSB & Version",
+        ["SettingsVersionLabel"] = "Installed version:",
+        ["SettingsVersionValue"] = "1.0.0 (64-bit Release — Windows 10 / 11)",
+        ["SettingsLicenseTypeLabel"] = "License type:",
+        ["SettingsLicenseTypeValue"] = "Proprietary Freeware Software",
+        ["SettingsAuthorLabel"] = "Developer & Author:",
+        ["SettingsAuthorValue"] = "Josan Sánchez — All rights reserved",
+        ["SettingsViewFullEulaBtn"] = "View license in full window",
 
         // Botones principales
         ["BtnCleanUsb"] = "Clean USB Now",
