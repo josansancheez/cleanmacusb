@@ -15,6 +15,7 @@ public sealed class CleanSummary
     public int DeletedFilesCount { get; set; }
     public int DeletedFoldersCount { get; set; }
     public long TotalBytesFreed { get; set; }
+    public bool WasAborted { get; set; }
 }
 
 /// <summary>
@@ -67,61 +68,69 @@ public static class MacJunkCleanerService
         return await Task.Run(() =>
         {
             var summary = new CleanSummary();
-            var rootDir = new DirectoryInfo(driveRoot);
-            if (!rootDir.Exists) return summary;
-
-            // Obtener subdirectorios de primer nivel para calcular progreso real
-            DirectoryInfo[] topDirs;
             try
             {
-                topDirs = rootDir.GetDirectories("*", new EnumerationOptions
+                var rootDir = new DirectoryInfo(driveRoot);
+                if (!rootDir.Exists) return summary;
+
+                // Obtener subdirectorios de primer nivel para calcular progreso real
+                DirectoryInfo[] topDirs;
+                try
                 {
-                    AttributesToSkip = 0,
-                    IgnoreInaccessible = true,
-                    RecurseSubdirectories = false
-                });
-            }
-            catch
-            {
-                topDirs = Array.Empty<DirectoryInfo>();
-            }
-
-            int totalSteps = Math.Max(1, topDirs.Length + 1);
-            int completedSteps = 0;
-
-            // 1. Limpiar archivos directamente en la raíz
-            ScanFilesInDirectory(rootDir, options, summary, logProgress, cancellationToken);
-            completedSteps++;
-            percentProgress.Report((completedSteps * 100.0) / totalSteps);
-
-            // 2. Recorrer subdirectorios de la raíz
-            foreach (var subDir in topDirs)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                if (WindowsProtectedRootDirs.Contains(subDir.Name))
+                    topDirs = rootDir.GetDirectories("*", new EnumerationOptions
+                    {
+                        AttributesToSkip = 0,
+                        IgnoreInaccessible = true,
+                        RecurseSubdirectories = false
+                    });
+                }
+                catch
                 {
-                    completedSteps++;
-                    percentProgress.Report((completedSteps * 100.0) / totalSteps);
-                    continue;
+                    topDirs = Array.Empty<DirectoryInfo>();
                 }
 
-                if (ShouldDeleteDirectory(subDir.Name, options))
-                {
-                    TryDeleteDirectoryTree(subDir, summary, logProgress);
-                }
-                else
-                {
-                    ScanDirectoryRecursive(subDir, options, summary, logProgress, cancellationToken);
-                }
+                int totalSteps = Math.Max(1, topDirs.Length + 1);
+                int completedSteps = 0;
 
+                // 1. Limpiar archivos directamente en la raíz
+                ScanFilesInDirectory(rootDir, options, summary, logProgress, cancellationToken);
                 completedSteps++;
                 percentProgress.Report((completedSteps * 100.0) / totalSteps);
-            }
 
-            percentProgress.Report(100.0);
-            return summary;
-        }, cancellationToken);
+                // 2. Recorrer subdirectorios de la raíz
+                foreach (var subDir in topDirs)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    if (WindowsProtectedRootDirs.Contains(subDir.Name))
+                    {
+                        completedSteps++;
+                        percentProgress.Report((completedSteps * 100.0) / totalSteps);
+                        continue;
+                    }
+
+                    if (ShouldDeleteDirectory(subDir.Name, options))
+                    {
+                        TryDeleteDirectoryTree(subDir, summary, logProgress);
+                    }
+                    else
+                    {
+                        ScanDirectoryRecursive(subDir, options, summary, logProgress, cancellationToken);
+                    }
+
+                    completedSteps++;
+                    percentProgress.Report((completedSteps * 100.0) / totalSteps);
+                }
+
+                percentProgress.Report(100.0);
+                return summary;
+            }
+            catch (OperationCanceledException)
+            {
+                summary.WasAborted = true;
+                return summary;
+            }
+        }, CancellationToken.None);
     }
 
     private static void ScanDirectoryRecursive(

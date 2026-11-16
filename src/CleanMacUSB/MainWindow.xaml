@@ -361,24 +361,40 @@
                                    TextWrapping="Wrap" />
                     </Border>
 
-                    <!-- Acciones al finalizar el log: Guardar registro (.txt) y Cerrar registro -->
-                    <StackPanel Grid.Row="4"
-                                Orientation="Horizontal"
-                                HorizontalAlignment="Right">
-                        <Button x:Name="SaveLogButton"
-                                Content="{Binding Loc[BtnSaveLog]}"
-                                Style="{StaticResource FluentSecondaryButtonStyle}"
-                                Height="38"
-                                Margin="0,0,10,0"
-                                Click="SaveLogButton_Click" />
+                    <!-- Acciones del log: Abortar limpieza (activo durante el escaneo), Guardar registro (.txt) y Cerrar registro -->
+                    <Grid Grid.Row="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
 
-                        <Button x:Name="CloseLogButton"
-                                Content="{Binding Loc[BtnCloseLog]}"
-                                Style="{StaticResource FluentPrimaryButtonStyle}"
+                        <Button x:Name="AbortCleanButton"
+                                Grid.Column="0"
+                                Content="{Binding Loc[BtnAbortClean]}"
+                                Style="{StaticResource FluentDangerButtonStyle}"
                                 Height="38"
-                                MinWidth="135"
-                                Click="CloseLogButton_Click" />
-                    </StackPanel>
+                                MinWidth="150"
+                                Click="AbortCleanButton_Click" />
+
+                        <StackPanel Grid.Column="2"
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Right">
+                            <Button x:Name="SaveLogButton"
+                                    Content="{Binding Loc[BtnSaveLog]}"
+                                    Style="{StaticResource FluentSecondaryButtonStyle}"
+                                    Height="38"
+                                    Margin="0,0,10,0"
+                                    Click="SaveLogButton_Click" />
+
+                            <Button x:Name="CloseLogButton"
+                                    Content="{Binding Loc[BtnCloseLog]}"
+                                    Style="{StaticResource FluentPrimaryButtonStyle}"
+                                    Height="38"
+                                    MinWidth="135"
+                                    Click="CloseLogButton_Click" />
+                        </StackPanel>
+                    </Grid>
                 </Grid>
             </Border>
 

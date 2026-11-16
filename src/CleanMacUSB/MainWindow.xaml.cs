@@ -29,6 +29,7 @@ public partial class MainWindow : Window
     private Forms.ToolStripMenuItem? _trayExitItem;
     private bool _forceExit;
     private bool _isCleaning;
+    private CancellationTokenSource? _cleanCts;
 
     private string _lastCleanedDriveName = string.Empty;
     private CleanSummary? _lastCleanSummary;
@@ -304,12 +305,15 @@ public partial class MainWindow : Window
         _isCleaning = true;
         _lastCleanedDriveName = targetDrive.DisplayName;
         _lastCleanSummary = null;
+        _cleanCts = new CancellationTokenSource();
 
         // Mostrar pestaña / modal de Registro de Actividad (Log)
         SettingsPanel.Visibility = Visibility.Collapsed;
         MainConfigPanel.Visibility = Visibility.Collapsed;
         LogActivityPanel.Visibility = Visibility.Visible;
 
+        AbortCleanButton.IsEnabled = true;
+        AbortCleanButton.Content = Loc["BtnAbortClean"];
         SaveLogButton.IsEnabled = false;
         CloseLogButton.IsEnabled = false;
         CleanProgressBar.Value = 0;
@@ -339,17 +343,28 @@ public partial class MainWindow : Window
             CleanProgressBar.Value = pct;
         });
 
+        CleanSummary? summary = null;
         try
         {
-            var summary = await MacJunkCleanerService.CleanDriveAsync(
+            summary = await MacJunkCleanerService.CleanDriveAsync(
                 targetDrive.DriveRoot,
                 options,
                 logProgress,
-                percentProgress);
+                percentProgress,
+                _cleanCts.Token);
 
             _lastCleanSummary = summary;
 
-            if (summary.DeletedFilesCount == 0 && summary.DeletedFoldersCount == 0)
+            if (summary.WasAborted)
+            {
+                LogEntries.Add(new CleanLogEntry
+                {
+                    Kind = CleanItemKind.Notice,
+                    FullPath = Loc["LogAbortedEntryMsg"],
+                    SizeBytes = 0
+                });
+            }
+            else if (summary.DeletedFilesCount == 0 && summary.DeletedFoldersCount == 0)
             {
                 LogEntries.Add(new CleanLogEntry
                 {
@@ -364,20 +379,47 @@ public partial class MainWindow : Window
         finally
         {
             _isCleaning = false;
+            _cleanCts.Dispose();
+            _cleanCts = null;
+
+            AbortCleanButton.IsEnabled = false;
+            AbortCleanButton.Content = Loc["BtnAbortClean"];
             SaveLogButton.IsEnabled = true;
             CloseLogButton.IsEnabled = true;
             RefreshUsbDrives(isInitialLoad: false);
         }
 
-        // Si el usuario marcó "Expulsar automáticamente al terminar la limpieza"
-        if (ChkAutoEject.IsChecked == true)
+        // Si el usuario marcó "Expulsar automáticamente al terminar la limpieza" y NO fue abortado
+        if (ChkAutoEject.IsChecked == true && summary != null && !summary.WasAborted)
         {
             PerformSafeEject(targetDrive);
         }
     }
 
+    private void AbortCleanButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (!_isCleaning || _cleanCts == null || _cleanCts.IsCancellationRequested)
+            return;
+
+        AbortCleanButton.IsEnabled = false;
+        AbortCleanButton.Content = Loc["BtnAbortingClean"];
+        _cleanCts.Cancel();
+    }
+
     private void UpdateLogSummaryTexts(string driveDisplay, CleanSummary summary)
     {
+        if (summary.WasAborted)
+        {
+            LogProgressStatusText.Text = Loc.Format("LogStatusAborted", driveDisplay);
+            LogSummaryTextBlock.Text = Loc.Format(
+                "LogSummaryAbortedFormat",
+                summary.DeletedFilesCount,
+                summary.DeletedFoldersCount,
+                UsbDriveItem.FormatBytes(summary.TotalBytesFreed));
+            BottomStatusText.Text = LogSummaryTextBlock.Text;
+            return;
+        }
+
         if (summary.DeletedFilesCount == 0 && summary.DeletedFoldersCount == 0)
         {
             LogProgressStatusText.Text = Loc.Format("LogStatusNothingFound", driveDisplay);
