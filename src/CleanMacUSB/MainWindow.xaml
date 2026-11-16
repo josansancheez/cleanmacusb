@@ -561,31 +561,17 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <!-- Cabecera del Apartado de Ajustes + Botón Volver -->
-                    <Grid Grid.Row="0" Margin="0,0,0,14">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding Loc[SettingsPanelTitle]}"
-                                       FontSize="17"
-                                       FontWeight="Bold"
-                                       Foreground="{StaticResource TextPrimaryBrush}" />
-                            <TextBlock Text="{Binding Loc[SettingsPanelSubtitle]}"
-                                       FontSize="12"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
-                                       Margin="0,2,0,0" />
-                        </StackPanel>
-
-                        <Button Grid.Column="1"
-                                Content="{Binding Loc[SettingsBackButton]}"
-                                Style="{StaticResource FluentPrimaryButtonStyle}"
-                                Height="36"
-                                Padding="16,0"
-                                Click="CloseSettingsButton_Click" />
-                    </Grid>
+                    <!-- Cabecera del Apartado de Ajustes -->
+                    <StackPanel Grid.Row="0" Margin="0,0,0,14" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Loc[SettingsPanelTitle]}"
+                                   FontSize="17"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                        <TextBlock Text="{Binding Loc[SettingsPanelSubtitle]}"
+                                   FontSize="12"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   Margin="0,2,0,0" />
+                    </StackPanel>
 
                     <!-- Bloque 1: Idioma y Comportamiento en Segundo Plano (Bandeja del sistema) -->
                     <Border Grid.Row="1"
