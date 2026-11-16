@@ -8,7 +8,7 @@
 
 [![Plataforma](https://img.shields.io/badge/Plataforma-Windows%2010%20%2F%2011%20(64--bit)-0284C7?style=for-the-badge&logo=windows)](https://microsoft.com)
 [![Framework](https://img.shields.io/badge/.NET-8.0%20WPF%20(Fluent%20UI)-512BD4?style=for-the-badge&logo=dotnet)](https://dotnet.microsoft.com)
-[![Instalador](https://img.shields.io/badge/Instalador-Inno%20Setup%206-16A34A?style=for-the-badge)](https://jrsoftware.org/isinfo.php)
+[![Instalador](https://img.shields.io/badge/Instalador-InstallShield%20Wizard-16A34A?style=for-the-badge)](#asistente-de-instalaci%C3%B3n-profesional-cleanmacusb_setup_v10exe)
 [![Licencia](https://img.shields.io/badge/Licencia-Freeware%20Propietario-F59E0B?style=for-the-badge)](#licencia-y-autor%C3%ADa)
 [![Autor](https://img.shields.io/badge/Desarrollado%20por-Josan%20S%C3%A1nchez-0F172A?style=for-the-badge)](#licencia-y-autor%C3%ADa)
 
@@ -70,10 +70,10 @@ CleanMacUSB organiza la limpieza en **8 categorías configurables** (para **macO
 
 ## 📦 Asistente de Instalación Profesional (`CleanMacUSB_Setup_v1.0.exe`)
 
-El proyecto incluye un instalador compilado con **Inno Setup 6** con estética clásica de **InstallShield Wizard** que guía al usuario por los siguientes pasos:
+El proyecto incluye el instalador único autónomo **`CleanMacUSB_Setup_v1.0.exe`** con estética clásica de **InstallShield Wizard**, que guía al usuario paso a paso:
 
 1. **Selector de idioma inicial** (*Español* / *English*).
-2. **Verificación automática de prerrequisitos:** Comprueba en el registro de Windows si está instalado **.NET 8 Desktop Runtime (x64)** y, si no lo encuentra, ofrece descargarlo e instalarlo automáticamente desde los servidores oficiales de Microsoft.
+2. **Verificación automática de prerrequisitos** y motor `.NET 8` integrado (funciona de forma 100 % autónoma sin necesitar descargas externas ni carpetas adicionales).
 3. **Pantalla de bienvenida personalizada** de **Josan Sánchez**.
 4. **Detección condicional de versiones previas:** Si detecta una instalación existente de CleanMacUSB en el registro, muestra una página dedicada para desinstalarla limpiamente antes de continuar; si no existe, salta la página automáticamente.
 5. **Acuerdo de Licencia (EULA) con lectura obligatoria (`GetScrollInfo`):** El botón *«Siguiente >»* y la opción *«Acepto el acuerdo»* permanecen bloqueados hasta que el usuario desplaza la barra de lectura hasta el final del contrato.
@@ -82,7 +82,7 @@ El proyecto incluye un instalador compilado con **Inno Setup 6** con estética c
 
 ---
 
-## 🗂️ Arquitectura del Repositorio
+## 🗂️ Estructura del Repositorio
 
 ```text
 CleanMacUSB/
@@ -90,21 +90,15 @@ CleanMacUSB/
 │   ├── CleanMacUSB.ico          # Icono multi-resolución (16, 32, 48, 64, 256 px) inspirado en Macintosh 1984
 │   ├── logo.png                 # Logotipo principal en alta resolución (512x512 px)
 │   ├── logo.svg                 # Diseño vectorial original del logotipo
-│   ├── wizard_image.bmp         # Banner lateral del instalador Inno Setup (164x314 px)
-│   └── wizard_small.bmp         # Insignia superior del instalador Inno Setup (55x58 px)
-├── dist/
-│   └── CleanMacUSB_Setup_v1.0.exe # Instalador final listo para distribuir
-├── installer/
-│   ├── CleanMacUSB_Setup.iss    # Script de Inno Setup 6 (Pascal Script + Win32 API)
 │   ├── EULA_ES.txt              # Contrato de Licencia de Usuario Final en Español
 │   └── EULA_EN.txt              # End-User License Agreement in English
 ├── src/CleanMacUSB/
 │   ├── Models/
 │   │   ├── CleanLogEntry.cs     # Modelo de entrada del registro de actividad en tiempo real
-│   │   └── UsbDriveItem.cs      # Modelo de unidad USB con formateo dinámico de capacidad
+│   │   └── UsbDriveItem.cs      # Modelo de unidad USB, disco interno o carpeta
 │   ├── Services/
 │   │   ├── LocalizationService.cs    # Diccionario reactivo multi-idioma (es-ES / en-US)
-│   │   ├── MacJunkCleanerService.cs  # Motor asíncrono de limpieza recursiva (macOS + Windows)
+│   │   ├── MacJunkCleanerService.cs  # Motor asíncrono de limpieza recursiva (macOS, Windows, Linux y Smart TV)
 │   │   └── UsbDriveService.cs        # Interoperabilidad Win32 (setupapi.dll / cfgmgr32.dll)
 │   ├── Views/
 │   │   ├── AboutWindow.xaml          # Ventana modal de Acerca de y Licencia EULA
@@ -114,37 +108,8 @@ CleanMacUSB/
 │   ├── CleanMacUSB.csproj            # Configuración del proyecto .NET 8 WPF (WinExe)
 │   ├── MainWindow.xaml               # Interfaz principal, Panel de Log y Panel de Ajustes
 │   └── MainWindow.xaml.cs
-├── tools/
-│   └── Generate-Assets.ps1      # Generador GDI+ de iconos multi-resolución y gráficos del instalador
-├── build.ps1                    # Pipeline automatizado de compilación Release + Inno Setup
-├── build.bat                    # Lanzador por doble clic del pipeline de compilación
-└── run.bat                      # Lanzador directo para probar la app sin instalarla
+└── CleanMacUSB_Setup_v1.0.exe   # Instalador único autónomo estilo InstallShield Wizard
 ```
-
----
-
-## 🚀 Cómo Probar y Compilar el Proyecto
-
-### 1. Probar la aplicación directamente (sin instalar)
-Haz doble clic sobre **`run.bat`** en la raíz del proyecto o ejecuta desde PowerShell:
-
-```powershell
-.\run.bat
-```
-
-### 2. Compilar desde cero la aplicación y el instalador `.exe`
-Requisitos:
-- **.NET 8.0 SDK**
-- **Inno Setup 6** (`winget install JRSoftware.InnoSetup`)
-
-Ejecuta con un doble clic sobre **`build.bat`** o desde PowerShell:
-
-```powershell
-.\build.ps1
-```
-
-El script regenerará automáticamente los iconos en `assets/`, publicará la aplicación en modo `Release` (`win-x64`) y empaquetará el instalador final en:
-👉 **`dist\CleanMacUSB_Setup_v1.0.exe`**
 
 ---
 
@@ -154,7 +119,7 @@ El script regenerará automáticamente los iconos en `assets/`, publicará la ap
 - **Autor y Titular de los Derechos:** **Josan Sánchez**
 - **Tipo de Licencia:** Software Gratuito y Propietario (*Freeware*).
   - Permitido su uso gratuito personal y profesional.
-  - Queda prohibida su venta, comercialización, modificación o redistribución con fines lucrativos sin autorización expresa del autor. Consulta los textos completos en [`installer/EULA_ES.txt`](installer/EULA_ES.txt) y [`installer/EULA_EN.txt`](installer/EULA_EN.txt).
+  - Queda prohibida su venta, comercialización, modificación o redistribución con fines lucrativos sin autorización expresa del autor. Consulta los textos completos en [`assets/EULA_ES.txt`](assets/EULA_ES.txt) y [`assets/EULA_EN.txt`](assets/EULA_EN.txt).
 
 ---
 

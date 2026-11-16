@@ -23,8 +23,8 @@
   <ItemGroup>
     <Resource Include="..\..\assets\CleanMacUSB.ico" Link="Assets\CleanMacUSB.ico" />
     <Resource Include="..\..\assets\logo.png" Link="Assets\logo.png" />
-    <Resource Include="..\..\installer\EULA_ES.txt" Link="Assets\EULA_ES.txt" />
-    <Resource Include="..\..\installer\EULA_EN.txt" Link="Assets\EULA_EN.txt" />
+    <Resource Include="..\..\assets\EULA_ES.txt" Link="Assets\EULA_ES.txt" />
+    <Resource Include="..\..\assets\EULA_EN.txt" Link="Assets\EULA_EN.txt" />
   </ItemGroup>
 
 </Project>
