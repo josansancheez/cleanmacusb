@@ -19,7 +19,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
     private readonly Dictionary<string, string> _es = new()
     {
         ["AppTitle"] = "CleanMacUSB",
-        ["AppSubtitle"] = "Limpiador nativo de archivos residuales de macOS para unidades USB",
+        ["AppSubtitle"] = "Limpiador nativo de archivos residuales de macOS y Windows para unidades USB",
         ["SettingsButton"] = "Ajustes",
         ["AboutButton"] = "Acerca de",
         ["LanguageLabel"] = "Idioma:",
@@ -32,14 +32,22 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["NoLabel"] = "SIN ETIQUETA",
         ["DriveFormatPattern"] = "{0} [{1}] — {2} libres de {3} ({4})",
 
-        // Opciones de limpieza
-        ["OptionsSectionTitle"] = "Configuración de Limpieza",
-        ["OptAppleDoubleTitle"] = "Archivos AppleDouble (._*)",
-        ["OptAppleDoubleDesc"] = "Metadatos bifurcados ocultos creados por Finder en sistemas exFAT, FAT32 y NTFS (._*, .AppleDouble)",
-        ["OptDsStoreTitle"] = "Archivos de configuración de carpetas (.DS_Store)",
+        // Opciones de limpieza (macOS + Windows)
+        ["OptionsSectionTitle"] = "Configuración de Limpieza (macOS y Windows)",
+        ["BadgeMacOs"] = "macOS",
+        ["BadgeWindows"] = "Windows",
+        ["OptAppleDoubleTitle"] = "Archivos AppleDouble de macOS (._*)",
+        ["OptAppleDoubleDesc"] = "Metadatos bifurcados ocultos creados por Finder en exFAT, FAT32 y NTFS (._*, .AppleDouble)",
+        ["OptDsStoreTitle"] = "Configuración de carpetas e iconos de Mac (.DS_Store)",
         ["OptDsStoreDesc"] = "Preferencias visuales de carpetas e iconos de volumen (.DS_Store, .VolumeIcon.icns, .apdisk)",
         ["OptSpotlightTrashTitle"] = "Índices de Spotlight y papelera de Mac (.Spotlight-V100, .Trashes, .fseventsd, .TemporaryItems)",
         ["OptSpotlightTrashDesc"] = "Carpetas ocultas de indexación, eventos de sistema de archivos, papeleras y temporales de macOS",
+        ["OptWinCacheTitle"] = "Cachés de miniaturas y vistas de Windows (Thumbs.db, desktop.ini, WPSettings.dat)",
+        ["OptWinCacheDesc"] = "Bases de datos ocultas de miniaturas del Explorador, configuración de carpetas e indexación (ehthumbs.db, IndexerVolumeGuid)",
+        ["OptWinRecycleTitle"] = "Papelera y fragmentos de recuperación de Windows ($RECYCLE.BIN, FOUND.000, *.chk)",
+        ["OptWinRecycleDesc"] = "Carpetas de papelera de reciclaje de Windows en el USB ($RECYCLE.BIN, RECYCLER) y fragmentos huérfanos de CHKDSK",
+        ["OptWinTempReadmeTitle"] = "Archivos residuales README., bloqueos y temporales (README., ~$*, *.tmp, *.bak)",
+        ["OptWinTempReadmeDesc"] = "Archivos residuales como README. / README.txt autogenerados, bloqueos ocultos de Office (~$*) y temporales (*.tmp, *.bak)",
         ["OptAutoEjectTitle"] = "Expulsar automáticamente la unidad USB al terminar la limpieza",
 
         // Apartado de Ajustes (Settings)
@@ -84,7 +92,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["LogTypeInfo"] = "INFO",
         ["LogTypeError"] = "AVISO",
         ["LogStartHeader"] = "Iniciando análisis recursivo en {0} ({1})...",
-        ["LogNoItemsMessage"] = "No se encontraron archivos ni carpetas residuales de macOS en esta unidad.",
+        ["LogNoItemsMessage"] = "No se encontraron archivos ni carpetas residuales en esta unidad.",
         ["LogAbortedEntryMsg"] = "Limpieza detenida y abortada a petición del usuario.",
         ["BtnAbortClean"] = "⏹ Abortar limpieza",
         ["BtnAbortingClean"] = "Abortando...",
@@ -101,7 +109,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["MsgSelectDriveTitle"] = "Ninguna unidad seleccionada",
         ["MsgSelectDriveBody"] = "Por favor, conecta y selecciona una unidad USB válida antes de continuar.",
         ["MsgSelectOptionTitle"] = "Sin opciones de limpieza",
-        ["MsgSelectOptionBody"] = "Marca al menos una categoría de archivos residuales de macOS para limpiar.",
+        ["MsgSelectOptionBody"] = "Marca al menos una categoría de archivos residuales para limpiar.",
         ["MsgEjectSuccessTitle"] = "Expulsión segura completada",
         ["MsgEjectSuccessBody"] = "La unidad {0} se ha desmontado y expulsado de forma segura.\nYa puedes retirar físicamente el dispositivo USB del equipo.",
         ["MsgEjectFailTitle"] = "No se pudo expulsar la unidad",
@@ -115,14 +123,14 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["TrayMinimizedTitle"] = "CleanMacUSB sigue activo",
         ["TrayMinimizedBody"] = "La aplicación permanece en la bandeja del sistema. Te avisaremos cuando conectes un USB.",
         ["TrayUsbDetectedTitle"] = "Memoria USB detectada ({0})",
-        ["TrayUsbDetectedBody"] = "Se ha conectado {0}. Haz clic aquí para limpiar los archivos ocultos de macOS.",
-        ["TrayUsbPromptQuestion"] = "Se ha detectado la unidad USB {0}.\n¿Deseas analizarla y eliminar los archivos residuales de macOS ahora mismo?",
+        ["TrayUsbDetectedBody"] = "Se ha conectado {0}. Haz clic aquí para limpiar los archivos ocultos de macOS y Windows.",
+        ["TrayUsbPromptQuestion"] = "Se ha detectado la unidad USB {0}.\n¿Deseas analizarla y eliminar los archivos residuales ahora mismo?",
 
         // Ventana Acerca de (About)
         ["AboutWindowTitle"] = "Acerca de CleanMacUSB",
         ["AboutVersionText"] = "CleanMacUSB v1.0 (Edición Windows 11 / 64-bit)",
         ["AboutCopyrightText"] = "Software gratuito y propietario (Freeware).\nDesarrollado por Josan Sánchez. Todos los derechos reservados.",
-        ["AboutDescription"] = "Utilidad nativa de alto rendimiento diseñada para erradicar archivos ocultos de macOS (._*, .DS_Store, .Spotlight-V100, .Trashes, .fseventsd, .TemporaryItems, .VolumeIcon.icns, .apdisk) y expulsar memorias USB con seguridad.",
+        ["AboutDescription"] = "Utilidad nativa de alto rendimiento diseñada para erradicar archivos ocultos de macOS (._*, .DS_Store, .Spotlight-V100, .Trashes, .fseventsd) y basura de Windows (Thumbs.db, desktop.ini, $RECYCLE.BIN, FOUND.000, README., *.tmp) en memorias USB.",
         ["AboutLicenseHeader"] = "Contrato de Licencia de Usuario Final (EULA):",
         ["AboutCloseButton"] = "Cerrar"
     };
@@ -130,7 +138,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
     private readonly Dictionary<string, string> _en = new()
     {
         ["AppTitle"] = "CleanMacUSB",
-        ["AppSubtitle"] = "Native macOS junk & hidden file cleaner for USB flash drives",
+        ["AppSubtitle"] = "Native macOS & Windows residual junk cleaner for USB flash drives",
         ["SettingsButton"] = "Settings",
         ["AboutButton"] = "About",
         ["LanguageLabel"] = "Language:",
@@ -143,14 +151,22 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["NoLabel"] = "NO LABEL",
         ["DriveFormatPattern"] = "{0} [{1}] — {2} free of {3} ({4})",
 
-        // Opciones de limpieza
-        ["OptionsSectionTitle"] = "Cleaning Configuration",
-        ["OptAppleDoubleTitle"] = "AppleDouble Resource Fork Files (._*)",
+        // Opciones de limpieza (macOS + Windows)
+        ["OptionsSectionTitle"] = "Cleaning Configuration (macOS & Windows)",
+        ["BadgeMacOs"] = "macOS",
+        ["BadgeWindows"] = "Windows",
+        ["OptAppleDoubleTitle"] = "macOS AppleDouble Resource Fork Files (._*)",
         ["OptAppleDoubleDesc"] = "Hidden resource fork metadata created by macOS Finder on exFAT, FAT32, and NTFS drives (._*, .AppleDouble)",
-        ["OptDsStoreTitle"] = "Folder View Settings & Icons (.DS_Store)",
+        ["OptDsStoreTitle"] = "Mac Folder View Settings & Icons (.DS_Store)",
         ["OptDsStoreDesc"] = "Desktop Services Store files and custom volume metadata (.DS_Store, .VolumeIcon.icns, .apdisk)",
-        ["OptSpotlightTrashTitle"] = "Spotlight Indexes & Mac Trash (.Spotlight-V100, .Trashes, .fseventsd, .TemporaryItems)",
+        ["OptSpotlightTrashTitle"] = "Mac Spotlight Indexes & Trash (.Spotlight-V100, .Trashes, .fseventsd, .TemporaryItems)",
         ["OptSpotlightTrashDesc"] = "Hidden macOS indexing databases, file system events, trash folders, and temporary items",
+        ["OptWinCacheTitle"] = "Windows Thumbnail Caches & Folder Settings (Thumbs.db, desktop.ini, WPSettings.dat)",
+        ["OptWinCacheDesc"] = "Hidden Windows Explorer thumbnail databases, custom folder view settings, and volume indexing files (ehthumbs.db, IndexerVolumeGuid)",
+        ["OptWinRecycleTitle"] = "Windows Recycle Bin & Recovery Fragments ($RECYCLE.BIN, FOUND.000, *.chk)",
+        ["OptWinRecycleDesc"] = "Hidden Windows Recycle Bin folders on USB drives ($RECYCLE.BIN, RECYCLER) and orphaned CHKDSK recovery fragments",
+        ["OptWinTempReadmeTitle"] = "Residual README., Office Locks & Temp Files (README., ~$*, *.tmp, *.bak)",
+        ["OptWinTempReadmeDesc"] = "Auto-generated README. / README.txt files, hidden Office lock files (~$*), and temporary/backup junk (*.tmp, *.bak)",
         ["OptAutoEjectTitle"] = "Automatically eject USB drive when cleaning finishes",
 
         // Apartado de Ajustes (Settings)
@@ -195,7 +211,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["LogTypeInfo"] = "INFO",
         ["LogTypeError"] = "NOTICE",
         ["LogStartHeader"] = "Starting recursive scan on {0} ({1})...",
-        ["LogNoItemsMessage"] = "No residual macOS files or folders were found on this drive.",
+        ["LogNoItemsMessage"] = "No residual macOS or Windows junk files were found on this drive.",
         ["LogAbortedEntryMsg"] = "Cleaning stopped and aborted at user request.",
         ["BtnAbortClean"] = "⏹ Abort Cleaning",
         ["BtnAbortingClean"] = "Aborting...",
@@ -212,7 +228,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["MsgSelectDriveTitle"] = "No USB Drive Selected",
         ["MsgSelectDriveBody"] = "Please connect and select a valid USB drive before continuing.",
         ["MsgSelectOptionTitle"] = "No Cleaning Options Selected",
-        ["MsgSelectOptionBody"] = "Please check at least one category of residual macOS files to clean.",
+        ["MsgSelectOptionBody"] = "Please check at least one category of residual files to clean.",
         ["MsgEjectSuccessTitle"] = "Safe Eject Completed",
         ["MsgEjectSuccessBody"] = "Drive {0} has been safely dismounted and ejected.\nYou can now physically remove the USB device from your computer.",
         ["MsgEjectFailTitle"] = "Could Not Eject Drive",
@@ -226,14 +242,14 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["TrayMinimizedTitle"] = "CleanMacUSB is still running",
         ["TrayMinimizedBody"] = "The application stays minimized in the system tray. We will notify you when a new USB drive is plugged in.",
         ["TrayUsbDetectedTitle"] = "USB Flash Drive Detected ({0})",
-        ["TrayUsbDetectedBody"] = "Drive {0} was plugged in. Click here to clean hidden macOS junk files.",
-        ["TrayUsbPromptQuestion"] = "USB drive {0} was just connected.\nWould you like to scan it and clean residual macOS files right now?",
+        ["TrayUsbDetectedBody"] = "Drive {0} was plugged in. Click here to clean hidden macOS & Windows junk files.",
+        ["TrayUsbPromptQuestion"] = "USB drive {0} was just connected.\nWould you like to scan it and clean residual files right now?",
 
         // Ventana Acerca de (About)
         ["AboutWindowTitle"] = "About CleanMacUSB",
         ["AboutVersionText"] = "CleanMacUSB v1.0 (Windows 11 / 64-bit Edition)",
         ["AboutCopyrightText"] = "Freeware & Proprietary Software.\nDeveloped by Josan Sánchez. All rights reserved.",
-        ["AboutDescription"] = "High-performance native utility designed to eradicate hidden macOS files (._*, .DS_Store, .Spotlight-V100, .Trashes, .fseventsd, .TemporaryItems, .VolumeIcon.icns, .apdisk) and safely eject USB drives.",
+        ["AboutDescription"] = "High-performance native utility designed to eradicate hidden macOS files (._*, .DS_Store, .Spotlight-V100, .Trashes, .fseventsd) and Windows junk (Thumbs.db, desktop.ini, $RECYCLE.BIN, FOUND.000, README., *.tmp) on USB drives.",
         ["AboutLicenseHeader"] = "End-User License Agreement (EULA):",
         ["AboutCloseButton"] = "Close"
     };

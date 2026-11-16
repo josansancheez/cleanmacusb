@@ -290,8 +290,12 @@ public partial class MainWindow : Window
         bool cleanAppleDouble = ChkAppleDouble.IsChecked == true;
         bool cleanDsStore = ChkDsStore.IsChecked == true;
         bool cleanSpotlight = ChkSpotlightTrash.IsChecked == true;
+        bool cleanWinCaches = ChkWinCaches.IsChecked == true;
+        bool cleanWinRecycle = ChkWinRecycle.IsChecked == true;
+        bool cleanWinTempReadme = ChkWinTempReadme.IsChecked == true;
 
-        if (!cleanAppleDouble && !cleanDsStore && !cleanSpotlight)
+        if (!cleanAppleDouble && !cleanDsStore && !cleanSpotlight &&
+            !cleanWinCaches && !cleanWinRecycle && !cleanWinTempReadme)
         {
             System.Windows.MessageBox.Show(
                 this,
@@ -326,7 +330,10 @@ public partial class MainWindow : Window
         {
             CleanAppleDouble = cleanAppleDouble,
             CleanDsStore = cleanDsStore,
-            CleanSpotlightAndTrash = cleanSpotlight
+            CleanSpotlightAndTrash = cleanSpotlight,
+            CleanWindowsCaches = cleanWinCaches,
+            CleanWindowsRecycleAndFound = cleanWinRecycle,
+            CleanWindowsTempAndReadme = cleanWinTempReadme
         };
 
         var logProgress = new Progress<CleanLogEntry>(entry =>

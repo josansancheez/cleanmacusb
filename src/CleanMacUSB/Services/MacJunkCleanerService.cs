@@ -5,9 +5,15 @@ namespace CleanMacUSB.Services;
 
 public sealed class CleanOptions
 {
+    // Categorías de macOS
     public bool CleanAppleDouble { get; init; } = true;
     public bool CleanDsStore { get; init; } = true;
     public bool CleanSpotlightAndTrash { get; init; } = true;
+
+    // Categorías de Windows y archivos residuales adicionales
+    public bool CleanWindowsCaches { get; init; } = true;
+    public bool CleanWindowsRecycleAndFound { get; init; } = true;
+    public bool CleanWindowsTempAndReadme { get; init; } = true;
 }
 
 public sealed class CleanSummary
@@ -19,18 +25,11 @@ public sealed class CleanSummary
 }
 
 /// <summary>
-/// Motor de escaneo y limpieza recursiva de archivos y carpetas residuales de macOS.
+/// Motor de escaneo y limpieza recursiva de archivos y carpetas residuales de macOS y Windows.
 /// Soporta atributos Hidden, System y ReadOnly en unidades FAT32, exFAT y NTFS.
 /// </summary>
 public static class MacJunkCleanerService
 {
-    private static readonly HashSet<string> WindowsProtectedRootDirs = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "System Volume Information",
-        "$RECYCLE.BIN",
-        "FOUND.000"
-    };
-
     private static readonly HashSet<string> AppleDoubleFolderNames = new(StringComparer.OrdinalIgnoreCase)
     {
         ".AppleDouble",
@@ -56,6 +55,30 @@ public static class MacJunkCleanerService
         ".DocumentRevisions-V100",
         ".PKInstallSandboxManager",
         ".PKInstallSandboxManager-SystemSoftware"
+    };
+
+    private static readonly HashSet<string> WindowsCacheFileNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Thumbs.db",
+        "ehthumbs.db",
+        "ehthumbs_vista.db",
+        "desktop.ini",
+        "WPSettings.dat",
+        "IndexerVolumeGuid"
+    };
+
+    private static readonly HashSet<string> WindowsRecycleDirNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "$RECYCLE.BIN",
+        "RECYCLER",
+        "RECYCLED"
+    };
+
+    private static readonly HashSet<string> ReadmeResidualFileNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "README.",
+        "README",
+        "README.txt"
     };
 
     public static async Task<CleanSummary> CleanDriveAsync(
@@ -102,8 +125,13 @@ public static class MacJunkCleanerService
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    if (WindowsProtectedRootDirs.Contains(subDir.Name))
+                    // System Volume Information: no eliminar la carpeta del sistema en sí, pero limpiar WPSettings.dat / IndexerVolumeGuid dentro si CleanWindowsCaches está activo
+                    if (string.Equals(subDir.Name, "System Volume Information", StringComparison.OrdinalIgnoreCase))
                     {
+                        if (options.CleanWindowsCaches)
+                        {
+                            ScanFilesInDirectory(subDir, options, summary, logProgress, cancellationToken);
+                        }
                         completedSteps++;
                         percentProgress.Report((completedSteps * 100.0) / totalSteps);
                         continue;
@@ -113,7 +141,7 @@ public static class MacJunkCleanerService
                     {
                         TryDeleteDirectoryTree(subDir, summary, logProgress);
                     }
-                    else
+                    else if (!IsSkippedSystemFolder(subDir.Name, options))
                     {
                         ScanDirectoryRecursive(subDir, options, summary, logProgress, cancellationToken);
                     }
@@ -131,6 +159,28 @@ public static class MacJunkCleanerService
                 return summary;
             }
         }, CancellationToken.None);
+    }
+
+    private static bool IsSkippedSystemFolder(string dirName, CleanOptions options)
+    {
+        if (!options.CleanWindowsRecycleAndFound)
+        {
+            if (WindowsRecycleDirNames.Contains(dirName) || IsFoundChkFolder(dirName))
+                return true;
+        }
+        return false;
+    }
+
+    private static bool IsFoundChkFolder(string dirName)
+    {
+        if (!dirName.StartsWith("FOUND.", StringComparison.OrdinalIgnoreCase) || dirName.Length < 7)
+            return false;
+
+        for (int i = 6; i < dirName.Length; i++)
+        {
+            if (!char.IsDigit(dirName[i])) return false;
+        }
+        return true;
     }
 
     private static void ScanDirectoryRecursive(
@@ -211,29 +261,62 @@ public static class MacJunkCleanerService
 
     private static bool ShouldDeleteFile(string fileName, CleanOptions options)
     {
+        // 1. macOS AppleDouble (._*)
         if (options.CleanAppleDouble && fileName.StartsWith("._", StringComparison.OrdinalIgnoreCase))
             return true;
 
+        // 2. macOS .DS_Store, .VolumeIcon.icns, .apdisk
         if (options.CleanDsStore && DsStoreFileNames.Contains(fileName))
             return true;
 
+        // 3. macOS Spotlight / Trashes / fseventsd / TemporaryItems
         if (options.CleanSpotlightAndTrash &&
             (SpotlightAndTrashNames.Contains(fileName) || fileName.StartsWith(".Trash-", StringComparison.OrdinalIgnoreCase)))
             return true;
+
+        // 4. Windows Caches (Thumbs.db, ehthumbs.db, desktop.ini, WPSettings.dat, IndexerVolumeGuid)
+        if (options.CleanWindowsCaches && WindowsCacheFileNames.Contains(fileName))
+            return true;
+
+        // 5. Windows CHKDSK fragments (*.chk)
+        if (options.CleanWindowsRecycleAndFound && fileName.EndsWith(".chk", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        // 6. Residual README., Office locks (~$*), and temp/backup files (*.tmp, *.bak)
+        if (options.CleanWindowsTempAndReadme)
+        {
+            if (ReadmeResidualFileNames.Contains(fileName))
+                return true;
+
+            if (fileName.StartsWith("~$", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (fileName.EndsWith(".tmp", StringComparison.OrdinalIgnoreCase) ||
+                fileName.EndsWith(".bak", StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
 
         return false;
     }
 
     private static bool ShouldDeleteDirectory(string dirName, CleanOptions options)
     {
+        // 1. macOS AppleDouble folders
         if (options.CleanAppleDouble && AppleDoubleFolderNames.Contains(dirName))
             return true;
 
+        // 2. macOS Spotlight & Trash folders
         if (options.CleanSpotlightAndTrash &&
             (SpotlightAndTrashNames.Contains(dirName) || dirName.StartsWith(".Trash-", StringComparison.OrdinalIgnoreCase)))
             return true;
 
+        // 3. macOS .apdisk
         if (options.CleanDsStore && string.Equals(dirName, ".apdisk", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        // 4. Windows Recycle Bin ($RECYCLE.BIN, RECYCLER, RECYCLED) & CHKDSK FOUND.000
+        if (options.CleanWindowsRecycleAndFound &&
+            (WindowsRecycleDirNames.Contains(dirName) || IsFoundChkFolder(dirName)))
             return true;
 
         return false;
@@ -302,7 +385,7 @@ public static class MacJunkCleanerService
     }
 
     /// <summary>
-    /// Calcula el tamaño total de una carpeta residual de macOS y normaliza los atributos
+    /// Calcula el tamaño total de una carpeta residual y normaliza los atributos
     /// ReadOnly / Hidden / System de todos sus elementos internos para garantizar su eliminación.
     /// </summary>
     private static long NormalizeAndCalculateDirectorySize(DirectoryInfo dir)
