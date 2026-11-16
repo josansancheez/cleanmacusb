@@ -143,11 +143,13 @@ public static class UsbDriveService
         uint ulFlags);
 
     /// <summary>
-    /// Obtiene todas las unidades extraíbles (Removable) y discos externos conectados por bus USB.
+    /// Obtiene todas las unidades extraíbles (Removable) y discos externos conectados por bus USB,
+    /// y opcionalmente los discos duros internos del ordenador.
     /// </summary>
-    public static List<UsbDriveItem> GetConnectedUsbDrives()
+    public static List<UsbDriveItem> GetConnectedUsbDrives(bool includeInternalDrives = false)
     {
-        var list = new List<UsbDriveItem>();
+        var usbList = new List<UsbDriveItem>();
+        var internalList = new List<UsbDriveItem>();
 
         foreach (var drive in DriveInfo.GetDrives())
         {
@@ -155,25 +157,39 @@ public static class UsbDriveService
             {
                 if (!drive.IsReady) continue;
 
-                // No incluir nunca la unidad del sistema operativo
                 var sysRoot = Path.GetPathRoot(Environment.SystemDirectory);
-                if (string.Equals(drive.Name, sysRoot, StringComparison.OrdinalIgnoreCase))
-                    continue;
+                bool isSystemDrive = string.Equals(drive.Name, sysRoot, StringComparison.OrdinalIgnoreCase);
 
-                bool isUsbOrRemovable = drive.DriveType == DriveType.Removable ||
-                                        (drive.DriveType == DriveType.Fixed && IsDriveOnUsbBus(drive.Name[0]));
+                bool isUsbOrRemovable = !isSystemDrive &&
+                                        (drive.DriveType == DriveType.Removable ||
+                                         (drive.DriveType == DriveType.Fixed && IsDriveOnUsbBus(drive.Name[0])));
 
-                if (!isUsbOrRemovable) continue;
-
-                list.Add(new UsbDriveItem
+                if (isUsbOrRemovable)
                 {
-                    DriveRoot = drive.Name,
-                    DriveLetter = char.ToUpperInvariant(drive.Name[0]),
-                    VolumeLabel = SafeGetVolumeLabel(drive),
-                    FileSystem = SafeGetDriveFormat(drive),
-                    TotalBytes = drive.TotalSize,
-                    FreeBytes = drive.AvailableFreeSpace
-                });
+                    usbList.Add(new UsbDriveItem
+                    {
+                        TargetKind = CleanTargetKind.UsbDrive,
+                        DriveRoot = drive.Name,
+                        DriveLetter = char.ToUpperInvariant(drive.Name[0]),
+                        VolumeLabel = SafeGetVolumeLabel(drive),
+                        FileSystem = SafeGetDriveFormat(drive),
+                        TotalBytes = drive.TotalSize,
+                        FreeBytes = drive.AvailableFreeSpace
+                    });
+                }
+                else if (includeInternalDrives && drive.DriveType == DriveType.Fixed)
+                {
+                    internalList.Add(new UsbDriveItem
+                    {
+                        TargetKind = CleanTargetKind.InternalDrive,
+                        DriveRoot = drive.Name,
+                        DriveLetter = char.ToUpperInvariant(drive.Name[0]),
+                        VolumeLabel = SafeGetVolumeLabel(drive),
+                        FileSystem = SafeGetDriveFormat(drive),
+                        TotalBytes = drive.TotalSize,
+                        FreeBytes = drive.AvailableFreeSpace
+                    });
+                }
             }
             catch
             {
@@ -181,7 +197,8 @@ public static class UsbDriveService
             }
         }
 
-        return list;
+        usbList.AddRange(internalList);
+        return usbList;
     }
 
     private static string SafeGetVolumeLabel(DriveInfo drive)

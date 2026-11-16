@@ -23,6 +23,7 @@ public partial class MainWindow : Window
     public ObservableCollection<UsbDriveItem> Drives { get; } = new();
     public ObservableCollection<CleanLogEntry> LogEntries { get; } = new();
 
+    private readonly List<UsbDriveItem> _customFolders = new();
     private Forms.NotifyIcon? _notifyIcon;
     private Forms.ToolStripMenuItem? _trayOpenItem;
     private Forms.ToolStripMenuItem? _trayCleanItem;
@@ -77,7 +78,7 @@ public partial class MainWindow : Window
 
     private void OnLanguageChanged(object? sender, EventArgs e)
     {
-        // Actualizar textos de unidades USB en tiempo real
+        // Actualizar textos de unidades/carpetas en tiempo real
         foreach (var d in Drives)
         {
             d.RefreshLocalization();
@@ -112,7 +113,7 @@ public partial class MainWindow : Window
         BottomStatusText.Text = Loc["StatusReady"];
     }
 
-    // ==================== APARTADO DE AJUSTES (SETTINGS) ====================
+    // ==================== APARTADO DE AJUSTES (CON SOMBREADO DE BOTÓN ACTIVO) ====================
 
     private void SettingsButton_Click(object sender, RoutedEventArgs e)
     {
@@ -130,12 +131,28 @@ public partial class MainWindow : Window
             LogActivityPanel.Visibility = Visibility.Collapsed;
             SettingsPanel.Visibility = Visibility.Visible;
         }
+
+        UpdateSettingsButtonVisualState();
     }
 
     private void CloseSettingsButton_Click(object sender, RoutedEventArgs e)
     {
         SettingsPanel.Visibility = Visibility.Collapsed;
         MainConfigPanel.Visibility = Visibility.Visible;
+        UpdateSettingsButtonVisualState();
+    }
+
+    /// <summary>
+    /// Aplica estilo sombreado/activo al botón Ajustes cuando el usuario se encuentra dentro del apartado de Ajustes.
+    /// </summary>
+    private void UpdateSettingsButtonVisualState()
+    {
+        bool isSettingsActive = SettingsPanel.Visibility == Visibility.Visible;
+        string styleKey = isSettingsActive ? "FluentActiveHeaderButtonStyle" : "FluentSecondaryButtonStyle";
+        if (TryFindResource(styleKey) is Style targetStyle)
+        {
+            SettingsHeaderButton.Style = targetStyle;
+        }
     }
 
     private void ToggleBackgroundTray_Changed(object sender, RoutedEventArgs e)
@@ -166,6 +183,72 @@ public partial class MainWindow : Window
             : new SolidColorBrush(System.Windows.Media.Color.FromRgb(100, 116, 139)); // Gris inactivo
     }
 
+    // ==================== SELECTOR DE USB, DISCOS INTERNOS Y CARPETAS ====================
+
+    private void ChkIncludeInternalDrives_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!IsInitialized) return;
+        RefreshUsbDrives(isInitialLoad: false);
+    }
+
+    private void BrowseFolderButton_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFolderDialog
+        {
+            Title = Loc["BrowseFolderDialogTitle"],
+            Multiselect = false
+        };
+
+        if (dialog.ShowDialog(this) == true && !string.IsNullOrWhiteSpace(dialog.FolderName))
+        {
+            string selectedPath = dialog.FolderName;
+            var existing = _customFolders.FirstOrDefault(f =>
+                string.Equals(f.DriveRoot, selectedPath, StringComparison.OrdinalIgnoreCase));
+
+            if (existing == null)
+            {
+                existing = new UsbDriveItem
+                {
+                    TargetKind = CleanTargetKind.CustomFolder,
+                    DriveRoot = selectedPath,
+                    DriveLetter = char.ToUpperInvariant(selectedPath[0]),
+                    VolumeLabel = Path.GetFileName(selectedPath.TrimEnd(Path.DirectorySeparatorChar)),
+                    FileSystem = "Folder"
+                };
+                _customFolders.Insert(0, existing);
+            }
+
+            RefreshUsbDrives(isInitialLoad: false, preferredRoot: selectedPath);
+            BottomStatusText.Text = Loc.Format("StatusFolderSelected", selectedPath);
+        }
+    }
+
+    private void UsbDrivesComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        UpdateActionButtonsForSelection();
+    }
+
+    private void UpdateActionButtonsForSelection()
+    {
+        if (!IsInitialized) return;
+
+        if (UsbDrivesComboBox.SelectedItem is UsbDriveItem selected)
+        {
+            CleanUsbButton.IsEnabled = !_isCleaning;
+            EjectUsbButton.IsEnabled = !_isCleaning && selected.CanEject;
+            ChkAutoEject.IsEnabled = selected.CanEject;
+            if (!selected.CanEject)
+            {
+                ChkAutoEject.IsChecked = false;
+            }
+        }
+        else
+        {
+            CleanUsbButton.IsEnabled = false;
+            EjectUsbButton.IsEnabled = false;
+        }
+    }
+
     // ==================== DETECCIÓN AUTOMÁTICA DE USB (WM_DEVICECHANGE) ====================
 
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -188,7 +271,9 @@ public partial class MainWindow : Window
 
         if (isArrival)
         {
-            var newDrive = Drives.FirstOrDefault(d => !previousRoots.Contains(d.DriveRoot));
+            var newDrive = Drives.FirstOrDefault(d =>
+                d.TargetKind == CleanTargetKind.UsbDrive && !previousRoots.Contains(d.DriveRoot));
+
             if (newDrive != null)
             {
                 UsbDrivesComboBox.SelectedItem = newDrive;
@@ -232,37 +317,53 @@ public partial class MainWindow : Window
         BottomStatusText.Text = Loc.Format("StatusDrivesUpdated", Drives.Count);
     }
 
-    private void RefreshUsbDrives(bool isInitialLoad)
+    private void RefreshUsbDrives(bool isInitialLoad, string? preferredRoot = null)
     {
-        string? previousSelectedRoot = (UsbDrivesComboBox.SelectedItem as UsbDriveItem)?.DriveRoot;
+        string? targetRoot = preferredRoot ?? (UsbDrivesComboBox.SelectedItem as UsbDriveItem)?.DriveRoot;
+        bool includeInternal = ChkIncludeInternalDrives?.IsChecked == true;
 
-        var detected = UsbDriveService.GetConnectedUsbDrives();
+        var detected = UsbDriveService.GetConnectedUsbDrives(includeInternal);
         Drives.Clear();
         _knownDriveRoots.Clear();
 
+        // 1. Añadir unidades USB y discos internos detectados
         foreach (var drive in detected)
         {
             Drives.Add(drive);
-            _knownDriveRoots.Add(drive.DriveRoot);
+            if (drive.TargetKind == CleanTargetKind.UsbDrive)
+            {
+                _knownDriveRoots.Add(drive.DriveRoot);
+            }
+        }
+
+        // 2. Añadir carpetas personalizadas que sigan existiendo en disco
+        foreach (var folder in _customFolders.ToList())
+        {
+            if (Directory.Exists(folder.DriveRoot))
+            {
+                Drives.Add(folder);
+            }
+            else
+            {
+                _customFolders.Remove(folder);
+            }
         }
 
         if (Drives.Count > 0)
         {
             NoDrivesWarningText.Visibility = Visibility.Collapsed;
             UsbDrivesComboBox.IsEnabled = true;
-            CleanUsbButton.IsEnabled = !_isCleaning;
-            EjectUsbButton.IsEnabled = !_isCleaning;
 
-            var match = Drives.FirstOrDefault(d => string.Equals(d.DriveRoot, previousSelectedRoot, StringComparison.OrdinalIgnoreCase));
+            var match = Drives.FirstOrDefault(d => string.Equals(d.DriveRoot, targetRoot, StringComparison.OrdinalIgnoreCase));
             UsbDrivesComboBox.SelectedItem = match ?? Drives[0];
         }
         else
         {
             NoDrivesWarningText.Visibility = Visibility.Visible;
             UsbDrivesComboBox.IsEnabled = false;
-            CleanUsbButton.IsEnabled = false;
-            EjectUsbButton.IsEnabled = false;
         }
+
+        UpdateActionButtonsForSelection();
     }
 
     // ==================== LIMPIEZA RECURSIVA Y LOG EN TIEMPO REAL ====================
@@ -293,9 +394,12 @@ public partial class MainWindow : Window
         bool cleanWinCaches = ChkWinCaches.IsChecked == true;
         bool cleanWinRecycle = ChkWinRecycle.IsChecked == true;
         bool cleanWinTempReadme = ChkWinTempReadme.IsChecked == true;
+        bool cleanLinux = ChkLinuxJunk.IsChecked == true;
+        bool cleanSmartTv = ChkSmartTvJunk.IsChecked == true;
 
         if (!cleanAppleDouble && !cleanDsStore && !cleanSpotlight &&
-            !cleanWinCaches && !cleanWinRecycle && !cleanWinTempReadme)
+            !cleanWinCaches && !cleanWinRecycle && !cleanWinTempReadme &&
+            !cleanLinux && !cleanSmartTv)
         {
             System.Windows.MessageBox.Show(
                 this,
@@ -315,6 +419,7 @@ public partial class MainWindow : Window
         SettingsPanel.Visibility = Visibility.Collapsed;
         MainConfigPanel.Visibility = Visibility.Collapsed;
         LogActivityPanel.Visibility = Visibility.Visible;
+        UpdateSettingsButtonVisualState();
 
         AbortCleanButton.IsEnabled = true;
         AbortCleanButton.Content = Loc["BtnAbortClean"];
@@ -333,7 +438,9 @@ public partial class MainWindow : Window
             CleanSpotlightAndTrash = cleanSpotlight,
             CleanWindowsCaches = cleanWinCaches,
             CleanWindowsRecycleAndFound = cleanWinRecycle,
-            CleanWindowsTempAndReadme = cleanWinTempReadme
+            CleanWindowsTempAndReadme = cleanWinTempReadme,
+            CleanLinuxJunk = cleanLinux,
+            CleanSmartTvJunk = cleanSmartTv
         };
 
         var logProgress = new Progress<CleanLogEntry>(entry =>
@@ -393,11 +500,11 @@ public partial class MainWindow : Window
             AbortCleanButton.Content = Loc["BtnAbortClean"];
             SaveLogButton.IsEnabled = true;
             CloseLogButton.IsEnabled = true;
-            RefreshUsbDrives(isInitialLoad: false);
+            RefreshUsbDrives(isInitialLoad: false, preferredRoot: targetDrive.DriveRoot);
         }
 
-        // Si el usuario marcó "Expulsar automáticamente al terminar la limpieza" y NO fue abortado
-        if (ChkAutoEject.IsChecked == true && summary != null && !summary.WasAborted)
+        // Si el usuario marcó "Expulsar automáticamente al terminar la limpieza", es un USB y NO fue abortado
+        if (ChkAutoEject.IsChecked == true && targetDrive.CanEject && summary != null && !summary.WasAborted)
         {
             PerformSafeEject(targetDrive);
         }
@@ -490,6 +597,7 @@ public partial class MainWindow : Window
         LogActivityPanel.Visibility = Visibility.Collapsed;
         SettingsPanel.Visibility = Visibility.Collapsed;
         MainConfigPanel.Visibility = Visibility.Visible;
+        UpdateSettingsButtonVisualState();
         RefreshUsbDrives(isInitialLoad: false);
     }
 
@@ -505,6 +613,17 @@ public partial class MainWindow : Window
                 Loc["MsgSelectDriveTitle"],
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
+            return;
+        }
+
+        if (!selectedDrive.CanEject)
+        {
+            System.Windows.MessageBox.Show(
+                this,
+                Loc["MsgEjectOnlyUsbBody"],
+                Loc["MsgEjectOnlyUsbTitle"],
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
             return;
         }
 

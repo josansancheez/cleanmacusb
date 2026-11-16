@@ -3,17 +3,27 @@ using CleanMacUSB.Services;
 
 namespace CleanMacUSB.Models;
 
+public enum CleanTargetKind
+{
+    UsbDrive,
+    InternalDrive,
+    CustomFolder
+}
+
 /// <summary>
-/// Representa una unidad USB extraíble o disco externo conectado al sistema.
+/// Representa un destino de limpieza: Unidad USB extraíble, Disco duro interno o Carpeta específica.
 /// </summary>
 public sealed class UsbDriveItem : INotifyPropertyChanged
 {
-    public string DriveRoot { get; init; } = string.Empty;      // Ej. "E:\"
+    public CleanTargetKind TargetKind { get; init; } = CleanTargetKind.UsbDrive;
+    public string DriveRoot { get; init; } = string.Empty;      // Ej. "E:\" o "C:\Users\...\MiCarpeta"
     public char DriveLetter { get; init; }                      // Ej. 'E'
-    public string VolumeLabel { get; init; } = string.Empty;    // Ej. "MI_USB"
-    public string FileSystem { get; init; } = string.Empty;     // Ej. "exFAT"
+    public string VolumeLabel { get; init; } = string.Empty;    // Ej. "MI_USB" o nombre de la carpeta
+    public string FileSystem { get; init; } = string.Empty;     // Ej. "exFAT", "NTFS", "Carpeta"
     public long TotalBytes { get; init; }
     public long FreeBytes { get; init; }
+
+    public bool CanEject => TargetKind == CleanTargetKind.UsbDrive;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -22,8 +32,18 @@ public sealed class UsbDriveItem : INotifyPropertyChanged
         get
         {
             var loc = LocalizationService.Instance;
+
+            if (TargetKind == CleanTargetKind.CustomFolder)
+            {
+                return loc.Format("FolderFormatPattern", DriveRoot);
+            }
+
+            string prefix = TargetKind == CleanTargetKind.UsbDrive
+                ? loc["TagUsbDrive"]
+                : loc["TagInternalDrive"];
+
             var label = string.IsNullOrWhiteSpace(VolumeLabel) ? loc["NoLabel"] : VolumeLabel;
-            return loc.Format(
+            return $"{prefix} " + loc.Format(
                 "DriveFormatPattern",
                 DriveRoot,
                 label,

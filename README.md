@@ -34,7 +34,7 @@ Aunque en el ordenador a veces pasan desapercibidos, **estos archivos provocan p
 
 ## 🧹 ¿Qué archivos y carpetas elimina?
 
-CleanMacUSB organiza la limpieza en **6 categorías configurables** (3 de **macOS** y 3 de **Windows**):
+CleanMacUSB organiza la limpieza en **8 categorías configurables** (para **macOS**, **Windows**, **Linux** y **Smart TVs**):
 
 | Origen | Categoría | Elementos eliminados |
 | :--- | :--- | :--- |
@@ -44,6 +44,8 @@ CleanMacUSB organiza la limpieza en **6 categorías configurables** (3 de **macO
 | 🪟 **Windows** | **Cachés de miniaturas y vistas** | `Thumbs.db`, `ehthumbs.db`, `ehthumbs_vista.db`, `desktop.ini`, `WPSettings.dat`, `IndexerVolumeGuid` |
 | 🪟 **Windows** | **Papelera y fragmentos CHKDSK** | `$RECYCLE.BIN`, `RECYCLER`, `RECYCLED`, carpetas `FOUND.000` / `FOUND.*` y fragmentos huérfanos `*.chk` |
 | 🪟 **Windows** | **Residuales `README.`, bloqueos y temporales** | `README.`, `README`, `README.txt`, bloqueos ocultos de Office (`~$*`) y temporales (`*.tmp`, `*.bak`) |
+| 🐧 **Linux** | **Papeleras, vistas KDE/GNOME y swaps** | `.Trash`, `.Trash-1000`, `.Trash-*`, `.directory` (Dolphin), `.hidden`, `.fuse_hidden*`, `.nfs*`, `.goutputstream-*`, `.*.swp`, `.*.swo` |
+| 📺 **Smart TV** | **Carpetas y bases de datos de TV** | `LOST.DIR`, `LG Smart TV`, `.lg_tv`, `.android_secure`, `.Samsung`, `.DEV_INFO`, `.thumbnails`, `.database_uuid`, `albumart.pamp`, `mstpvr`, carpeta `Android` vacía |
 
 ---
 
@@ -51,7 +53,10 @@ CleanMacUSB organiza la limpieza en **6 categorías configurables** (3 de **macO
 
 - ⚡ **Rendimiento Nativo (.NET 8 WPF + Win32):** Interfaz moderna estilo Windows 11 (*Fluent UI*) sin dependencias pesadas.
 - 🌐 **Multi-idioma en Tiempo Real (`ES` / `EN`):** Detecta el idioma del sistema operativo al iniciarse e incluye un selector desplegable (`🇪🇸 Español` / `🇬🇧 English`) que traduce toda la interfaz, logs, ajustes y menús al instante sin reiniciar.
-- 🔌 **Detección de USB en Caliente (`WM_DEVICECHANGE`):** Detecta automáticamente cuando conectas o desconectas una memoria USB o disco externo USB mostrando letra, etiqueta, sistema de archivos (`exFAT`, `FAT32`, `NTFS`) y espacio libre/total.
+- 💾 **Limpieza de USB, Discos Duros Internos y Carpetas Específicas:**
+  - Detecta automáticamente en caliente (`WM_DEVICECHANGE`) cualquier **memoria USB o disco externo** conectado.
+  - Permite activar con un clic la visualización de los **discos duros internos del ordenador (`C:\`, `D:\`...)** (protegiendo automáticamente las carpetas críticas del sistema operativo).
+  - Incluye el botón **«📁 Elegir carpeta...»** para seleccionar y limpiar cualquier carpeta concreta del equipo o de un disco.
 - 📋 **Registro de Actividad (Log) en Tiempo Real + Botón de Abortar:**
   - Barra de progreso y listado detallado línea por línea de cada archivo y carpeta eliminada con su tamaño exacto.
   - Botón **«⏹ Abortar limpieza»** para detener el proceso en cualquier instante conservando el resumen parcial.

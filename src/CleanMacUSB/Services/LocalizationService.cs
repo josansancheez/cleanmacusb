@@ -19,23 +19,31 @@ public sealed class LocalizationService : INotifyPropertyChanged
     private readonly Dictionary<string, string> _es = new()
     {
         ["AppTitle"] = "CleanMacUSB",
-        ["AppSubtitle"] = "Limpiador nativo de archivos residuales de macOS y Windows para unidades USB",
+        ["AppSubtitle"] = "Limpiador nativo de archivos basura (macOS, Windows, Linux y Smart TV) para USB, discos y carpetas",
         ["SettingsButton"] = "Ajustes",
         ["AboutButton"] = "Acerca de",
         ["LanguageLabel"] = "Idioma:",
 
-        // Selector USB
-        ["UsbSectionTitle"] = "Unidad USB / Disco Externo",
-        ["UsbSectionSubtitle"] = "Selecciona la memoria USB o unidad externa que deseas limpiar o expulsar",
-        ["RefreshDrivesButton"] = "Actualizar unidades",
-        ["NoUsbDetected"] = "No se han detectado memorias USB ni unidades extraíbles conectadas",
+        // Selector de Unidad USB / Disco Interno / Carpeta
+        ["UsbSectionTitle"] = "Origen a Limpiar (Unidad USB, Disco Duro o Carpeta)",
+        ["UsbSectionSubtitle"] = "Selecciona una memoria USB, activa los discos duros internos del PC o elige una carpeta específica",
+        ["RefreshDrivesButton"] = "Actualizar",
+        ["BrowseFolderButton"] = "📁 Elegir carpeta...",
+        ["BrowseFolderDialogTitle"] = "Selecciona la carpeta que deseas analizar y limpiar",
+        ["ChkIncludeInternalDrives"] = "Mostrar también discos duros internos del ordenador (C:\\, D:\\...)",
+        ["NoUsbDetected"] = "No hay unidades USB conectadas. Conecta un USB, marca «Mostrar discos internos» o pulsa «📁 Elegir carpeta...».",
         ["NoLabel"] = "SIN ETIQUETA",
+        ["TagUsbDrive"] = "[USB]",
+        ["TagInternalDrive"] = "[DISCO LOCAL]",
         ["DriveFormatPattern"] = "{0} [{1}] — {2} libres de {3} ({4})",
+        ["FolderFormatPattern"] = "[CARPETA] {0}",
 
-        // Opciones de limpieza (macOS + Windows)
-        ["OptionsSectionTitle"] = "Configuración de Limpieza (macOS y Windows)",
+        // Opciones de limpieza (macOS + Windows + Linux + Smart TV)
+        ["OptionsSectionTitle"] = "Configuración de Limpieza (macOS, Windows, Linux y Smart TV)",
         ["BadgeMacOs"] = "macOS",
         ["BadgeWindows"] = "Windows",
+        ["BadgeLinux"] = "Linux",
+        ["BadgeSmartTv"] = "Smart TV",
         ["OptAppleDoubleTitle"] = "Archivos AppleDouble de macOS (._*)",
         ["OptAppleDoubleDesc"] = "Metadatos bifurcados ocultos creados por Finder en exFAT, FAT32 y NTFS (._*, .AppleDouble)",
         ["OptDsStoreTitle"] = "Configuración de carpetas e iconos de Mac (.DS_Store)",
@@ -45,9 +53,13 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["OptWinCacheTitle"] = "Cachés de miniaturas y vistas de Windows (Thumbs.db, desktop.ini, WPSettings.dat)",
         ["OptWinCacheDesc"] = "Bases de datos ocultas de miniaturas del Explorador, configuración de carpetas e indexación (ehthumbs.db, IndexerVolumeGuid)",
         ["OptWinRecycleTitle"] = "Papelera y fragmentos de recuperación de Windows ($RECYCLE.BIN, FOUND.000, *.chk)",
-        ["OptWinRecycleDesc"] = "Carpetas de papelera de reciclaje de Windows en el USB ($RECYCLE.BIN, RECYCLER) y fragmentos huérfanos de CHKDSK",
+        ["OptWinRecycleDesc"] = "Carpetas de papelera de reciclaje de Windows ($RECYCLE.BIN, RECYCLER) y fragmentos huérfanos de CHKDSK",
         ["OptWinTempReadmeTitle"] = "Archivos residuales README., bloqueos y temporales (README., ~$*, *.tmp, *.bak)",
         ["OptWinTempReadmeDesc"] = "Archivos residuales como README. / README.txt autogenerados, bloqueos ocultos de Office (~$*) y temporales (*.tmp, *.bak)",
+        ["OptLinuxTitle"] = "Papeleras, vistas de carpeta y temporales de Linux (.Trash-1000, .directory, .fuse_hidden*)",
+        ["OptLinuxDesc"] = "Papeleras de usuario Linux (.Trash, .Trash-*), configuración de KDE Dolphin (.directory), GNOME (.hidden, .goutputstream-*) y swaps (.*.swp)",
+        ["OptSmartTvTitle"] = "Carpetas y bases de datos creadas por Smart TVs (LOST.DIR, LG Smart TV, .android_secure, Android vacía)",
+        ["OptSmartTvDesc"] = "Carpetas basura generadas al conectar el USB en televisores LG webOS, Samsung Tizen y Android TV / Google TV (.thumbnails, .database_uuid, mstpvr)",
         ["OptAutoEjectTitle"] = "Expulsar automáticamente la unidad USB al terminar la limpieza",
 
         // Apartado de Ajustes (Settings)
@@ -69,19 +81,20 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["SettingsViewFullEulaBtn"] = "Ver licencia en ventana completa",
 
         // Botones principales
-        ["BtnCleanUsb"] = "Limpiar USB ahora",
+        ["BtnCleanUsb"] = "Limpiar ahora",
         ["BtnEjectUsb"] = "Expulsar USB de forma segura",
-        ["StatusReady"] = "Listo. Selecciona una unidad USB y pulsa «Limpiar USB ahora».",
-        ["StatusDrivesUpdated"] = "Lista de unidades USB actualizada ({0} detectadas).",
+        ["StatusReady"] = "Listo. Selecciona una unidad USB, disco duro o carpeta y pulsa «Limpiar ahora».",
+        ["StatusDrivesUpdated"] = "Lista de unidades actualizada ({0} disponibles).",
+        ["StatusFolderSelected"] = "Carpeta seleccionada para limpiar: {0}",
         ["StatusNewUsbConnected"] = "Nueva unidad USB detectada: {0}",
         ["StatusUsbRemoved"] = "Se ha desconectado una unidad USB.",
 
         // Panel / Modal de Registro (Log)
         ["LogTabTitle"] = "Registro de Actividad de Limpieza",
-        ["LogStatusScanning"] = "Escaneando y limpiando unidad {0}...",
+        ["LogStatusScanning"] = "Escaneando y limpiando {0}...",
         ["LogStatusCompleted"] = "Limpieza completada con éxito en {0}",
         ["LogStatusAborted"] = "Limpieza abortada por el usuario en {0}",
-        ["LogStatusNothingFound"] = "Limpieza finalizada: la unidad {0} ya estaba completamente limpia.",
+        ["LogStatusNothingFound"] = "Limpieza finalizada: {0} ya estaba completamente limpio.",
         ["LogSummaryFormat"] = "Resumen final: {0} archivos eliminados | {1} carpetas eliminadas | Espacio total liberado: {2}",
         ["LogSummaryAbortedFormat"] = "Proceso abortado — Eliminados hasta el momento: {0} archivos | {1} carpetas | Espacio liberado: {2}",
         ["LogColType"] = "Tipo",
@@ -92,7 +105,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["LogTypeInfo"] = "INFO",
         ["LogTypeError"] = "AVISO",
         ["LogStartHeader"] = "Iniciando análisis recursivo en {0} ({1})...",
-        ["LogNoItemsMessage"] = "No se encontraron archivos ni carpetas residuales en esta unidad.",
+        ["LogNoItemsMessage"] = "No se encontraron archivos ni carpetas residuales en la ubicación seleccionada.",
         ["LogAbortedEntryMsg"] = "Limpieza detenida y abortada a petición del usuario.",
         ["BtnAbortClean"] = "⏹ Abortar limpieza",
         ["BtnAbortingClean"] = "Abortando...",
@@ -103,13 +116,15 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["SaveLogSuccessMsg"] = "El archivo de registro se ha guardado correctamente en:\n{0}",
         ["LogFileHeaderTitle"] = "REGISTRO DE ACTIVIDAD — CLEANMACUSB v1.0 (por Josan Sánchez)",
         ["LogFileDate"] = "Fecha y hora",
-        ["LogFileDrive"] = "Unidad analizada",
+        ["LogFileDrive"] = "Origen analizado",
 
         // Alertas y expulsión segura
-        ["MsgSelectDriveTitle"] = "Ninguna unidad seleccionada",
-        ["MsgSelectDriveBody"] = "Por favor, conecta y selecciona una unidad USB válida antes de continuar.",
+        ["MsgSelectDriveTitle"] = "Ningún origen seleccionado",
+        ["MsgSelectDriveBody"] = "Por favor, selecciona una unidad USB, un disco duro o elige una carpeta antes de continuar.",
         ["MsgSelectOptionTitle"] = "Sin opciones de limpieza",
         ["MsgSelectOptionBody"] = "Marca al menos una categoría de archivos residuales para limpiar.",
+        ["MsgEjectOnlyUsbTitle"] = "Expulsión solo para unidades USB",
+        ["MsgEjectOnlyUsbBody"] = "Solo es posible expulsar físicamente memorias USB y discos externos extraíbles.",
         ["MsgEjectSuccessTitle"] = "Expulsión segura completada",
         ["MsgEjectSuccessBody"] = "La unidad {0} se ha desmontado y expulsado de forma segura.\nYa puedes retirar físicamente el dispositivo USB del equipo.",
         ["MsgEjectFailTitle"] = "No se pudo expulsar la unidad",
@@ -118,19 +133,19 @@ public sealed class LocalizationService : INotifyPropertyChanged
         // Bandeja del sistema (System Tray)
         ["TrayTooltip"] = "CleanMacUSB v1.0 — Ejecutándose en segundo plano",
         ["TrayMenuOpen"] = "Abrir CleanMacUSB",
-        ["TrayMenuCleanNow"] = "Limpiar unidad USB seleccionada",
+        ["TrayMenuCleanNow"] = "Limpiar origen seleccionado",
         ["TrayMenuExit"] = "Salir completamente",
         ["TrayMinimizedTitle"] = "CleanMacUSB sigue activo",
         ["TrayMinimizedBody"] = "La aplicación permanece en la bandeja del sistema. Te avisaremos cuando conectes un USB.",
         ["TrayUsbDetectedTitle"] = "Memoria USB detectada ({0})",
-        ["TrayUsbDetectedBody"] = "Se ha conectado {0}. Haz clic aquí para limpiar los archivos ocultos de macOS y Windows.",
+        ["TrayUsbDetectedBody"] = "Se ha conectado {0}. Haz clic aquí para limpiar los archivos ocultos.",
         ["TrayUsbPromptQuestion"] = "Se ha detectado la unidad USB {0}.\n¿Deseas analizarla y eliminar los archivos residuales ahora mismo?",
 
         // Ventana Acerca de (About)
         ["AboutWindowTitle"] = "Acerca de CleanMacUSB",
         ["AboutVersionText"] = "CleanMacUSB v1.0 (Edición Windows 11 / 64-bit)",
         ["AboutCopyrightText"] = "Software gratuito y propietario (Freeware).\nDesarrollado por Josan Sánchez. Todos los derechos reservados.",
-        ["AboutDescription"] = "Utilidad nativa de alto rendimiento diseñada para erradicar archivos ocultos de macOS (._*, .DS_Store, .Spotlight-V100, .Trashes, .fseventsd) y basura de Windows (Thumbs.db, desktop.ini, $RECYCLE.BIN, FOUND.000, README., *.tmp) en memorias USB.",
+        ["AboutDescription"] = "Utilidad nativa de alto rendimiento diseñada para erradicar archivos ocultos de macOS (._*, .DS_Store, .Spotlight-V100), Windows (Thumbs.db, desktop.ini, $RECYCLE.BIN, README.), Linux (.Trash-1000, .directory) y Smart TVs (LOST.DIR, LG Smart TV).",
         ["AboutLicenseHeader"] = "Contrato de Licencia de Usuario Final (EULA):",
         ["AboutCloseButton"] = "Cerrar"
     };
@@ -138,23 +153,31 @@ public sealed class LocalizationService : INotifyPropertyChanged
     private readonly Dictionary<string, string> _en = new()
     {
         ["AppTitle"] = "CleanMacUSB",
-        ["AppSubtitle"] = "Native macOS & Windows residual junk cleaner for USB flash drives",
+        ["AppSubtitle"] = "Native junk cleaner (macOS, Windows, Linux & Smart TV) for USB drives, disks, and folders",
         ["SettingsButton"] = "Settings",
         ["AboutButton"] = "About",
         ["LanguageLabel"] = "Language:",
 
-        // Selector USB
-        ["UsbSectionTitle"] = "USB Flash Drive / External Disk",
-        ["UsbSectionSubtitle"] = "Select the removable USB drive or external disk you want to clean or safely eject",
-        ["RefreshDrivesButton"] = "Refresh drives",
-        ["NoUsbDetected"] = "No connected USB flash drives or removable disks detected",
+        // Selector de Unidad USB / Disco Interno / Carpeta
+        ["UsbSectionTitle"] = "Target to Clean (USB Drive, Hard Disk, or Folder)",
+        ["UsbSectionSubtitle"] = "Select a removable USB drive, enable internal PC hard disks, or browse for a specific folder",
+        ["RefreshDrivesButton"] = "Refresh",
+        ["BrowseFolderButton"] = "📁 Browse folder...",
+        ["BrowseFolderDialogTitle"] = "Select the folder you want to scan and clean",
+        ["ChkIncludeInternalDrives"] = "Also show internal computer hard drives (C:\\, D:\\...)",
+        ["NoUsbDetected"] = "No USB drives connected. Plug in a USB drive, check \"Also show internal hard drives\", or click \"📁 Browse folder...\".",
         ["NoLabel"] = "NO LABEL",
+        ["TagUsbDrive"] = "[USB]",
+        ["TagInternalDrive"] = "[LOCAL DISK]",
         ["DriveFormatPattern"] = "{0} [{1}] — {2} free of {3} ({4})",
+        ["FolderFormatPattern"] = "[FOLDER] {0}",
 
-        // Opciones de limpieza (macOS + Windows)
-        ["OptionsSectionTitle"] = "Cleaning Configuration (macOS & Windows)",
+        // Opciones de limpieza (macOS + Windows + Linux + Smart TV)
+        ["OptionsSectionTitle"] = "Cleaning Configuration (macOS, Windows, Linux & Smart TV)",
         ["BadgeMacOs"] = "macOS",
         ["BadgeWindows"] = "Windows",
+        ["BadgeLinux"] = "Linux",
+        ["BadgeSmartTv"] = "Smart TV",
         ["OptAppleDoubleTitle"] = "macOS AppleDouble Resource Fork Files (._*)",
         ["OptAppleDoubleDesc"] = "Hidden resource fork metadata created by macOS Finder on exFAT, FAT32, and NTFS drives (._*, .AppleDouble)",
         ["OptDsStoreTitle"] = "Mac Folder View Settings & Icons (.DS_Store)",
@@ -164,9 +187,13 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["OptWinCacheTitle"] = "Windows Thumbnail Caches & Folder Settings (Thumbs.db, desktop.ini, WPSettings.dat)",
         ["OptWinCacheDesc"] = "Hidden Windows Explorer thumbnail databases, custom folder view settings, and volume indexing files (ehthumbs.db, IndexerVolumeGuid)",
         ["OptWinRecycleTitle"] = "Windows Recycle Bin & Recovery Fragments ($RECYCLE.BIN, FOUND.000, *.chk)",
-        ["OptWinRecycleDesc"] = "Hidden Windows Recycle Bin folders on USB drives ($RECYCLE.BIN, RECYCLER) and orphaned CHKDSK recovery fragments",
+        ["OptWinRecycleDesc"] = "Hidden Windows Recycle Bin folders ($RECYCLE.BIN, RECYCLER) and orphaned CHKDSK recovery fragments",
         ["OptWinTempReadmeTitle"] = "Residual README., Office Locks & Temp Files (README., ~$*, *.tmp, *.bak)",
         ["OptWinTempReadmeDesc"] = "Auto-generated README. / README.txt files, hidden Office lock files (~$*), and temporary/backup junk (*.tmp, *.bak)",
+        ["OptLinuxTitle"] = "Linux Trash, Folder Settings & Temp Files (.Trash-1000, .directory, .fuse_hidden*)",
+        ["OptLinuxDesc"] = "Linux user trash folders (.Trash, .Trash-*), KDE Dolphin view files (.directory), GNOME (.hidden, .goutputstream-*), and swap files (.*.swp)",
+        ["OptSmartTvTitle"] = "Smart TV Generated Folders & Databases (LOST.DIR, LG Smart TV, .android_secure, empty Android)",
+        ["OptSmartTvDesc"] = "Junk folders created when plugging a USB into LG webOS, Samsung Tizen, and Android TV / Google TV sets (.thumbnails, .database_uuid, mstpvr)",
         ["OptAutoEjectTitle"] = "Automatically eject USB drive when cleaning finishes",
 
         // Apartado de Ajustes (Settings)
@@ -188,19 +215,20 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["SettingsViewFullEulaBtn"] = "View license in full window",
 
         // Botones principales
-        ["BtnCleanUsb"] = "Clean USB Now",
+        ["BtnCleanUsb"] = "Clean Now",
         ["BtnEjectUsb"] = "Safely Eject USB",
-        ["StatusReady"] = "Ready. Select a USB drive and click \"Clean USB Now\".",
-        ["StatusDrivesUpdated"] = "USB drive list updated ({0} detected).",
+        ["StatusReady"] = "Ready. Select a USB drive, hard disk, or folder and click \"Clean Now\".",
+        ["StatusDrivesUpdated"] = "Drive list updated ({0} available).",
+        ["StatusFolderSelected"] = "Custom folder selected for cleaning: {0}",
         ["StatusNewUsbConnected"] = "New USB drive detected: {0}",
         ["StatusUsbRemoved"] = "A USB drive was disconnected.",
 
         // Panel / Modal de Registro (Log)
         ["LogTabTitle"] = "Cleaning Activity Log",
-        ["LogStatusScanning"] = "Scanning and cleaning drive {0}...",
+        ["LogStatusScanning"] = "Scanning and cleaning {0}...",
         ["LogStatusCompleted"] = "Cleaning successfully completed on {0}",
         ["LogStatusAborted"] = "Cleaning aborted by user on {0}",
-        ["LogStatusNothingFound"] = "Cleaning finished: drive {0} was already completely clean.",
+        ["LogStatusNothingFound"] = "Cleaning finished: {0} was already completely clean.",
         ["LogSummaryFormat"] = "Final Summary: {0} files deleted | {1} folders deleted | Total space freed: {2}",
         ["LogSummaryAbortedFormat"] = "Process aborted — Deleted so far: {0} files | {1} folders | Space freed: {2}",
         ["LogColType"] = "Type",
@@ -211,7 +239,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["LogTypeInfo"] = "INFO",
         ["LogTypeError"] = "NOTICE",
         ["LogStartHeader"] = "Starting recursive scan on {0} ({1})...",
-        ["LogNoItemsMessage"] = "No residual macOS or Windows junk files were found on this drive.",
+        ["LogNoItemsMessage"] = "No residual junk files or folders were found in the selected location.",
         ["LogAbortedEntryMsg"] = "Cleaning stopped and aborted at user request.",
         ["BtnAbortClean"] = "⏹ Abort Cleaning",
         ["BtnAbortingClean"] = "Aborting...",
@@ -222,13 +250,15 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["SaveLogSuccessMsg"] = "The activity log file was successfully saved to:\n{0}",
         ["LogFileHeaderTitle"] = "ACTIVITY LOG — CLEANMACUSB v1.0 (by Josan Sánchez)",
         ["LogFileDate"] = "Date & Time",
-        ["LogFileDrive"] = "Scanned Drive",
+        ["LogFileDrive"] = "Scanned Target",
 
         // Alertas y expulsión segura
-        ["MsgSelectDriveTitle"] = "No USB Drive Selected",
-        ["MsgSelectDriveBody"] = "Please connect and select a valid USB drive before continuing.",
+        ["MsgSelectDriveTitle"] = "No Target Selected",
+        ["MsgSelectDriveBody"] = "Please select a USB drive, an internal hard disk, or browse for a folder before continuing.",
         ["MsgSelectOptionTitle"] = "No Cleaning Options Selected",
         ["MsgSelectOptionBody"] = "Please check at least one category of residual files to clean.",
+        ["MsgEjectOnlyUsbTitle"] = "Eject Only Available for USB Drives",
+        ["MsgEjectOnlyUsbBody"] = "Physical hardware ejection is only applicable to removable USB drives and external disks.",
         ["MsgEjectSuccessTitle"] = "Safe Eject Completed",
         ["MsgEjectSuccessBody"] = "Drive {0} has been safely dismounted and ejected.\nYou can now physically remove the USB device from your computer.",
         ["MsgEjectFailTitle"] = "Could Not Eject Drive",
@@ -237,19 +267,19 @@ public sealed class LocalizationService : INotifyPropertyChanged
         // Bandeja del sistema (System Tray)
         ["TrayTooltip"] = "CleanMacUSB v1.0 — Running in background",
         ["TrayMenuOpen"] = "Open CleanMacUSB",
-        ["TrayMenuCleanNow"] = "Clean selected USB drive",
+        ["TrayMenuCleanNow"] = "Clean selected target",
         ["TrayMenuExit"] = "Exit completely",
         ["TrayMinimizedTitle"] = "CleanMacUSB is still running",
         ["TrayMinimizedBody"] = "The application stays minimized in the system tray. We will notify you when a new USB drive is plugged in.",
         ["TrayUsbDetectedTitle"] = "USB Flash Drive Detected ({0})",
-        ["TrayUsbDetectedBody"] = "Drive {0} was plugged in. Click here to clean hidden macOS & Windows junk files.",
+        ["TrayUsbDetectedBody"] = "Drive {0} was plugged in. Click here to clean hidden junk files.",
         ["TrayUsbPromptQuestion"] = "USB drive {0} was just connected.\nWould you like to scan it and clean residual files right now?",
 
         // Ventana Acerca de (About)
         ["AboutWindowTitle"] = "About CleanMacUSB",
         ["AboutVersionText"] = "CleanMacUSB v1.0 (Windows 11 / 64-bit Edition)",
         ["AboutCopyrightText"] = "Freeware & Proprietary Software.\nDeveloped by Josan Sánchez. All rights reserved.",
-        ["AboutDescription"] = "High-performance native utility designed to eradicate hidden macOS files (._*, .DS_Store, .Spotlight-V100, .Trashes, .fseventsd) and Windows junk (Thumbs.db, desktop.ini, $RECYCLE.BIN, FOUND.000, README., *.tmp) on USB drives.",
+        ["AboutDescription"] = "High-performance native utility designed to eradicate hidden files from macOS (._*, .DS_Store, .Spotlight-V100), Windows (Thumbs.db, desktop.ini, $RECYCLE.BIN, README.), Linux (.Trash-1000, .directory), and Smart TVs (LOST.DIR, LG Smart TV).",
         ["AboutLicenseHeader"] = "End-User License Agreement (EULA):",
         ["AboutCloseButton"] = "Close"
     };

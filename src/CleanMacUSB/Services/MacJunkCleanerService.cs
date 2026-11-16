@@ -10,10 +10,14 @@ public sealed class CleanOptions
     public bool CleanDsStore { get; init; } = true;
     public bool CleanSpotlightAndTrash { get; init; } = true;
 
-    // Categorías de Windows y archivos residuales adicionales
+    // Categorías de Windows
     public bool CleanWindowsCaches { get; init; } = true;
     public bool CleanWindowsRecycleAndFound { get; init; } = true;
     public bool CleanWindowsTempAndReadme { get; init; } = true;
+
+    // Categorías de Linux y Smart TV
+    public bool CleanLinuxJunk { get; init; } = true;
+    public bool CleanSmartTvJunk { get; init; } = true;
 }
 
 public sealed class CleanSummary
@@ -25,11 +29,27 @@ public sealed class CleanSummary
 }
 
 /// <summary>
-/// Motor de escaneo y limpieza recursiva de archivos y carpetas residuales de macOS y Windows.
-/// Soporta atributos Hidden, System y ReadOnly en unidades FAT32, exFAT y NTFS.
+/// Motor de escaneo y limpieza recursiva de archivos y carpetas residuales de macOS, Windows, Linux y Smart TVs.
+/// Soporta unidades USB, discos duros internos (protegiendo carpetas críticas del SO) y carpetas específicas.
 /// </summary>
 public static class MacJunkCleanerService
 {
+    // Carpetas críticas del sistema operativo Windows que nunca deben escanearse al limpiar un disco interno (ej. C:\)
+    private static readonly HashSet<string> CriticalOsRootDirectories = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Windows",
+        "Program Files",
+        "Program Files (x86)",
+        "ProgramData",
+        "Recovery",
+        "$WinREAgent",
+        "$SysReset",
+        "PerfLogs",
+        "Config.Msi",
+        "Documents and Settings",
+        "MSOCache"
+    };
+
     private static readonly HashSet<string> AppleDoubleFolderNames = new(StringComparer.OrdinalIgnoreCase)
     {
         ".AppleDouble",
@@ -81,8 +101,39 @@ public static class MacJunkCleanerService
         "README.txt"
     };
 
+    private static readonly HashSet<string> LinuxJunkFileNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".directory",
+        ".hidden"
+    };
+
+    private static readonly HashSet<string> SmartTvJunkFolderNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "LOST.DIR",
+        ".android_secure",
+        "LG Smart TV",
+        ".lg_tv",
+        ".Samsung",
+        ".DEV_INFO",
+        ".thumbnails",
+        "mstpvr",
+        "_mstpvr",
+        ".tv_temp",
+        ".Timeshift",
+        ".pvr"
+    };
+
+    private static readonly HashSet<string> SmartTvJunkFileNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".database_uuid",
+        "albumart.pamp",
+        "device_info.xml",
+        ".rec_info",
+        ".VolumeGuid"
+    };
+
     public static async Task<CleanSummary> CleanDriveAsync(
-        string driveRoot,
+        string targetPath,
         CleanOptions options,
         IProgress<CleanLogEntry> logProgress,
         IProgress<double> percentProgress,
@@ -93,8 +144,10 @@ public static class MacJunkCleanerService
             var summary = new CleanSummary();
             try
             {
-                var rootDir = new DirectoryInfo(driveRoot);
+                var rootDir = new DirectoryInfo(targetPath);
                 if (!rootDir.Exists) return summary;
+
+                bool isDriveRoot = string.Equals(rootDir.FullName, rootDir.Root.FullName, StringComparison.OrdinalIgnoreCase);
 
                 // Obtener subdirectorios de primer nivel para calcular progreso real
                 DirectoryInfo[] topDirs;
@@ -115,17 +168,25 @@ public static class MacJunkCleanerService
                 int totalSteps = Math.Max(1, topDirs.Length + 1);
                 int completedSteps = 0;
 
-                // 1. Limpiar archivos directamente en la raíz
+                // 1. Limpiar archivos directamente en la carpeta o raíz seleccionada
                 ScanFilesInDirectory(rootDir, options, summary, logProgress, cancellationToken);
                 completedSteps++;
                 percentProgress.Report((completedSteps * 100.0) / totalSteps);
 
-                // 2. Recorrer subdirectorios de la raíz
+                // 2. Recorrer subdirectorios de primer nivel
                 foreach (var subDir in topDirs)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    // System Volume Information: no eliminar la carpeta del sistema en sí, pero limpiar WPSettings.dat / IndexerVolumeGuid dentro si CleanWindowsCaches está activo
+                    // Si estamos en la raíz de un disco duro, proteger carpetas críticas del sistema operativo Windows
+                    if (isDriveRoot && CriticalOsRootDirectories.Contains(subDir.Name))
+                    {
+                        completedSteps++;
+                        percentProgress.Report((completedSteps * 100.0) / totalSteps);
+                        continue;
+                    }
+
+                    // System Volume Information: limpiar WPSettings.dat / IndexerVolumeGuid dentro si CleanWindowsCaches está activo
                     if (string.Equals(subDir.Name, "System Volume Information", StringComparison.OrdinalIgnoreCase))
                     {
                         if (options.CleanWindowsCaches)
@@ -137,7 +198,7 @@ public static class MacJunkCleanerService
                         continue;
                     }
 
-                    if (ShouldDeleteDirectory(subDir.Name, options))
+                    if (ShouldDeleteDirectory(subDir, options))
                     {
                         TryDeleteDirectoryTree(subDir, summary, logProgress);
                     }
@@ -163,6 +224,14 @@ public static class MacJunkCleanerService
 
     private static bool IsSkippedSystemFolder(string dirName, CleanOptions options)
     {
+        // Nunca escanear AppData ni paquetes internos del sistema cuando se escanea un disco local o carpeta de usuario
+        if (string.Equals(dirName, "AppData", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(dirName, ".git", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(dirName, "node_modules", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
         if (!options.CleanWindowsRecycleAndFound)
         {
             if (WindowsRecycleDirNames.Contains(dirName) || IsFoundChkFolder(dirName))
@@ -215,7 +284,10 @@ public static class MacJunkCleanerService
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (ShouldDeleteDirectory(subDir.Name, options))
+            if (IsSkippedSystemFolder(subDir.Name, options))
+                continue;
+
+            if (ShouldDeleteDirectory(subDir, options))
             {
                 TryDeleteDirectoryTree(subDir, summary, logProgress);
             }
@@ -270,8 +342,7 @@ public static class MacJunkCleanerService
             return true;
 
         // 3. macOS Spotlight / Trashes / fseventsd / TemporaryItems
-        if (options.CleanSpotlightAndTrash &&
-            (SpotlightAndTrashNames.Contains(fileName) || fileName.StartsWith(".Trash-", StringComparison.OrdinalIgnoreCase)))
+        if (options.CleanSpotlightAndTrash && SpotlightAndTrashNames.Contains(fileName))
             return true;
 
         // 4. Windows Caches (Thumbs.db, ehthumbs.db, desktop.ini, WPSettings.dat, IndexerVolumeGuid)
@@ -296,18 +367,44 @@ public static class MacJunkCleanerService
                 return true;
         }
 
+        // 7. Linux Junk Files (.directory, .hidden, .fuse_hidden*, .nfs*, .goutputstream-*, .*.swp, .*.swo)
+        if (options.CleanLinuxJunk)
+        {
+            if (LinuxJunkFileNames.Contains(fileName))
+                return true;
+
+            if (fileName.StartsWith(".fuse_hidden", StringComparison.OrdinalIgnoreCase) ||
+                fileName.StartsWith(".nfs", StringComparison.OrdinalIgnoreCase) ||
+                fileName.StartsWith(".goutputstream-", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (fileName.StartsWith(".", StringComparison.OrdinalIgnoreCase) &&
+                (fileName.EndsWith(".swp", StringComparison.OrdinalIgnoreCase) ||
+                 fileName.EndsWith(".swo", StringComparison.OrdinalIgnoreCase)))
+                return true;
+        }
+
+        // 8. Smart TV / Android TV Junk Files (.database_uuid, .thumbdata*, albumart.pamp, device_info.xml, .rec_info)
+        if (options.CleanSmartTvJunk)
+        {
+            if (SmartTvJunkFileNames.Contains(fileName) ||
+                fileName.StartsWith(".thumbdata", StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
         return false;
     }
 
-    private static bool ShouldDeleteDirectory(string dirName, CleanOptions options)
+    private static bool ShouldDeleteDirectory(DirectoryInfo dir, CleanOptions options)
     {
+        string dirName = dir.Name;
+
         // 1. macOS AppleDouble folders
         if (options.CleanAppleDouble && AppleDoubleFolderNames.Contains(dirName))
             return true;
 
         // 2. macOS Spotlight & Trash folders
-        if (options.CleanSpotlightAndTrash &&
-            (SpotlightAndTrashNames.Contains(dirName) || dirName.StartsWith(".Trash-", StringComparison.OrdinalIgnoreCase)))
+        if (options.CleanSpotlightAndTrash && SpotlightAndTrashNames.Contains(dirName))
             return true;
 
         // 3. macOS .apdisk
@@ -319,7 +416,52 @@ public static class MacJunkCleanerService
             (WindowsRecycleDirNames.Contains(dirName) || IsFoundChkFolder(dirName)))
             return true;
 
+        // 5. Linux Trash folders (.Trash, .Trash-1000, .Trash-*)
+        if (options.CleanLinuxJunk || options.CleanSpotlightAndTrash)
+        {
+            if (string.Equals(dirName, ".Trash", StringComparison.OrdinalIgnoreCase) ||
+                dirName.StartsWith(".Trash-", StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        // 6. Smart TV & Android TV folders (LOST.DIR, LG Smart TV, .android_secure, .thumbnails, Android vacía)
+        if (options.CleanSmartTvJunk)
+        {
+            if (SmartTvJunkFolderNames.Contains(dirName))
+                return true;
+
+            // La carpeta "Android" creada automáticamente por Smart TVs Android TV (solo si está vacía o solo tiene estructura vacía data/media/obb)
+            if (string.Equals(dirName, "Android", StringComparison.OrdinalIgnoreCase) && IsEmptySmartTvAndroidFolder(dir))
+                return true;
+        }
+
         return false;
+    }
+
+    /// <summary>
+    /// Verifica si una carpeta "Android" fue generada por una Smart TV como esqueleto vacío (sin archivos de usuario).
+    /// </summary>
+    private static bool IsEmptySmartTvAndroidFolder(DirectoryInfo androidDir)
+    {
+        try
+        {
+            var files = androidDir.GetFiles("*", new EnumerationOptions
+            {
+                AttributesToSkip = 0,
+                IgnoreInaccessible = true,
+                RecurseSubdirectories = true
+            });
+
+            // Si contiene únicamente 0 archivos (o solo .nomedia / .DS_Store / ._*) es basura de Smart TV
+            return files.All(f =>
+                string.Equals(f.Name, ".nomedia", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(f.Name, ".DS_Store", StringComparison.OrdinalIgnoreCase) ||
+                f.Name.StartsWith("._", StringComparison.OrdinalIgnoreCase));
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private static void TryDeleteFile(FileInfo file, CleanSummary summary, IProgress<CleanLogEntry> logProgress)
