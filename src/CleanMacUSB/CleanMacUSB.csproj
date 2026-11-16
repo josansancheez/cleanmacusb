@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon>..\..\assets\CleanMacUSB.ico</ApplicationIcon>
+    <AssemblyName>CleanMacUSB</AssemblyName>
+    <RootNamespace>CleanMacUSB</RootNamespace>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Company>Josan Sánchez</Company>
+    <Authors>Josan Sánchez</Authors>
+    <Product>CleanMacUSB</Product>
+    <Description>Utilidad gratuita (Freeware) para eliminar archivos residuales ocultos de macOS en memorias USB y unidades externas.</Description>
+    <Copyright>Copyright © 2026 Josan Sánchez. Todos los derechos reservados.</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="..\..\assets\CleanMacUSB.ico" Link="Assets\CleanMacUSB.ico" />
+    <Resource Include="..\..\assets\logo.png" Link="Assets\logo.png" />
+    <Resource Include="..\..\installer\EULA_ES.txt" Link="Assets\EULA_ES.txt" />
+    <Resource Include="..\..\installer\EULA_EN.txt" Link="Assets\EULA_EN.txt" />
+  </ItemGroup>
+
+</Project>

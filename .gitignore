@@ -1,0 +1,7 @@
+# .NET Build artifacts
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+.vs/
+.idea/

@@ -1,0 +1,92 @@
+================================================================================
+CONTRATO DE LICENCIA DE USUARIO FINAL (EULA)
+CLEANMACUSB v1.0 - SOFTWARE GRATUITO Y PROPIETARIO (FREEWARE)
+================================================================================
+
+Desarrollador y Titular de los Derechos: Josan Sánchez
+Producto: CleanMacUSB para Microsoft Windows
+Versión: 1.0
+Clasificación: Software Gratuito y Propietario (Freeware)
+
+IMPORTANTE — LEA DETENIDAMENTE ESTE CONTRATO:
+El presente Contrato de Licencia de Usuario Final ("EULA") constituye un acuerdo
+legal vinculante entre usted (ya sea una persona física o una entidad jurídica)
+y Josan Sánchez, autor y titular exclusivo de todos los derechos de propiedad
+intelectual del software "CleanMacUSB" (en adelante, el "Software").
+
+Al instalar, copiar, descargar o utilizar de cualquier forma el Software, usted
+confirma que ha leído este contrato hasta el final, que comprende su contenido y
+que acepta quedar vinculado por todos sus términos y condiciones. Si no está de
+acuerdo con los términos de este EULA, no instale ni utilice el Software.
+
+--------------------------------------------------------------------------------
+1. CONCESIÓN DE LICENCIA (FREEWARE)
+--------------------------------------------------------------------------------
+Josan Sánchez le concede una licencia personal, gratuita, no exclusiva,
+intransferible y revocable para instalar y ejecutar CleanMacUSB en equipos con
+sistema operativo Microsoft Windows, tanto para uso personal como profesional,
+con la única finalidad de analizar, limpiar archivos residuales generados por
+macOS y expulsar de forma segura unidades de almacenamiento USB o externas.
+
+--------------------------------------------------------------------------------
+2. PROPIEDAD INTELECTUAL Y RESERVA DE DERECHOS
+--------------------------------------------------------------------------------
+CleanMacUSB es software GRATUITO (Freeware), pero NO es software libre ni de
+código abierto (Open Source) para redistribución comercial. El Software está
+protegido por las leyes de propiedad intelectual y tratados internacionales
+sobre derechos de autor. Josan Sánchez conserva la titularidad exclusiva de todo
+el código, diseño visual, iconos, logotipos, textos y documentación. Todos los
+derechos no concedidos expresamente en este documento quedan reservados.
+
+--------------------------------------------------------------------------------
+3. RESTRICCIONES DE USO Y DISTRIBUCIÓN
+--------------------------------------------------------------------------------
+Queda estrictamente prohibido sin la autorización previa y por escrito de
+Josan Sánchez:
+  a) Vender, alquilar, arrendar, sublicenciar o comercializar el Software u
+     obtener lucro directo o indirecto por su distribución.
+  b) Modificar, adaptar, traducir, descompilar, desensamblar o realizar
+     ingeniería inversa sobre el ejecutable o el instalador del Software.
+  c) Eliminar, ocultar o alterar los avisos de derechos de autor, autoría
+     ("Desarrollado por Josan Sánchez"), marcas o créditos incluidos en la
+     interfaz o en la documentación.
+  d) Empaquetar el Software junto con adware, spyware, barras de herramientas
+     o instaladores de terceros no autorizados.
+
+--------------------------------------------------------------------------------
+4. FUNCIONAMIENTO Y ELIMINACIÓN DE ARCHIVOS RESIDUALES
+--------------------------------------------------------------------------------
+CleanMacUSB está diseñado para buscar y eliminar de forma permanente archivos y
+directorios ocultos creados por macOS en unidades externas (incluyendo, entre
+otros: archivos AppleDouble "._*", ".DS_Store", ".Spotlight-V100", ".Trashes",
+".fseventsd", ".TemporaryItems", ".VolumeIcon.icns" y ".apdisk"). Dichos
+elementos se eliminan directamente de la unidad seleccionada sin pasar por la
+Papelera de reciclaje de Windows. Es responsabilidad del usuario verificar la
+unidad seleccionada antes de iniciar el proceso de limpieza.
+
+--------------------------------------------------------------------------------
+5. EXCLUSIÓN DE GARANTÍAS
+--------------------------------------------------------------------------------
+EL SOFTWARE SE PROPORCIONA "TAL CUAL" ("AS IS"), SIN GARANTÍA DE NINGÚN TIPO,
+EXPRESA O IMPLÍCITA, INCLUYENDO, A TÍTULO ENUNCIATIVO PERO NO LIMITATIVO, LAS
+GARANTÍAS DE COMERCIABILIDAD, IDONEIDAD PARA UN PROPÓSITO PARTICULAR Y AUSENCIA
+DE INFRACCIÓN. JOSAN SÁNCHEZ NO GARANTIZA QUE EL SOFTWARE ESTÉ LIBRE DE ERRORES
+O QUE FUNCIONE DE FORMA ININTERRUMPIDA EN TODAS LAS CONFIGURACIONES DE HARDWARE.
+
+--------------------------------------------------------------------------------
+6. LIMITACIÓN DE RESPONSABILIDAD
+--------------------------------------------------------------------------------
+EN NINGÚN CASO JOSAN SÁNCHEZ SERÁ RESPONSABLE POR DAÑOS DIRECTOS, INDIRECTOS,
+INCIDENTALES, ESPECIALES O CONSECUENTES (INCLUYENDO LA PÉRDIDA DE DATOS O DAÑOS
+EN UNIDADES DE ALMACENAMIENTO) DERIVADOS DEL USO O DE LA IMPOSIBILIDAD DE USO
+DEL SOFTWARE, INCLUSO SI SE HUBIERA ADVERTIDO DE LA POSIBILIDAD DE DICHOS DAÑOS.
+
+--------------------------------------------------------------------------------
+7. ACEPTACIÓN FINAL
+--------------------------------------------------------------------------------
+Al desplazarse hasta el final de este documento y marcar la casilla de
+aceptación, usted declara haber leído íntegramente este Acuerdo de Licencia y
+aceptar todos sus términos sin reservas.
+
+Copyright (c) 2026 Josan Sánchez. Todos los derechos reservados.
+================================================================================
