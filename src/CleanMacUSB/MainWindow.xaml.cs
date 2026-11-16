@@ -35,6 +35,7 @@ public partial class MainWindow : Window
     private string _lastCleanedDriveName = string.Empty;
     private CleanSummary? _lastCleanSummary;
     private HashSet<string> _knownDriveRoots = new(StringComparer.OrdinalIgnoreCase);
+    private bool _isCheckingUpdates;
 
     public MainWindow()
     {
@@ -44,6 +45,7 @@ public partial class MainWindow : Window
         UsbDrivesComboBox.ItemsSource = Drives;
         LogListView.ItemsSource = LogEntries;
 
+        LoadPersistedUserSettings();
         InitializeLanguageSelector();
         InitializeSystemTray();
         UpdateSettingsPanelTexts();
@@ -52,6 +54,23 @@ public partial class MainWindow : Window
 
         RefreshUsbDrives(isInitialLoad: true);
         BottomStatusText.Text = Loc["StatusReady"];
+
+        // Si las actualizaciones automáticas están activadas en Ajustes, comprobar al iniciar
+        if (ToggleAutoUpdates.IsChecked == true)
+        {
+            _ = PerformUpdateCheckAsync(isManualCheck: false);
+        }
+    }
+
+    private void LoadPersistedUserSettings()
+    {
+        var settings = AppSettingsService.Load();
+        ToggleAutoUpdates.IsChecked = settings.AutoUpdateEnabled;
+        ToggleBackgroundTray.IsChecked = settings.RunInBackground;
+        if (!string.IsNullOrWhiteSpace(settings.Language))
+        {
+            Loc.CurrentCulture = settings.Language;
+        }
     }
 
     protected override void OnSourceInitialized(EventArgs e)
@@ -73,6 +92,11 @@ public partial class MainWindow : Window
         if (LanguageComboBox.SelectedItem is ComboBoxItem item && item.Tag is string tag)
         {
             Loc.CurrentCulture = tag;
+            if (IsInitialized)
+            {
+                AppSettingsService.Current.Language = tag;
+                AppSettingsService.Save();
+            }
         }
     }
 
@@ -158,6 +182,110 @@ public partial class MainWindow : Window
     private void ToggleBackgroundTray_Changed(object sender, RoutedEventArgs e)
     {
         UpdateTrayStatusIndicator();
+        if (IsInitialized)
+        {
+            AppSettingsService.Current.RunInBackground = ToggleBackgroundTray.IsChecked == true;
+            AppSettingsService.Save();
+        }
+    }
+
+    private void ToggleAutoUpdates_Changed(object sender, RoutedEventArgs e)
+    {
+        if (IsInitialized)
+        {
+            AppSettingsService.Current.AutoUpdateEnabled = ToggleAutoUpdates.IsChecked == true;
+            AppSettingsService.Save();
+        }
+    }
+
+    private async void CheckUpdatesButton_Click(object sender, RoutedEventArgs e)
+    {
+        await PerformUpdateCheckAsync(isManualCheck: true);
+    }
+
+    private async Task PerformUpdateCheckAsync(bool isManualCheck)
+    {
+        if (_isCheckingUpdates) return;
+        _isCheckingUpdates = true;
+
+        try
+        {
+            if (CheckUpdatesButton != null)
+            {
+                CheckUpdatesButton.IsEnabled = false;
+                CheckUpdatesButton.Content = Loc["BtnCheckingUpdates"];
+            }
+
+            if (UpdateStatusTextBlock != null)
+            {
+                UpdateStatusTextBlock.Text = Loc["UpdateStatusChecking"];
+                UpdateStatusTextBlock.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(2, 132, 199));
+            }
+
+            var result = await UpdateService.CheckForUpdatesAsync(Loc.IsSpanish);
+
+            if (!result.CheckSucceeded)
+            {
+                if (UpdateStatusTextBlock != null)
+                {
+                    UpdateStatusTextBlock.Text = isManualCheck ? Loc["UpdateStatusOffline"] : Loc["UpdateStatusIdle"];
+                    UpdateStatusTextBlock.Foreground = new SolidColorBrush(
+                        isManualCheck
+                            ? System.Windows.Media.Color.FromRgb(217, 119, 6)
+                            : System.Windows.Media.Color.FromRgb(100, 116, 139));
+                }
+                return;
+            }
+
+            if (result.IsUpdateAvailable)
+            {
+                if (UpdateStatusTextBlock != null)
+                {
+                    UpdateStatusTextBlock.Text = Loc.Format("UpdateStatusAvailable", result.LatestVersion);
+                    UpdateStatusTextBlock.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(22, 163, 74));
+                }
+
+                var answer = System.Windows.MessageBox.Show(
+                    this,
+                    Loc.Format("UpdatePromptBody", result.LatestVersion, result.CurrentVersion, result.ReleaseNotes),
+                    Loc.Format("UpdatePromptTitle", result.LatestVersion),
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Information,
+                    MessageBoxResult.Yes);
+
+                if (answer == MessageBoxResult.Yes)
+                {
+                    if (UpdateStatusTextBlock != null)
+                    {
+                        UpdateStatusTextBlock.Text = Loc.Format("UpdateDownloadingStatus", result.LatestVersion);
+                    }
+
+                    bool launched = await UpdateService.DownloadAndLaunchInstallerAsync(result.DownloadUrl);
+                    if (launched)
+                    {
+                        _forceExit = true;
+                        Close();
+                    }
+                }
+            }
+            else
+            {
+                if (UpdateStatusTextBlock != null)
+                {
+                    UpdateStatusTextBlock.Text = Loc.Format("UpdateStatusUpToDate", result.CurrentVersion);
+                    UpdateStatusTextBlock.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(22, 163, 74));
+                }
+            }
+        }
+        finally
+        {
+            _isCheckingUpdates = false;
+            if (CheckUpdatesButton != null)
+            {
+                CheckUpdatesButton.IsEnabled = true;
+                CheckUpdatesButton.Content = Loc["BtnCheckUpdatesNow"];
+            }
+        }
     }
 
     private void UpdateSettingsPanelTexts()
