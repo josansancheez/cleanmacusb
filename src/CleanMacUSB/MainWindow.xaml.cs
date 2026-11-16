@@ -934,7 +934,23 @@ public partial class MainWindow : Window
         }
     }
 
-    // ==================== VENTANA ACERCA DE (ABOUT) ====================
+    // ==================== VENTANA ACERCA DE Y DONACIÓN PAYPAL ====================
+
+    private void DonatePayPalButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "https://paypal.me/josansancheez",
+                UseShellExecute = true
+            });
+        }
+        catch
+        {
+            // Ignorar si no hay navegador predeterminado
+        }
+    }
 
     private void AboutButton_Click(object sender, RoutedEventArgs e)
     {

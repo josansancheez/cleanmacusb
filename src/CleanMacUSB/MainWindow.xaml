@@ -734,7 +734,7 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
 
-                            <!-- Cabecera Acerca de + Botón Ventana Completa -->
+                            <!-- Cabecera Acerca de + Botón Invítame a un café (PayPal) + Botón Ventana Completa -->
                             <Grid Grid.Row="0" Margin="0,0,0,10">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
@@ -746,12 +746,22 @@
                                            FontWeight="Bold"
                                            Foreground="#0369A1"
                                            VerticalAlignment="Center" />
-                                <Button Grid.Column="1"
-                                        Content="{Binding Loc[SettingsViewFullEulaBtn]}"
-                                        Style="{StaticResource FluentSecondaryButtonStyle}"
-                                        Padding="10,4"
-                                        FontSize="11.5"
-                                        Click="AboutButton_Click" />
+                                <StackPanel Grid.Column="1"
+                                            Orientation="Horizontal"
+                                            VerticalAlignment="Center">
+                                    <Button Content="{Binding Loc[BtnDonateCoffee]}"
+                                            ToolTip="{Binding Loc[DonateTooltip]}"
+                                            Style="{StaticResource FluentDonateButtonStyle}"
+                                            Padding="12,5"
+                                            FontSize="11.5"
+                                            Margin="0,0,8,0"
+                                            Click="DonatePayPalButton_Click" />
+                                    <Button Content="{Binding Loc[SettingsViewFullEulaBtn]}"
+                                            Style="{StaticResource FluentSecondaryButtonStyle}"
+                                            Padding="10,4"
+                                            FontSize="11.5"
+                                            Click="AboutButton_Click" />
+                                </StackPanel>
                             </Grid>
 
                             <!-- Ficha de Versión y Autor (Josan Sánchez) -->

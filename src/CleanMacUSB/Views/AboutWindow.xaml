@@ -85,15 +85,26 @@
                      Padding="10" />
         </Border>
 
-        <!-- Botón Cerrar -->
-        <StackPanel Grid.Row="3"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Right"
-                    Margin="0,14,0,0">
-            <Button Content="{Binding Loc[AboutCloseButton]}"
+        <!-- Botón Donar (PayPal) y Cerrar -->
+        <Grid Grid.Row="3" Margin="0,14,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0"
+                    Content="{Binding Loc[BtnDonateCoffee]}"
+                    ToolTip="{Binding Loc[DonateTooltip]}"
+                    Style="{StaticResource FluentDonateButtonStyle}"
+                    Padding="14,8"
+                    Click="DonateButton_Click" />
+
+            <Button Grid.Column="2"
+                    Content="{Binding Loc[AboutCloseButton]}"
                     Style="{StaticResource FluentPrimaryButtonStyle}"
                     MinWidth="110"
                     Click="CloseButton_Click" />
-        </StackPanel>
+        </Grid>
     </Grid>
 </Window>

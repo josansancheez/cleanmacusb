@@ -10,6 +10,7 @@
 [![Versión](https://img.shields.io/badge/Versi%C3%B3n-1.0.0-16A34A?style=for-the-badge)](#)
 [![Licencia](https://img.shields.io/badge/Licencia-Freeware%20Propietario-F59E0B?style=for-the-badge)](#licencia-y-autor%C3%ADa)
 [![Autor](https://img.shields.io/badge/Desarrollado%20por-Josan%20S%C3%A1nchez-0F172A?style=for-the-badge)](#licencia-y-autor%C3%ADa)
+[![Donar PayPal](https://img.shields.io/badge/%E2%98%95%20Inv%C3%ADtame%20a%20un%20caf%C3%A9-PayPal-00457C?style=for-the-badge&logo=paypal)](https://paypal.me/josansancheez)
 
 *Disponible en **Español (ES)** e **Inglés (EN)**.*
 

@@ -95,6 +95,8 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["SettingsAuthorLabel"] = "Desarrollador y Autor:",
         ["SettingsAuthorValue"] = "Josan Sánchez — Todos los derechos reservados",
         ["SettingsViewFullEulaBtn"] = "Ver licencia en ventana completa",
+        ["BtnDonateCoffee"] = "☕ Invítame a un café (PayPal)",
+        ["DonateTooltip"] = "Apoya el desarrollo gratuito de CleanMacUSB por Josan Sánchez (paypal.me/josansancheez)",
 
         // Botones principales
         ["BtnCleanUsb"] = "Limpiar ahora",
@@ -247,6 +249,8 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["SettingsAuthorLabel"] = "Developer & Author:",
         ["SettingsAuthorValue"] = "Josan Sánchez — All rights reserved",
         ["SettingsViewFullEulaBtn"] = "View license in full window",
+        ["BtnDonateCoffee"] = "☕ Buy me a coffee (PayPal)",
+        ["DonateTooltip"] = "Support the free development of CleanMacUSB by Josan Sánchez (paypal.me/josansancheez)",
 
         // Botones principales
         ["BtnCleanUsb"] = "Clean Now",
