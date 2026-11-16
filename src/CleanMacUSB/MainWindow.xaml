@@ -136,6 +136,22 @@
                             </Button>
                         </Grid>
 
+                        <!-- Aviso al seleccionar un disco duro interno del ordenador -->
+                        <Border x:Name="InternalDriveWarningBorder"
+                                Background="#FFFBEB"
+                                BorderBrush="#FDE68A"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="10,7"
+                                Margin="0,8,0,0"
+                                Visibility="Collapsed">
+                            <TextBlock Text="{Binding Loc[InternalDriveWarning]}"
+                                       FontSize="11.5"
+                                       FontWeight="SemiBold"
+                                       Foreground="#B45309"
+                                       TextWrapping="Wrap" />
+                        </Border>
+
                         <TextBlock x:Name="NoDrivesWarningText"
                                    Text="{Binding Loc[NoUsbDetected]}"
                                    FontSize="12"

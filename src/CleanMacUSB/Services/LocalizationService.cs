@@ -36,6 +36,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["TagInternalDrive"] = "[DISCO LOCAL]",
         ["DriveFormatPattern"] = "{0} [{1}] — {2} libres de {3} ({4})",
         ["FolderFormatPattern"] = "[CARPETA] {0}",
+        ["InternalDriveWarning"] = "⚠ Atención: Al limpiar un disco duro del equipo, es posible que algunas aplicaciones, programas o juegos instalados puedan verse alterados por la similitud de ciertos archivos (como README, *.tmp o *.bak).",
 
         // Opciones de limpieza (macOS + Windows + Linux + Smart TV)
         ["OptionsSectionTitle"] = "Configuración de Limpieza",
@@ -187,6 +188,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["TagInternalDrive"] = "[LOCAL DISK]",
         ["DriveFormatPattern"] = "{0} [{1}] — {2} free of {3} ({4})",
         ["FolderFormatPattern"] = "[FOLDER] {0}",
+        ["InternalDriveWarning"] = "⚠ Warning: When cleaning a computer hard drive, some installed applications, programs, or games may be altered due to the similarity of certain files (such as README, *.tmp, or *.bak).",
 
         // Opciones de limpieza (macOS + Windows + Linux + Smart TV)
         ["OptionsSectionTitle"] = "Cleaning Configuration",

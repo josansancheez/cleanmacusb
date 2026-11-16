@@ -385,11 +385,22 @@ public partial class MainWindow : Window
             {
                 ChkAutoEject.IsChecked = false;
             }
+
+            if (InternalDriveWarningBorder != null)
+            {
+                InternalDriveWarningBorder.Visibility = selected.TargetKind != CleanTargetKind.UsbDrive
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+            }
         }
         else
         {
             CleanUsbButton.IsEnabled = false;
             EjectUsbButton.IsEnabled = false;
+            if (InternalDriveWarningBorder != null)
+            {
+                InternalDriveWarningBorder.Visibility = Visibility.Collapsed;
+            }
         }
     }
 
