@@ -827,7 +827,7 @@
                                                    Foreground="#0284C7" />
                                     </StackPanel>
 
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
                                         <TextBlock Text="{Binding Loc[SettingsAuthorLabel]}"
                                                    FontWeight="SemiBold"
                                                    FontSize="12.5"
@@ -837,6 +837,21 @@
                                                    FontWeight="Bold"
                                                    FontSize="12.5"
                                                    Foreground="{StaticResource TextPrimaryBrush}" />
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Loc[SettingsRepoLabel]}"
+                                                   FontWeight="SemiBold"
+                                                   FontSize="12.5"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   Margin="0,0,6,0" />
+                                        <TextBlock FontSize="12.5" FontWeight="SemiBold">
+                                            <Hyperlink NavigateUri="https://github.com/josansancheez/cleanmacusb"
+                                                       Foreground="#0284C7"
+                                                       RequestNavigate="Hyperlink_RequestNavigate">
+                                                https://github.com/josansancheez/cleanmacusb
+                                            </Hyperlink>
+                                        </TextBlock>
                                     </StackPanel>
                                 </StackPanel>
                             </Grid>

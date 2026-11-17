@@ -54,6 +54,15 @@
                                Foreground="{StaticResource TextSecondaryBrush}"
                                Margin="0,6,0,0"
                                TextWrapping="Wrap" />
+                    <TextBlock FontSize="12" FontWeight="SemiBold" Margin="0,6,0,0">
+                        <Run Text="{Binding Loc[SettingsRepoLabel], Mode=OneWay}" Foreground="{StaticResource TextSecondaryBrush}" />
+                        <Run Text=" " />
+                        <Hyperlink NavigateUri="https://github.com/josansancheez/cleanmacusb"
+                                   Foreground="#0284C7"
+                                   RequestNavigate="Hyperlink_RequestNavigate">
+                            https://github.com/josansancheez/cleanmacusb
+                        </Hyperlink>
+                    </TextBlock>
                 </StackPanel>
             </Grid>
         </Border>

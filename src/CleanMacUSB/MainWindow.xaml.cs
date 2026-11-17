@@ -1005,6 +1005,23 @@ public partial class MainWindow : Window
 
     // ==================== VENTANA ACERCA DE Y DONACIÓN PAYPAL ====================
 
+    private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+    {
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = e.Uri.AbsoluteUri,
+                UseShellExecute = true
+            });
+            e.Handled = true;
+        }
+        catch
+        {
+            // Ignorar si no hay navegador predeterminado
+        }
+    }
+
     private void DonatePayPalButton_Click(object sender, RoutedEventArgs e)
     {
         try

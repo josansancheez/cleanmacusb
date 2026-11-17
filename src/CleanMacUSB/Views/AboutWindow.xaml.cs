@@ -14,6 +14,20 @@ public partial class AboutWindow : Window
         EulaTextBox.Text = Loc.GetEulaText();
     }
 
+    private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+    {
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = e.Uri.AbsoluteUri,
+                UseShellExecute = true
+            });
+            e.Handled = true;
+        }
+        catch { }
+    }
+
     private void DonateButton_Click(object sender, RoutedEventArgs e)
     {
         try
