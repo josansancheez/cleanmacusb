@@ -1,7 +1,7 @@
 <Window x:Class="CleanMacUSB.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="CleanMacUSB v1.0 — Josan Sánchez"
+        Title="CleanMacUSB"
         Icon="pack://application:,,,/Assets/CleanMacUSB.ico"
         Width="820"
         Height="760"
