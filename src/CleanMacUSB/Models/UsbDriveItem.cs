@@ -25,6 +25,21 @@ public sealed class UsbDriveItem : INotifyPropertyChanged
 
     public bool CanEject => TargetKind == CleanTargetKind.UsbDrive;
 
+    public string GroupCategory
+    {
+        get
+        {
+            var loc = LocalizationService.Instance;
+            return TargetKind switch
+            {
+                CleanTargetKind.UsbDrive => loc["GroupExternalUsb"],
+                CleanTargetKind.InternalDrive => loc["GroupInternalDisks"],
+                CleanTargetKind.CustomFolder => loc["GroupCustomFolders"],
+                _ => loc["GroupExternalUsb"]
+            };
+        }
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public string DisplayName
@@ -57,6 +72,7 @@ public sealed class UsbDriveItem : INotifyPropertyChanged
     public void RefreshLocalization()
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayName)));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(GroupCategory)));
     }
 
     public static string FormatBytes(long bytes)

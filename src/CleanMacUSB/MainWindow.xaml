@@ -112,7 +112,26 @@
                                       VerticalContentAlignment="Center"
                                       Padding="10,0"
                                       DisplayMemberPath="DisplayName"
-                                      SelectionChanged="UsbDrivesComboBox_SelectionChanged" />
+                                      SelectionChanged="UsbDrivesComboBox_SelectionChanged">
+                                <ComboBox.GroupStyle>
+                                    <GroupStyle>
+                                        <GroupStyle.HeaderTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#F1F5F9"
+                                                        BorderBrush="#E2E8F0"
+                                                        BorderThickness="0,1,0,1"
+                                                        Padding="10,5"
+                                                        Margin="0,2,0,2">
+                                                    <TextBlock Text="{Binding Name}"
+                                                               FontSize="12"
+                                                               FontWeight="Bold"
+                                                               Foreground="#0369A1" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </GroupStyle.HeaderTemplate>
+                                    </GroupStyle>
+                                </ComboBox.GroupStyle>
+                            </ComboBox>
 
                             <Button x:Name="RefreshDrivesButton"
                                     Grid.Column="1"

@@ -1,8 +1,10 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Interop;
 using System.Windows.Media;
 using CleanMacUSB.Models;
@@ -23,6 +25,7 @@ public partial class MainWindow : Window
     public ObservableCollection<UsbDriveItem> Drives { get; } = new();
     public ObservableCollection<CleanLogEntry> LogEntries { get; } = new();
 
+    private readonly ICollectionView _drivesView;
     private readonly List<UsbDriveItem> _customFolders = new();
     private Forms.NotifyIcon? _notifyIcon;
     private Forms.ToolStripMenuItem? _trayOpenItem;
@@ -42,9 +45,12 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = this;
 
-        UsbDrivesComboBox.ItemsSource = Drives;
+        _drivesView = CollectionViewSource.GetDefaultView(Drives);
+        _drivesView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(UsbDriveItem.GroupCategory)));
+        UsbDrivesComboBox.ItemsSource = _drivesView;
         LogListView.ItemsSource = LogEntries;
 
+        InitializeDefaultFolders();
         LoadPersistedUserSettings();
         InitializeLanguageSelector();
         InitializeSystemTray();
@@ -114,11 +120,12 @@ public partial class MainWindow : Window
 
     private void OnLanguageChanged(object? sender, EventArgs e)
     {
-        // Actualizar textos de unidades/carpetas en tiempo real
+        // Actualizar textos de unidades/carpetas y encabezados de grupo en tiempo real
         foreach (var d in Drives)
         {
             d.RefreshLocalization();
         }
+        _drivesView.Refresh();
         UsbDrivesComboBox.Items.Refresh();
 
         // Actualizar entradas del log en tiempo real
@@ -484,6 +491,32 @@ public partial class MainWindow : Window
         BottomStatusText.Text = Loc.Format("StatusDrivesUpdated", Drives.Count);
     }
 
+    private void InitializeDefaultFolders()
+    {
+        var defaultDirs = new[]
+        {
+            Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"),
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+        };
+
+        foreach (var dir in defaultDirs)
+        {
+            if (!string.IsNullOrWhiteSpace(dir) && Directory.Exists(dir) &&
+                !_customFolders.Any(f => string.Equals(f.DriveRoot, dir, StringComparison.OrdinalIgnoreCase)))
+            {
+                _customFolders.Add(new UsbDriveItem
+                {
+                    TargetKind = CleanTargetKind.CustomFolder,
+                    DriveRoot = dir,
+                    DriveLetter = char.ToUpperInvariant(dir[0]),
+                    VolumeLabel = Path.GetFileName(dir.TrimEnd(Path.DirectorySeparatorChar)),
+                    FileSystem = "Folder"
+                });
+            }
+        }
+    }
+
     private void RefreshUsbDrives(bool isInitialLoad, string? preferredRoot = null)
     {
         string? targetRoot = preferredRoot ?? (UsbDrivesComboBox.SelectedItem as UsbDriveItem)?.DriveRoot;
@@ -493,17 +526,20 @@ public partial class MainWindow : Window
         Drives.Clear();
         _knownDriveRoots.Clear();
 
-        // 1. Añadir unidades USB y discos internos detectados
-        foreach (var drive in detected)
+        // 1. Añadir memorias externas (USB)
+        foreach (var drive in detected.Where(d => d.TargetKind == CleanTargetKind.UsbDrive))
         {
             Drives.Add(drive);
-            if (drive.TargetKind == CleanTargetKind.UsbDrive)
-            {
-                _knownDriveRoots.Add(drive.DriveRoot);
-            }
+            _knownDriveRoots.Add(drive.DriveRoot);
         }
 
-        // 2. Añadir carpetas personalizadas que sigan existiendo en disco
+        // 2. Añadir memorias internas (discos locales del PC)
+        foreach (var drive in detected.Where(d => d.TargetKind == CleanTargetKind.InternalDrive))
+        {
+            Drives.Add(drive);
+        }
+
+        // 3. Añadir carpetas que sigan existiendo en disco
         foreach (var folder in _customFolders.ToList())
         {
             if (Directory.Exists(folder.DriveRoot))
@@ -516,18 +552,29 @@ public partial class MainWindow : Window
             }
         }
 
+        _drivesView.Refresh();
+
         if (Drives.Count > 0)
         {
             NoDrivesWarningText.Visibility = Visibility.Collapsed;
             UsbDrivesComboBox.IsEnabled = true;
 
-            var match = Drives.FirstOrDefault(d => string.Equals(d.DriveRoot, targetRoot, StringComparison.OrdinalIgnoreCase));
-            UsbDrivesComboBox.SelectedItem = match ?? Drives[0];
+            if (isInitialLoad || string.IsNullOrEmpty(targetRoot))
+            {
+                // Dejar el desplegable vacío sin nada seleccionado por defecto
+                UsbDrivesComboBox.SelectedItem = null;
+            }
+            else
+            {
+                var match = Drives.FirstOrDefault(d => string.Equals(d.DriveRoot, targetRoot, StringComparison.OrdinalIgnoreCase));
+                UsbDrivesComboBox.SelectedItem = match;
+            }
         }
         else
         {
             NoDrivesWarningText.Visibility = Visibility.Visible;
             UsbDrivesComboBox.IsEnabled = false;
+            UsbDrivesComboBox.SelectedItem = null;
         }
 
         UpdateActionButtonsForSelection();
