@@ -25,6 +25,9 @@
     <Resource Include="..\..\assets\logo.png" Link="Assets\logo.png" />
     <Resource Include="..\..\assets\EULA_ES.txt" Link="Assets\EULA_ES.txt" />
     <Resource Include="..\..\assets\EULA_EN.txt" Link="Assets\EULA_EN.txt" />
+    <Resource Include="..\..\assets\EULA_DE.txt" Link="Assets\EULA_DE.txt" />
+    <Resource Include="..\..\assets\EULA_FR.txt" Link="Assets\EULA_FR.txt" />
+    <Resource Include="..\..\assets\EULA_ZH.txt" Link="Assets\EULA_ZH.txt" />
   </ItemGroup>
 
 </Project>

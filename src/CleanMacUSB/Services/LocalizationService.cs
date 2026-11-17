@@ -873,7 +873,14 @@ public sealed class LocalizationService : INotifyPropertyChanged
     {
         try
         {
-            var resourceName = IsSpanish ? "Assets/EULA_ES.txt" : "Assets/EULA_EN.txt";
+            var resourceName = _currentCulture switch
+            {
+                "es-ES" => "Assets/EULA_ES.txt",
+                "de-DE" => "Assets/EULA_DE.txt",
+                "fr-FR" => "Assets/EULA_FR.txt",
+                "zh-CN" => "Assets/EULA_ZH.txt",
+                _ => "Assets/EULA_EN.txt"
+            };
             var uri = new Uri($"pack://application:,,,/{resourceName}", UriKind.Absolute);
             var streamInfo = System.Windows.Application.GetResourceStream(uri);
             if (streamInfo != null)
