@@ -55,8 +55,12 @@ public partial class MainWindow : Window
         RefreshUsbDrives(isInitialLoad: true);
         BottomStatusText.Text = Loc["StatusReady"];
 
-        // Si las actualizaciones automáticas están activadas en Ajustes, comprobar al iniciar
-        if (ToggleAutoUpdates.IsChecked == true)
+        // Si se ejecuta desde la Microsoft Store, ocultar la sección de actualizaciones propias
+        if (UpdateService.IsRunningAsMicrosoftStorePackage())
+        {
+            AutoUpdateSectionPanel.Visibility = Visibility.Collapsed;
+        }
+        else if (ToggleAutoUpdates.IsChecked == true)
         {
             _ = PerformUpdateCheckAsync(isManualCheck: false);
         }

@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json;
 
 namespace CleanMacUSB.Services;
@@ -24,6 +26,39 @@ public static class UpdateService
     private const string VersionJsonUrl = "https://raw.githubusercontent.com/josansancheez/cleanmacusb/main/version.json";
     private const string GitHubReleasesApiUrl = "https://api.github.com/repos/josansancheez/cleanmacusb/releases/latest";
     private const string GitHubRepoReleasesPageUrl = "https://github.com/josansancheez/cleanmacusb/releases";
+    private const int APPMODEL_ERROR_NO_PACKAGE = 15700;
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = false)]
+    private static extern int GetCurrentPackageFullName(ref uint packageFullNameLength, StringBuilder? packageFullName);
+
+    /// <summary>
+    /// Detecta automáticamente si la aplicación se ha instalado y se ejecuta desde la Microsoft Store (paquete MSIX/AppX).
+    /// Si devuelve true, se oculta el actualizador propio porque la Microsoft Store gestiona las actualizaciones.
+    /// </summary>
+    public static bool IsRunningAsMicrosoftStorePackage()
+    {
+        try
+        {
+            uint length = 0;
+            int result = GetCurrentPackageFullName(ref length, null);
+            if (result != APPMODEL_ERROR_NO_PACKAGE && length > 0)
+            {
+                return true;
+            }
+
+            string baseDir = AppContext.BaseDirectory;
+            if (!string.IsNullOrEmpty(baseDir) && baseDir.Contains("WindowsApps", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+        catch
+        {
+            // En versiones sin soporte de AppModel, es ejecución Win32 estándar
+        }
+
+        return false;
+    }
 
     private static readonly HttpClient Http = CreateHttpClient();
 

@@ -639,52 +639,54 @@
 
                             <Separator Background="#E2E8F0" Margin="0,2,0,10" />
 
-                            <!-- Interruptor de Actualizaciones Automáticas + Botón Buscar Actualizaciones -->
-                            <Grid Margin="0,0,0,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
+                            <!-- Sección de Actualizaciones Automáticas (se oculta sola si viene de Microsoft Store) -->
+                            <StackPanel x:Name="AutoUpdateSectionPanel">
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,14,0">
-                                    <TextBlock Text="{Binding Loc[OptAutoUpdateTitle]}"
-                                               FontSize="14"
-                                               FontWeight="SemiBold"
-                                               Foreground="{StaticResource TextPrimaryBrush}" />
-                                    <TextBlock Text="{Binding Loc[OptAutoUpdateDesc]}"
-                                               FontSize="12"
-                                               Foreground="{StaticResource TextSecondaryBrush}"
-                                               TextWrapping="Wrap"
-                                               Margin="0,2,0,3" />
-                                    <TextBlock x:Name="UpdateStatusTextBlock"
-                                               Text="{Binding Loc[UpdateStatusIdle]}"
-                                               FontSize="11.5"
-                                               FontWeight="SemiBold"
-                                               Foreground="#0284C7" />
-                                </StackPanel>
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,14,0">
+                                        <TextBlock Text="{Binding Loc[OptAutoUpdateTitle]}"
+                                                   FontSize="14"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                        <TextBlock Text="{Binding Loc[OptAutoUpdateDesc]}"
+                                                   FontSize="12"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   TextWrapping="Wrap"
+                                                   Margin="0,2,0,3" />
+                                        <TextBlock x:Name="UpdateStatusTextBlock"
+                                                   Text="{Binding Loc[UpdateStatusIdle]}"
+                                                   FontSize="11.5"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="#0284C7" />
+                                    </StackPanel>
 
-                                <Button x:Name="CheckUpdatesButton"
-                                        Grid.Column="1"
-                                        Content="{Binding Loc[BtnCheckUpdatesNow]}"
-                                        Style="{StaticResource FluentSecondaryButtonStyle}"
-                                        Height="32"
-                                        Padding="12,0"
-                                        FontSize="12"
-                                        Margin="0,0,12,0"
-                                        VerticalAlignment="Center"
-                                        Click="CheckUpdatesButton_Click" />
+                                    <Button x:Name="CheckUpdatesButton"
+                                            Grid.Column="1"
+                                            Content="{Binding Loc[BtnCheckUpdatesNow]}"
+                                            Style="{StaticResource FluentSecondaryButtonStyle}"
+                                            Height="32"
+                                            Padding="12,0"
+                                            FontSize="12"
+                                            Margin="0,0,12,0"
+                                            VerticalAlignment="Center"
+                                            Click="CheckUpdatesButton_Click" />
 
-                                <CheckBox x:Name="ToggleAutoUpdates"
-                                          Grid.Column="2"
-                                          IsChecked="True"
-                                          Style="{StaticResource FluentToggleSwitchStyle}"
-                                          VerticalAlignment="Center"
-                                          Checked="ToggleAutoUpdates_Changed"
-                                          Unchecked="ToggleAutoUpdates_Changed" />
-                            </Grid>
+                                    <CheckBox x:Name="ToggleAutoUpdates"
+                                              Grid.Column="2"
+                                              IsChecked="True"
+                                              Style="{StaticResource FluentToggleSwitchStyle}"
+                                              VerticalAlignment="Center"
+                                              Checked="ToggleAutoUpdates_Changed"
+                                              Unchecked="ToggleAutoUpdates_Changed" />
+                                </Grid>
 
-                            <Separator Background="#E2E8F0" Margin="0,2,0,10" />
+                                <Separator Background="#E2E8F0" Margin="0,2,0,10" />
+                            </StackPanel>
 
                             <!-- Interruptor de Segundo Plano (Bandeja del sistema) -->
                             <Grid>
