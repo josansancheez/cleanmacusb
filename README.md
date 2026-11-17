@@ -51,16 +51,18 @@ Puedes elegir todas las categorías a la vez con el botón **«☑ Elegir todo»
 
 ## ✨ Características Principales
 
-- 💾 **Limpieza de Memorias USB, Discos Duros Internos y Carpetas:**
-  - Detecta automáticamente cualquier memoria USB o disco externo al conectarlo.
-  - Muestra directamente los discos duros internos del ordenador (`C:\`, `D:\`...) protegiendo las carpetas críticas del sistema.
-  - Incluye el botón **«📁 Elegir carpeta...»** para limpiar cualquier carpeta específica.
-- 📋 **Registro de Actividad en Tiempo Real:** Muestra el progreso, cada archivo o carpeta eliminada con su tamaño, el espacio total liberado, opción para **guardar el registro en `.txt`** y botón **«⏹ Abortar limpieza»** para detener el proceso en cualquier momento.
+- 💾 **Selector Agrupado en 3 Apartados (USB, Discos Internos y Carpetas):**
+  - El desplegable inicia **vacío por defecto** (con el botón de limpiar deshabilitado hasta elegir un destino) para evitar limpiezas accidentales.
+  - Separa claramente las unidades en 3 apartados: **🔌 Memorias Externas (USB)**, **💻 Memorias Internas (Discos del PC)** y **📁 Carpetas** (Escritorio, Descargas, Documentos o cualquier carpeta elegida con **«📁 Elegir carpeta...»**).
+  - Muestra un aviso de precaución al seleccionar un disco duro interno y protege las carpetas críticas de Windows.
+- 🛡 **Confirmación y Resumen Final:** Solicita confirmación antes de comenzar la limpieza y, al finalizar, muestra una ventana de resumen con el total de archivos eliminados y espacio liberado.
+- 📋 **Registro de Actividad en Tiempo Real:** Muestra el progreso, cada archivo o carpeta eliminada con su tamaño, opción para **guardar el registro en `.txt`** y botón **«⏹ Abortar limpieza»** para detener el proceso en cualquier momento.
 - ⏏ **Expulsión Segura de USB:** Desmonta y expulsa físicamente el pendrive para poder retirarlo sin riesgo de corrupción de datos (con opción de expulsión automática al terminar).
 - ⚙ **Apartado de Ajustes:**
   - Selector de idioma en tiempo real (**Español**, **Inglés**, **Alemán**, **Francés** y **Chino**) sin necesidad de reiniciar.
+  - **Actualizaciones automáticas** (se oculta automáticamente si la app se ejecuta desde Microsoft Store).
   - Opción para **ejecutar en segundo plano (Bandeja del sistema)** y recibir un aviso automático cada vez que conectes un USB nuevo.
-  - Información de versión y visor de licencia.
+  - Información de versión, visor de licencia EULA y enlace directo de apoyo al creador.
 
 ---
 
@@ -70,10 +72,11 @@ Ejecuta el instalador **`CleanMacUSB_Setup_v1.0.exe`** y sigue los pasos en pant
 
 ---
 
-## 📜 Licencia y Autoría
+## 📜 Licencia, Privacidad y Autoría
 
 - **Producto:** CleanMacUSB v1.0
 - **Desarrollador y Autor:** **Josan Sánchez**
+- **Privacidad:** 100 % local, sin recopilación ni envío de datos ([`PRIVACY.md`](PRIVACY.md)).
 - **Licencia:** Software Gratuito y Propietario (*Freeware*).
   - Uso gratuito permitido a nivel personal y profesional.
   - Prohibida su venta, modificación o redistribución comercial sin permiso del autor. Textos legales completos en [`assets/EULA_ES.txt`](assets/EULA_ES.txt) y [`assets/EULA_EN.txt`](assets/EULA_EN.txt).
