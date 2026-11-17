@@ -1,0 +1,109 @@
+<Window x:Class="CleanMacUSB.Views.CleanCompletedWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{Binding Loc[CleanDoneWindowTitle]}"
+        Icon="pack://application:,,,/Assets/CleanMacUSB.ico"
+        Width="520"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="{StaticResource AppBgBrush}"
+        FontFamily="Segoe UI">
+
+    <Grid Margin="22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Bloque 1: Confirmación de Limpieza Completada -->
+        <Border Grid.Row="0"
+                Background="{StaticResource CardBgBrush}"
+                BorderBrush="{StaticResource CardBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="12"
+                Padding="18,16"
+                Margin="0,0,0,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Image Grid.Column="0"
+                       Source="pack://application:,,,/Assets/logo.png"
+                       Width="60"
+                       Height="60"
+                       Margin="0,0,16,0"
+                       VerticalAlignment="Center"
+                       RenderOptions.BitmapScalingMode="HighQuality" />
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Loc[CleanDoneHeading]}"
+                               FontSize="16.5"
+                               FontWeight="Bold"
+                               Foreground="#16A34A"
+                               TextWrapping="Wrap" />
+                    <TextBlock x:Name="DriveNameTextBlock"
+                               FontSize="12.5"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               Margin="0,4,0,2"
+                               TextTrimming="CharacterEllipsis" />
+                    <TextBlock x:Name="StatsSummaryTextBlock"
+                               FontSize="12.5"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Bloque 2: Mensaje de Apoyo por PayPal ("Si te ha ayudado, ayúdame a mí") -->
+        <Border Grid.Row="1"
+                Background="#FFFBEB"
+                BorderBrush="#FDE68A"
+                BorderThickness="1.5"
+                CornerRadius="12"
+                Padding="18,14"
+                Margin="0,0,0,18">
+            <StackPanel>
+                <TextBlock Text="{Binding Loc[CleanDoneSupportTitle]}"
+                           FontSize="14.5"
+                           FontWeight="Bold"
+                           Foreground="#B45309"
+                           Margin="0,0,0,6" />
+                <TextBlock Text="{Binding Loc[CleanDoneSupportBody]}"
+                           FontSize="12.5"
+                           Foreground="#78350F"
+                           LineHeight="19"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
+        <!-- Bloque 3: Botones de Acción (Apoyar con PayPal y Cerrar) -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0"
+                    Content="{Binding Loc[CleanDoneBtnPayPal]}"
+                    ToolTip="{Binding Loc[DonateTooltip]}"
+                    Style="{StaticResource FluentDonateButtonStyle}"
+                    Height="42"
+                    FontSize="14"
+                    Click="SupportPayPalButton_Click" />
+
+            <Button Grid.Column="2"
+                    Content="{Binding Loc[CleanDoneBtnClose]}"
+                    Style="{StaticResource FluentPrimaryButtonStyle}"
+                    Height="42"
+                    MinWidth="130"
+                    FontSize="14"
+                    Click="CloseButton_Click" />
+        </Grid>
+    </Grid>
+</Window>

@@ -161,6 +161,15 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["TrayUsbDetectedBody"] = "Se ha conectado {0}. Haz clic aquí para limpiar los archivos ocultos.",
         ["TrayUsbPromptQuestion"] = "Se ha detectado la unidad USB {0}.\n¿Deseas analizarla y eliminar los archivos residuales ahora mismo?",
 
+        // Ventana de Limpieza Completada + Apoyar con PayPal
+        ["CleanDoneWindowTitle"] = "¡Limpieza completada! — CleanMacUSB",
+        ["CleanDoneHeading"] = "✔ ¡Ya has limpiado tu unidad con éxito!",
+        ["CleanDoneSubheading"] = "Se han eliminado {0} archivos y {1} carpetas residuales ({2} liberados).",
+        ["CleanDoneSupportTitle"] = "💛 Si te ha ayudado a ti, ¡ayúdame tú a mí!",
+        ["CleanDoneSupportBody"] = "CleanMacUSB es una herramienta 100 % gratuita creada por Josan Sánchez. Si esta aplicación te ha resultado útil y te ha ahorrado tiempo, puedes apoyar el proyecto con una pequeña aportación por PayPal para que pueda seguir manteniéndola y mejorándola.",
+        ["CleanDoneBtnPayPal"] = "☕ Apoyar con PayPal",
+        ["CleanDoneBtnClose"] = "Cerrar",
+
         // Ventana Acerca de (About)
         ["AboutWindowTitle"] = "Acerca de CleanMacUSB",
         ["AboutVersionText"] = "CleanMacUSB v1.0 (Edición Windows 11 / 64-bit)",
@@ -314,6 +323,15 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["TrayUsbDetectedTitle"] = "USB Flash Drive Detected ({0})",
         ["TrayUsbDetectedBody"] = "Drive {0} was plugged in. Click here to clean hidden junk files.",
         ["TrayUsbPromptQuestion"] = "USB drive {0} was just connected.\nWould you like to scan it and clean residual files right now?",
+
+        // Ventana de Limpieza Completada + Apoyar con PayPal
+        ["CleanDoneWindowTitle"] = "Cleaning Completed! — CleanMacUSB",
+        ["CleanDoneHeading"] = "✔ Your drive has been successfully cleaned!",
+        ["CleanDoneSubheading"] = "Deleted {0} residual files and {1} folders ({2} freed).",
+        ["CleanDoneSupportTitle"] = "💛 If this app helped you, please help me back!",
+        ["CleanDoneSupportBody"] = "CleanMacUSB is a 100% free tool created by Josan Sánchez. If this app has been useful and saved you time, you can support the project with a small contribution via PayPal so I can keep maintaining and improving it.",
+        ["CleanDoneBtnPayPal"] = "☕ Support with PayPal",
+        ["CleanDoneBtnClose"] = "Close",
 
         // Ventana Acerca de (About)
         ["AboutWindowTitle"] = "About CleanMacUSB",

@@ -682,6 +682,16 @@ public partial class MainWindow : Window
             RefreshUsbDrives(isInitialLoad: false, preferredRoot: targetDrive.DriveRoot);
         }
 
+        // Mostrar ventana de limpieza completada con opción de apoyar por PayPal (si no fue abortado)
+        if (summary != null && !summary.WasAborted)
+        {
+            var doneWindow = new CleanCompletedWindow(targetDrive.DisplayName, summary)
+            {
+                Owner = this
+            };
+            doneWindow.ShowDialog();
+        }
+
         // Si el usuario marcó "Expulsar automáticamente al terminar la limpieza", es un USB y NO fue abortado
         if (ChkAutoEject.IsChecked == true && targetDrive.CanEject && summary != null && !summary.WasAborted)
         {
