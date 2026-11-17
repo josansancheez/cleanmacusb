@@ -15,7 +15,7 @@ public sealed class CleanOptions
     public bool CleanWindowsRecycleAndFound { get; init; } = true;
     public bool CleanWindowsTempAndReadme { get; init; } = true;
 
-    // Categorías de Linux y Smart TV
+    // Categorías de Linux y Smart TV / Android
     public bool CleanLinuxJunk { get; init; } = true;
     public bool CleanSmartTvJunk { get; init; } = true;
 }
@@ -29,7 +29,7 @@ public sealed class CleanSummary
 }
 
 /// <summary>
-/// Motor de escaneo y limpieza recursiva de archivos y carpetas residuales de macOS, Windows, Linux y Smart TVs.
+/// Motor de escaneo y limpieza recursiva de archivos y carpetas residuales de macOS, Windows, Linux, Smart TVs y Android.
 /// Soporta rutas extendidas (\\?\), nombres con punto final (README.), atributos Hidden/System/ReadOnly,
 /// protección contra bucles de enlaces simbólicos (ReparsePoint) y protección de carpetas críticas del SO.
 /// </summary>
@@ -55,6 +55,8 @@ public static class MacJunkCleanerService
 
     private static readonly HashSet<string> AppleDoubleFolderNames = new(StringComparer.OrdinalIgnoreCase)
     {
+        "__MACOSX",
+        ".MACOSX",
         ".AppleDouble",
         ".AppleDB",
         ".AppleDesktop"
@@ -72,12 +74,16 @@ public static class MacJunkCleanerService
     private static readonly HashSet<string> SpotlightAndTrashNames = new(StringComparer.OrdinalIgnoreCase)
     {
         ".Spotlight-V100",
+        ".Spotlight-V200",
         ".Trashes",
         ".fseventsd",
         ".TemporaryItems",
         ".DocumentRevisions-V100",
         ".PKInstallSandboxManager",
-        ".PKInstallSandboxManager-SystemSoftware"
+        ".PKInstallSandboxManager-SystemSoftware",
+        ".ql_tcache",
+        ".QuickLook",
+        ".hotfiles.btree"
     };
 
     private static readonly HashSet<string> WindowsCacheFileNames = new(StringComparer.OrdinalIgnoreCase)
@@ -87,7 +93,8 @@ public static class MacJunkCleanerService
         "ehthumbs_vista.db",
         "desktop.ini",
         "WPSettings.dat",
-        "IndexerVolumeGuid"
+        "IndexerVolumeGuid",
+        "ZbThumbnail.info"
     };
 
     private static readonly HashSet<string> WindowsRecycleDirNames = new(StringComparer.OrdinalIgnoreCase)
@@ -95,6 +102,11 @@ public static class MacJunkCleanerService
         "$RECYCLE.BIN",
         "RECYCLER",
         "RECYCLED"
+    };
+
+    private static readonly HashSet<string> WindowsTempFolderNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "msdownld.tmp"
     };
 
     private static readonly HashSet<string> ReadmeResidualFileNames = new(StringComparer.OrdinalIgnoreCase)
@@ -110,7 +122,8 @@ public static class MacJunkCleanerService
         ".hidden"
     };
 
-    private static readonly HashSet<string> SmartTvJunkFolderNames = new(StringComparer.OrdinalIgnoreCase)
+    // Carpetas residuales creadas por Smart TVs y dispositivos Android (OTG / Android TV)
+    private static readonly HashSet<string> SmartTvAndAndroidJunkFolderNames = new(StringComparer.OrdinalIgnoreCase)
     {
         "LOST.DIR",
         ".android_secure",
@@ -123,10 +136,26 @@ public static class MacJunkCleanerService
         "_mstpvr",
         ".tv_temp",
         ".Timeshift",
-        ".pvr"
+        ".pvr",
+        ".estrongs",
+        ".utsystemconfig",
+        ".DataStorage",
+        ".Trash-Android"
     };
 
-    private static readonly HashSet<string> SmartTvJunkFileNames = new(StringComparer.OrdinalIgnoreCase)
+    // Carpetas esqueleto que Android y Android TV crean vacías en la raíz del USB al conectarlo (solo se borran si están 100% vacías de archivos del usuario)
+    private static readonly HashSet<string> AndroidEmptySkeletonRootDirs = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Android",
+        "Alarms",
+        "Audiobooks",
+        "Notifications",
+        "Podcasts",
+        "Ringtones",
+        "Recordings"
+    };
+
+    private static readonly HashSet<string> SmartTvAndAndroidJunkFileNames = new(StringComparer.OrdinalIgnoreCase)
     {
         ".database_uuid",
         "albumart.pamp",
@@ -192,19 +221,23 @@ public static class MacJunkCleanerService
                         continue;
                     }
 
-                    // System Volume Information: limpiar WPSettings.dat / IndexerVolumeGuid dentro si CleanWindowsCaches está activo
+                    // System Volume Information: limpiar WPSettings.dat / IndexerVolumeGuid dentro y, si queda vacía en un USB (FAT32/exFAT), eliminar la carpeta vacía
                     if (string.Equals(subDir.Name, "System Volume Information", StringComparison.OrdinalIgnoreCase))
                     {
                         if (options.CleanWindowsCaches)
                         {
                             ScanFilesInDirectory(subDir, options, summary, logProgress, cancellationToken);
+                            if (IsEmptySkeletonFolder(subDir))
+                            {
+                                TryDeleteDirectoryTree(subDir, summary, logProgress, cancellationToken);
+                            }
                         }
                         completedSteps++;
                         percentProgress.Report((completedSteps * 100.0) / totalSteps);
                         continue;
                     }
 
-                    if (ShouldDeleteDirectory(subDir, options))
+                    if (ShouldDeleteDirectory(subDir, options, isRootLevel: isDriveRoot))
                     {
                         TryDeleteDirectoryTree(subDir, summary, logProgress, cancellationToken);
                     }
@@ -308,7 +341,7 @@ public static class MacJunkCleanerService
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (ShouldDeleteDirectory(subDir, options))
+            if (ShouldDeleteDirectory(subDir, options, isRootLevel: false))
             {
                 TryDeleteDirectoryTree(subDir, summary, logProgress, cancellationToken);
             }
@@ -362,11 +395,11 @@ public static class MacJunkCleanerService
         if (options.CleanDsStore && DsStoreFileNames.Contains(fileName))
             return true;
 
-        // 3. macOS Spotlight / Trashes / fseventsd / TemporaryItems
+        // 3. macOS Spotlight / Trashes / fseventsd / TemporaryItems / QuickLook / .hotfiles.btree
         if (options.CleanSpotlightAndTrash && SpotlightAndTrashNames.Contains(fileName))
             return true;
 
-        // 4. Windows Caches (Thumbs.db, ehthumbs.db, desktop.ini, WPSettings.dat, IndexerVolumeGuid)
+        // 4. Windows Caches (Thumbs.db, ehthumbs.db, desktop.ini, WPSettings.dat, IndexerVolumeGuid, ZbThumbnail.info)
         if (options.CleanWindowsCaches && WindowsCacheFileNames.Contains(fileName))
             return true;
 
@@ -374,13 +407,14 @@ public static class MacJunkCleanerService
         if (options.CleanWindowsRecycleAndFound && fileName.EndsWith(".chk", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        // 6. Residual README., Office locks (~$*), and temp/backup files (*.tmp, *.bak)
+        // 6. Residual README., Office locks (~$*, ~WRL*.tmp), and temp/backup files (*.tmp, *.bak)
         if (options.CleanWindowsTempAndReadme)
         {
             if (ReadmeResidualFileNames.Contains(fileName))
                 return true;
 
-            if (fileName.StartsWith("~$", StringComparison.OrdinalIgnoreCase))
+            if (fileName.StartsWith("~$", StringComparison.OrdinalIgnoreCase) ||
+                fileName.StartsWith("~WRL", StringComparison.OrdinalIgnoreCase))
                 return true;
 
             if (fileName.EndsWith(".tmp", StringComparison.OrdinalIgnoreCase) ||
@@ -405,10 +439,10 @@ public static class MacJunkCleanerService
                 return true;
         }
 
-        // 8. Smart TV / Android TV Junk Files (.database_uuid, .thumbdata*, albumart.pamp, device_info.xml, .rec_info)
+        // 8. Smart TV / Android Junk Files (.database_uuid, .thumbdata*, albumart.pamp, device_info.xml, .rec_info)
         if (options.CleanSmartTvJunk)
         {
-            if (SmartTvJunkFileNames.Contains(fileName) ||
+            if (SmartTvAndAndroidJunkFileNames.Contains(fileName) ||
                 fileName.StartsWith(".thumbdata", StringComparison.OrdinalIgnoreCase))
                 return true;
         }
@@ -416,15 +450,15 @@ public static class MacJunkCleanerService
         return false;
     }
 
-    public static bool ShouldDeleteDirectory(DirectoryInfo dir, CleanOptions options)
+    public static bool ShouldDeleteDirectory(DirectoryInfo dir, CleanOptions options, bool isRootLevel = false)
     {
         string dirName = dir.Name;
 
-        // 1. macOS AppleDouble folders
+        // 1. macOS AppleDouble & __MACOSX folders (creadas al descomprimir ZIPs de Mac)
         if (options.CleanAppleDouble && AppleDoubleFolderNames.Contains(dirName))
             return true;
 
-        // 2. macOS Spotlight & Trash folders
+        // 2. macOS Spotlight (.Spotlight-V100, .Spotlight-V200), QuickLook (.ql_tcache) & Trash folders
         if (options.CleanSpotlightAndTrash && SpotlightAndTrashNames.Contains(dirName))
             return true;
 
@@ -437,7 +471,11 @@ public static class MacJunkCleanerService
             (WindowsRecycleDirNames.Contains(dirName) || IsFoundChkFolder(dirName)))
             return true;
 
-        // 5. Linux Trash folders (.Trash, .Trash-1000, .Trash-*)
+        // 5. Windows temporary folders (msdownld.tmp)
+        if (options.CleanWindowsTempAndReadme && WindowsTempFolderNames.Contains(dirName))
+            return true;
+
+        // 6. Linux Trash folders (.Trash, .Trash-1000, .Trash-*)
         if (options.CleanLinuxJunk || options.CleanSpotlightAndTrash)
         {
             if (string.Equals(dirName, ".Trash", StringComparison.OrdinalIgnoreCase) ||
@@ -445,14 +483,17 @@ public static class MacJunkCleanerService
                 return true;
         }
 
-        // 6. Smart TV & Android TV folders (LOST.DIR, LG Smart TV, .android_secure, .thumbnails, Android vacía)
+        // 7. Smart TV & Android folders (LOST.DIR, LG Smart TV, .android_secure, .thumbnails, .estrongs, etc.)
         if (options.CleanSmartTvJunk)
         {
-            if (SmartTvJunkFolderNames.Contains(dirName))
+            if (SmartTvAndAndroidJunkFolderNames.Contains(dirName))
                 return true;
 
-            // La carpeta "Android" creada automáticamente por Smart TVs Android TV (solo si está vacía o solo tiene estructura vacía data/media/obb)
-            if (string.Equals(dirName, "Android", StringComparison.OrdinalIgnoreCase) && IsEmptySmartTvAndroidFolder(dir))
+            // Carpeta "Android" o carpetas esqueleto que Android/Smart TV crea vacías en la raíz (Alarms, Ringtones, Podcasts...)
+            if (string.Equals(dirName, "Android", StringComparison.OrdinalIgnoreCase) && IsEmptySkeletonFolder(dir))
+                return true;
+
+            if (isRootLevel && AndroidEmptySkeletonRootDirs.Contains(dirName) && IsEmptySkeletonFolder(dir))
                 return true;
         }
 
@@ -460,13 +501,13 @@ public static class MacJunkCleanerService
     }
 
     /// <summary>
-    /// Verifica si una carpeta "Android" fue generada por una Smart TV como esqueleto vacío (sin archivos de usuario).
+    /// Verifica si una carpeta fue generada como esqueleto vacío (sin archivos reales del usuario).
     /// </summary>
-    private static bool IsEmptySmartTvAndroidFolder(DirectoryInfo androidDir)
+    private static bool IsEmptySkeletonFolder(DirectoryInfo dir)
     {
         try
         {
-            var files = androidDir.GetFiles("*", new EnumerationOptions
+            var files = dir.GetFiles("*", new EnumerationOptions
             {
                 AttributesToSkip = 0,
                 IgnoreInaccessible = true,
@@ -476,6 +517,8 @@ public static class MacJunkCleanerService
             return files.All(f =>
                 string.Equals(f.Name, ".nomedia", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(f.Name, ".DS_Store", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(f.Name, "Thumbs.db", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(f.Name, "desktop.ini", StringComparison.OrdinalIgnoreCase) ||
                 f.Name.StartsWith("._", StringComparison.OrdinalIgnoreCase));
         }
         catch

@@ -38,14 +38,14 @@ Puedes elegir todas las categorías a la vez con el botón **«☑ Elegir todo»
 
 | Sistema | Categoría | Archivos y carpetas que elimina |
 | :--- | :--- | :--- |
-| 🍎 **macOS** | **Archivos AppleDouble** | `._*` (archivos fantasma duplicados), `.AppleDouble`, `.AppleDB`, `.AppleDesktop` |
+| 🍎 **macOS** | **Archivos AppleDouble y ZIPs** | `._*` (archivos fantasma duplicados), `__MACOSX`, `.MACOSX`, `.AppleDouble`, `.AppleDB`, `.AppleDesktop` |
 | 🍎 **macOS** | **Configuración de carpetas e iconos** | `.DS_Store`, `.VolumeIcon.icns`, `.apdisk`, `.com.apple.timemachine.donotpresent`, `.metadata_never_index` |
-| 🍎 **macOS** | **Spotlight, Papeleras y Eventos** | `.Spotlight-V100`, `.Trashes`, `.fseventsd`, `.TemporaryItems`, `.DocumentRevisions-V100`, `.PKInstallSandboxManager*` |
-| 🪟 **Windows** | **Cachés de miniaturas y vistas** | `Thumbs.db`, `ehthumbs.db`, `ehthumbs_vista.db`, `desktop.ini`, `WPSettings.dat`, `IndexerVolumeGuid` |
+| 🍎 **macOS** | **Spotlight, QuickLook y Papeleras** | `.Spotlight-V100`, `.Spotlight-V200`, `.Trashes`, `.fseventsd`, `.TemporaryItems`, `.ql_tcache`, `.QuickLook`, `.hotfiles.btree`, `.DocumentRevisions-V100` |
+| 🪟 **Windows** | **Cachés de miniaturas y vistas** | `Thumbs.db`, `ehthumbs.db`, `ehthumbs_vista.db`, `desktop.ini`, `ZbThumbnail.info`, `WPSettings.dat`, `IndexerVolumeGuid` y `System Volume Information` vacía |
 | 🪟 **Windows** | **Papelera y fragmentos CHKDSK** | `$RECYCLE.BIN`, `RECYCLER`, `RECYCLED`, carpetas `FOUND.000` / `FOUND.*` y fragmentos `*.chk` |
-| 🪟 **Windows** | **Residuales `README.`, bloqueos y temporales** | `README.`, `README`, `README.txt`, bloqueos ocultos de Office (`~$*`) y temporales (`*.tmp`, `*.bak`) |
+| 🪟 **Windows** | **Residuales `README.`, bloqueos y temporales** | `README.`, `README`, `README.txt`, bloqueos ocultos de Office (`~$*`, `~WRL*.tmp`), `msdownld.tmp` y temporales (`*.tmp`, `*.bak`) |
 | 🐧 **Linux** | **Papeleras, vistas y archivos temporales** | `.Trash`, `.Trash-1000`, `.Trash-*`, `.directory`, `.hidden`, `.fuse_hidden*`, `.nfs*`, `.goutputstream-*`, `.*.swp`, `.*.swo` |
-| 📺 **Smart TV** | **Carpetas y bases de datos de TV** | `LOST.DIR`, `LG Smart TV`, `.lg_tv`, `.android_secure`, `.Samsung`, `.DEV_INFO`, `.thumbnails`, `.database_uuid`, `albumart.pamp`, `mstpvr`, carpeta `Android` vacía |
+| 📺 **Smart TV / Android** | **Televisores Smart TV y Móviles Android** | `LOST.DIR`, `LG Smart TV`, `.lg_tv`, `.android_secure`, `.Samsung`, `.DEV_INFO`, `.thumbnails`, `.thumbdata*`, `.database_uuid`, `albumart.pamp`, `.estrongs`, `.DataStorage`, `mstpvr`, y carpetas esqueleto vacías (`Android`, `Alarms`, `Ringtones`, `Podcasts`...) |
 
 ---
 
