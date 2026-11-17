@@ -12,7 +12,7 @@
 [![Autor](https://img.shields.io/badge/Desarrollado%20por-Josan%20S%C3%A1nchez-0F172A?style=for-the-badge)](#licencia-y-autor%C3%ADa)
 [![Donar PayPal](https://img.shields.io/badge/%E2%98%95%20Inv%C3%ADtame%20a%20un%20caf%C3%A9-PayPal-00457C?style=for-the-badge&logo=paypal)](https://paypal.me/josansancheez)
 
-*Disponible en **Español (ES)** e **Inglés (EN)**.*
+*Disponible en **Español (ES)**, **Inglés (EN)**, **Alemán (DE)**, **Francés (FR)** y **Chino (ZH)**.*
 
 </div>
 
@@ -58,7 +58,7 @@ Puedes elegir todas las categorías a la vez con el botón **«☑ Elegir todo»
 - 📋 **Registro de Actividad en Tiempo Real:** Muestra el progreso, cada archivo o carpeta eliminada con su tamaño, el espacio total liberado, opción para **guardar el registro en `.txt`** y botón **«⏹ Abortar limpieza»** para detener el proceso en cualquier momento.
 - ⏏ **Expulsión Segura de USB:** Desmonta y expulsa físicamente el pendrive para poder retirarlo sin riesgo de corrupción de datos (con opción de expulsión automática al terminar).
 - ⚙ **Apartado de Ajustes:**
-  - Selector de idioma en tiempo real (**Español** / **Inglés**) sin necesidad de reiniciar.
+  - Selector de idioma en tiempo real (**Español**, **Inglés**, **Alemán**, **Francés** y **Chino**) sin necesidad de reiniciar.
   - Opción para **ejecutar en segundo plano (Bandeja del sistema)** y recibir un aviso automático cada vez que conectes un USB nuevo.
   - Información de versión y visor de licencia.
 

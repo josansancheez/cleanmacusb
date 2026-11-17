@@ -5,8 +5,9 @@ using System.IO;
 namespace CleanMacUSB.Services;
 
 /// <summary>
-/// Sistema de internacionalización dinámico en tiempo real (es-ES / en-US).
-/// Permite cambiar todo el idioma de la interfaz, ajustes, logs, diálogos y bandeja del sistema sin reiniciar.
+/// Sistema de internacionalización dinámico en tiempo real (Español, Inglés, Alemán, Francés y Chino Simplificado).
+/// Detecta automáticamente el idioma del sistema Windows (incluyendo descargas de Microsoft Store)
+/// y permite cambiar todo el idioma de la interfaz en tiempo real desde Ajustes sin reiniciar.
 /// </summary>
 public sealed class LocalizationService : INotifyPropertyChanged
 {
@@ -16,6 +17,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
     public event EventHandler? LanguageChanged;
 
+    // ==================== 1. ESPAÑOL (es-ES) ====================
     private readonly Dictionary<string, string> _es = new()
     {
         ["AppTitle"] = "CleanMacUSB",
@@ -24,7 +26,6 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["AboutButton"] = "Acerca de",
         ["LanguageLabel"] = "Idioma:",
 
-        // Selector de Unidad USB / Disco Interno / Carpeta
         ["UsbSectionTitle"] = "Origen a Limpiar (Unidad USB, Disco Duro o Carpeta)",
         ["UsbSectionSubtitle"] = "Selecciona una memoria USB, un disco duro del ordenador o elige una carpeta específica",
         ["RefreshDrivesButton"] = "Actualizar",
@@ -38,7 +39,6 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["FolderFormatPattern"] = "[CARPETA] {0}",
         ["InternalDriveWarning"] = "⚠ Atención: Al limpiar un disco duro del equipo, es posible que algunas aplicaciones, programas o juegos instalados puedan verse alterados por la similitud de ciertos archivos (como README, *.tmp o *.bak).",
 
-        // Opciones de limpieza (macOS + Windows + Linux + Smart TV / Android)
         ["OptionsSectionTitle"] = "Configuración de Limpieza",
         ["BtnSelectAll"] = "☑ Elegir todo",
         ["BtnDeselectAll"] = "☐ Desmarcar todo",
@@ -64,7 +64,6 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["OptSmartTvDesc"] = "Motivo: Al conectar un USB a una Smart TV o móvil Android por OTG se crean decenas de carpetas vacías (Android, Alarms, Ringtones, LOST.DIR) y cachés pesadas (.thumbdata*, .database_uuid, .estrongs). Las limpia respetando tus archivos.",
         ["OptAutoEjectTitle"] = "Expulsar automáticamente la unidad USB al terminar la limpieza",
 
-        // Apartado de Ajustes (Settings)
         ["SettingsPanelTitle"] = "Ajustes de la Aplicación",
         ["SettingsPanelSubtitle"] = "Configura el idioma, las actualizaciones automáticas, el segundo plano y la información legal",
         ["SettingsBackButton"] = "← Volver al inicio",
@@ -98,7 +97,6 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["BtnDonateCoffee"] = "☕ Invítame a un café (PayPal)",
         ["DonateTooltip"] = "Apoya el desarrollo gratuito de CleanMacUSB por Josan Sánchez (paypal.me/josansancheez)",
 
-        // Botones principales
         ["BtnCleanUsb"] = "Limpiar ahora",
         ["BtnEjectUsb"] = "Expulsar USB de forma segura",
         ["StatusReady"] = "Listo. Selecciona una unidad USB, disco duro o carpeta y pulsa «Limpiar ahora».",
@@ -107,7 +105,6 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["StatusNewUsbConnected"] = "Nueva unidad USB detectada: {0}",
         ["StatusUsbRemoved"] = "Se ha desconectado una unidad USB.",
 
-        // Panel / Modal de Registro (Log)
         ["LogTabTitle"] = "Registro de Actividad de Limpieza",
         ["LogStatusScanning"] = "Escaneando y limpiando {0}...",
         ["LogStatusCompleted"] = "Limpieza completada con éxito en {0}",
@@ -136,7 +133,6 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["LogFileDate"] = "Fecha y hora",
         ["LogFileDrive"] = "Origen analizado",
 
-        // Alertas y expulsión segura
         ["ConfirmCleanTitle"] = "Confirmar limpieza",
         ["ConfirmCleanBody"] = "¿Estás seguro de que deseas iniciar la limpieza de archivos basura en la siguiente ubicación?\n\n{0}\n\nLos archivos residuales encontrados se eliminarán de forma permanente.",
         ["MsgSelectDriveTitle"] = "Ningún origen seleccionado",
@@ -150,7 +146,6 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["MsgEjectFailTitle"] = "No se pudo expulsar la unidad",
         ["MsgEjectFailBody"] = "Windows indica que la unidad {0} está siendo utilizada por otro programa o proceso.\nCierra cualquier ventana o archivo abierto de la unidad e inténtalo de nuevo.\n\nDetalle: {1}",
 
-        // Bandeja del sistema (System Tray)
         ["TrayTooltip"] = "CleanMacUSB v1.0 — Ejecutándose en segundo plano",
         ["TrayMenuOpen"] = "Abrir CleanMacUSB",
         ["TrayMenuCleanNow"] = "Limpiar origen seleccionado",
@@ -161,7 +156,6 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["TrayUsbDetectedBody"] = "Se ha conectado {0}. Haz clic aquí para limpiar los archivos ocultos.",
         ["TrayUsbPromptQuestion"] = "Se ha detectado la unidad USB {0}.\n¿Deseas analizarla y eliminar los archivos residuales ahora mismo?",
 
-        // Ventana de Limpieza Completada + Apoyar con PayPal
         ["CleanDoneWindowTitle"] = "¡Limpieza completada! — CleanMacUSB",
         ["CleanDoneHeading"] = "✔ ¡Ya has limpiado tu unidad con éxito!",
         ["CleanDoneSubheading"] = "Se han eliminado {0} archivos y {1} carpetas residuales ({2} liberados).",
@@ -170,15 +164,15 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["CleanDoneBtnPayPal"] = "☕ Apoyar con PayPal",
         ["CleanDoneBtnClose"] = "Cerrar",
 
-        // Ventana Acerca de (About)
         ["AboutWindowTitle"] = "Acerca de CleanMacUSB",
         ["AboutVersionText"] = "CleanMacUSB v1.0 (Edición Windows 11 / 64-bit)",
         ["AboutCopyrightText"] = "Software gratuito y propietario (Freeware).\nDesarrollado por Josan Sánchez. Todos los derechos reservados.",
-        ["AboutDescription"] = "Utilidad nativa de alto rendimiento diseñada para erradicar archivos ocultos de macOS (._*, .DS_Store, .Spotlight-V100), Windows (Thumbs.db, desktop.ini, $RECYCLE.BIN, README.), Linux (.Trash-1000, .directory) y Smart TVs (LOST.DIR, LG Smart TV).",
+        ["AboutDescription"] = "Utilidad nativa de alto rendimiento diseñada para erradicar archivos ocultos de macOS (._*, .DS_Store, .Spotlight-V100), Windows (Thumbs.db, desktop.ini, $RECYCLE.BIN, README.), Linux (.Trash-1000, .directory) y Smart TVs / Android (LOST.DIR, LG Smart TV).",
         ["AboutLicenseHeader"] = "Contrato de Licencia de Usuario Final (EULA):",
         ["AboutCloseButton"] = "Cerrar"
     };
 
+    // ==================== 2. ENGLISH (en-US) ====================
     private readonly Dictionary<string, string> _en = new()
     {
         ["AppTitle"] = "CleanMacUSB",
@@ -187,7 +181,6 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["AboutButton"] = "About",
         ["LanguageLabel"] = "Language:",
 
-        // Selector de Unidad USB / Disco Interno / Carpeta
         ["UsbSectionTitle"] = "Target to Clean (USB Drive, Hard Disk, or Folder)",
         ["UsbSectionSubtitle"] = "Select a removable USB drive, an internal computer hard disk, or browse for a specific folder",
         ["RefreshDrivesButton"] = "Refresh",
@@ -201,7 +194,6 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["FolderFormatPattern"] = "[FOLDER] {0}",
         ["InternalDriveWarning"] = "⚠ Warning: When cleaning a computer hard drive, some installed applications, programs, or games may be altered due to the similarity of certain files (such as README, *.tmp, or *.bak).",
 
-        // Opciones de limpieza (macOS + Windows + Linux + Smart TV / Android)
         ["OptionsSectionTitle"] = "Cleaning Configuration",
         ["BtnSelectAll"] = "☑ Select all",
         ["BtnDeselectAll"] = "☐ Unselect all",
@@ -227,7 +219,6 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["OptSmartTvDesc"] = "Reason: Plugging a USB into a Smart TV or Android phone via OTG creates dozens of empty folders (Android, Alarms, Ringtones, LOST.DIR) and heavy caches (.thumbdata*, .database_uuid, .estrongs). Cleans them while keeping your files safe.",
         ["OptAutoEjectTitle"] = "Automatically eject USB drive when cleaning finishes",
 
-        // Apartado de Ajustes (Settings)
         ["SettingsPanelTitle"] = "Application Settings",
         ["SettingsPanelSubtitle"] = "Configure language, automatic updates, background behavior, and view version & legal info",
         ["SettingsBackButton"] = "← Back to Home",
@@ -261,7 +252,6 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["BtnDonateCoffee"] = "☕ Buy me a coffee (PayPal)",
         ["DonateTooltip"] = "Support the free development of CleanMacUSB by Josan Sánchez (paypal.me/josansancheez)",
 
-        // Botones principales
         ["BtnCleanUsb"] = "Clean Now",
         ["BtnEjectUsb"] = "Safely Eject USB",
         ["StatusReady"] = "Ready. Select a USB drive, hard disk, or folder and click \"Clean Now\".",
@@ -270,7 +260,6 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["StatusNewUsbConnected"] = "New USB drive detected: {0}",
         ["StatusUsbRemoved"] = "A USB drive was disconnected.",
 
-        // Panel / Modal de Registro (Log)
         ["LogTabTitle"] = "Cleaning Activity Log",
         ["LogStatusScanning"] = "Scanning and cleaning {0}...",
         ["LogStatusCompleted"] = "Cleaning successfully completed on {0}",
@@ -299,7 +288,6 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["LogFileDate"] = "Date & Time",
         ["LogFileDrive"] = "Scanned Target",
 
-        // Alertas y expulsión segura
         ["ConfirmCleanTitle"] = "Confirm Cleaning",
         ["ConfirmCleanBody"] = "Are you sure you want to start cleaning residual junk files in the following location?\n\n{0}\n\nFound residual files will be permanently deleted.",
         ["MsgSelectDriveTitle"] = "No Target Selected",
@@ -313,7 +301,6 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["MsgEjectFailTitle"] = "Could Not Eject Drive",
         ["MsgEjectFailBody"] = "Windows reported that drive {0} is currently in use by another program or process.\nPlease close any open files or Explorer windows on that drive and try again.\n\nDetail: {1}",
 
-        // Bandeja del sistema (System Tray)
         ["TrayTooltip"] = "CleanMacUSB v1.0 — Running in background",
         ["TrayMenuOpen"] = "Open CleanMacUSB",
         ["TrayMenuCleanNow"] = "Clean selected target",
@@ -324,7 +311,6 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["TrayUsbDetectedBody"] = "Drive {0} was plugged in. Click here to clean hidden junk files.",
         ["TrayUsbPromptQuestion"] = "USB drive {0} was just connected.\nWould you like to scan it and clean residual files right now?",
 
-        // Ventana de Limpieza Completada + Apoyar con PayPal
         ["CleanDoneWindowTitle"] = "Cleaning Completed! — CleanMacUSB",
         ["CleanDoneHeading"] = "✔ Your drive has been successfully cleaned!",
         ["CleanDoneSubheading"] = "Deleted {0} residual files and {1} folders ({2} freed).",
@@ -333,19 +319,494 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["CleanDoneBtnPayPal"] = "☕ Support with PayPal",
         ["CleanDoneBtnClose"] = "Close",
 
-        // Ventana Acerca de (About)
         ["AboutWindowTitle"] = "About CleanMacUSB",
         ["AboutVersionText"] = "CleanMacUSB v1.0 (Windows 11 / 64-bit Edition)",
         ["AboutCopyrightText"] = "Freeware & Proprietary Software.\nDeveloped by Josan Sánchez. All rights reserved.",
-        ["AboutDescription"] = "High-performance native utility designed to eradicate hidden files from macOS (._*, .DS_Store, .Spotlight-V100), Windows (Thumbs.db, desktop.ini, $RECYCLE.BIN, README.), Linux (.Trash-1000, .directory), and Smart TVs (LOST.DIR, LG Smart TV).",
+        ["AboutDescription"] = "High-performance native utility designed to eradicate hidden files from macOS (._*, .DS_Store, .Spotlight-V100), Windows (Thumbs.db, desktop.ini, $RECYCLE.BIN, README.), Linux (.Trash-1000, .directory), and Smart TVs / Android (LOST.DIR, LG Smart TV).",
         ["AboutLicenseHeader"] = "End-User License Agreement (EULA):",
         ["AboutCloseButton"] = "Close"
+    };
+
+    // ==================== 3. DEUTSCH / ALEMÁN (de-DE) ====================
+    private readonly Dictionary<string, string> _de = new()
+    {
+        ["AppTitle"] = "CleanMacUSB",
+        ["AppSubtitle"] = "Nativer Datenmüll-Reiniger (macOS, Windows, Linux & Smart TV) für USB-Sticks, Festplatten und Ordner",
+        ["SettingsButton"] = "Einstellungen",
+        ["AboutButton"] = "Über",
+        ["LanguageLabel"] = "Sprache:",
+
+        ["UsbSectionTitle"] = "Reinigungsort (USB-Laufwerk, Festplatte oder Ordner)",
+        ["UsbSectionSubtitle"] = "Wählen Sie einen USB-Stick, eine interne Festplatte oder einen bestimmten Ordner aus",
+        ["RefreshDrivesButton"] = "Aktualisieren",
+        ["BrowseFolderButton"] = "📁 Ordner wählen...",
+        ["BrowseFolderDialogTitle"] = "Wählen Sie den Ordner aus, den Sie scannen und bereinigen möchten",
+        ["NoUsbDetected"] = "Keine verfügbaren Laufwerke gefunden.",
+        ["NoLabel"] = "OHNE BEZEICHNUNG",
+        ["TagUsbDrive"] = "[USB]",
+        ["TagInternalDrive"] = "[LOKALE FESTPLATTE]",
+        ["DriveFormatPattern"] = "{0} [{1}] — {2} frei von {3} ({4})",
+        ["FolderFormatPattern"] = "[ORDNER] {0}",
+        ["InternalDriveWarning"] = "⚠ Achtung: Beim Bereinigen einer internen Festplatte können installierte Programme oder Spiele durch ähnlich benannte temporäre Dateien (wie README, *.tmp oder *.bak) beeinträchtigt werden.",
+
+        ["OptionsSectionTitle"] = "Reinigungskonfiguration",
+        ["BtnSelectAll"] = "☑ Alle auswählen",
+        ["BtnDeselectAll"] = "☐ Alle abwählen",
+        ["BadgeMacOs"] = "macOS",
+        ["BadgeWindows"] = "Windows",
+        ["BadgeLinux"] = "Linux",
+        ["BadgeSmartTv"] = "Smart TV / Android",
+        ["OptAppleDoubleTitle"] = "AppleDouble-Dateien & Mac-Archivordner (._*, __MACOSX, .AppleDouble)",
+        ["OptAppleDoubleDesc"] = "Grund: Verhindert doppelte Geisterdateien (._*) und __MACOSX-Ordner (aus Mac-ZIPs), die Wiedergabefehler bei Autoradios, DJ-Playern und Smart-TVs verursachen.",
+        ["OptDsStoreTitle"] = "Mac-Ordneransichten & Symbole (.DS_Store, .VolumeIcon.icns, .apdisk)",
+        ["OptDsStoreDesc"] = "Grund: Entfernt versteckte Finder-Ansichtsdateien in jedem Ordner, die Dateimanager unter Windows und Mediaplayer unübersichtlich machen.",
+        ["OptSpotlightTrashTitle"] = "Spotlight-Indizes, QuickLook & Papierkorb (.Spotlight-V100/V200, .Trashes, .fseventsd, .ql_tcache)",
+        ["OptSpotlightTrashDesc"] = "Grund: Gibt echten Speicherplatz frei, der vom versteckten Mac-Papierkorb (.Trashes) blockiert wird, und löscht Index- und Vorschaudatenbanken (.TemporaryItems, .QuickLook).",
+        ["OptWinCacheTitle"] = "Miniaturansichten-Cache & System Volume Information (Thumbs.db, desktop.ini, WPSettings.dat)",
+        ["OptWinCacheDesc"] = "Grund: Löscht versteckte Explorer-Caches (ehthumbs.db, ZbThumbnail.info) und bereinigt System Volume Information, damit Autoradios diesen Ordner nicht als „Ordner 01“ lesen.",
+        ["OptWinRecycleTitle"] = "Windows-Papierkorb & Reparaturfragmente ($RECYCLE.BIN, FOUND.000, *.chk)",
+        ["OptWinRecycleDesc"] = "Grund: Gibt Speicherplatz des versteckten Windows-Papierkorbs ($RECYCLE.BIN, RECYCLER) frei und entfernt verwaiste CHKDSK-Fragmente.",
+        ["OptWinTempReadmeTitle"] = "Restliche README.-Dateien, Office-Sperren & Temp-Dateien (README., ~$*, *.tmp, *.bak)",
+        ["OptWinTempReadmeDesc"] = "Grund: Entfernt automatisch erzeugte README.-Dateien, versteckte Word/Excel-Sperrdateien (~$*, ~WRL*.tmp) und temporäre Ordner (msdownld.tmp).",
+        ["OptLinuxTitle"] = "Linux-Papierkörbe, Ordnereinstellungen & Temp-Dateien (.Trash-1000, .directory, .fuse_hidden*)",
+        ["OptLinuxDesc"] = "Grund: Gibt Speicherplatz in versteckten Linux-Papierkörben (.Trash-*) frei und entfernt KDE/GNOME-Ordnerdateien (.directory, .hidden) sowie Swap-Dateien (.*.swp).",
+        ["OptSmartTvTitle"] = "Smart-TV- & Android-Datenmüll (LOST.DIR, LG Smart TV, .thumbnails, leerer Android-Ordner)",
+        ["OptSmartTvDesc"] = "Grund: Beim Anschließen an Smart-TVs oder Android-Geräte entstehen viele leere Ordner (Android, Alarms, Ringtones, LOST.DIR) und große Caches (.thumbdata*, .database_uuid). Bereinigt diese sicher.",
+        ["OptAutoEjectTitle"] = "USB-Laufwerk nach Abschluss der Reinigung automatisch auswerfen",
+
+        ["SettingsPanelTitle"] = "Anwendungseinstellungen",
+        ["SettingsPanelSubtitle"] = "Sprache, automatische Updates, Hintergrundbetrieb sowie Versions- und Lizenzinformationen",
+        ["SettingsBackButton"] = "← Zurück",
+        ["SettingsGeneralHeader"] = "Sprache, Updates & System",
+        ["SettingsLangTitle"] = "Sprache der Benutzeroberfläche (Language)",
+        ["SettingsLangDesc"] = "Ändert alle Texte, Schaltflächen, Protokolle und Hinweise sofort in Echtzeit ohne Neustart.",
+        ["OptAutoUpdateTitle"] = "Automatische Updates",
+        ["OptAutoUpdateDesc"] = "Prüft beim Programmstart automatisch, ob auf GitHub eine neue Version verfügbar ist.",
+        ["BtnCheckUpdatesNow"] = "🔄 Nach Updates suchen",
+        ["BtnCheckingUpdates"] = "Prüfe...",
+        ["UpdateStatusIdle"] = "Aktuell installierte Version: v1.0.0",
+        ["UpdateStatusChecking"] = "Suche nach neuen Versionen im offiziellen Repository...",
+        ["UpdateStatusUpToDate"] = "✔ Auf dem neuesten Stand: Sie nutzen bereits die aktuelle Version (v{0}).",
+        ["UpdateStatusAvailable"] = "⬇ Neue Version v{0} verfügbar! Klicken Sie zum Herunterladen.",
+        ["UpdateStatusOffline"] = "Verbindung zum Update-Server fehlgeschlagen. Bitte Internetverbindung prüfen.",
+        ["UpdatePromptTitle"] = "Neues Update verfügbar (v{0})",
+        ["UpdatePromptBody"] = "Eine neue Version von CleanMacUSB (v{0}) wurde gefunden.\nAktuell installierte Version: v{1}\n\n{2}\n\nMöchten Sie das Update jetzt automatisch herunterladen und installieren?",
+        ["UpdateDownloadingStatus"] = "Lade Installationsprogramm für Version v{0} herunter...",
+        ["OptTrayTitle"] = "Im Hintergrund ausführen (System Tray)",
+        ["OptTrayDesc"] = "Beim Schließen des Fensters bleibt CleanMacUSB im Infobereich der Taskleiste aktiv und benachrichtigt Sie beim Anschließen eines neuen USB-Sticks.",
+        ["SettingsTrayStatusOn"] = "Aktueller Status: AKTIV (Wird beim Schließen in den Infobereich minimiert)",
+        ["SettingsTrayStatusOff"] = "Aktueller Status: DEAKTIVIERT (Programm wird beim Schließen vollständig beendet)",
+        ["SettingsAboutSectionHeader"] = "Über CleanMacUSB & Version",
+        ["SettingsVersionLabel"] = "Installierte Version:",
+        ["SettingsVersionValue"] = "1.0.0 (64-Bit Release — Windows 10 / 11)",
+        ["SettingsLicenseTypeLabel"] = "Lizenztyp:",
+        ["SettingsLicenseTypeValue"] = "Kostenlose proprietäre Software (Freeware)",
+        ["SettingsAuthorLabel"] = "Entwickler & Autor:",
+        ["SettingsAuthorValue"] = "Josan Sánchez — Alle Rechte vorbehalten",
+        ["SettingsViewFullEulaBtn"] = "Lizenz im Vollbild anzeigen",
+        ["BtnDonateCoffee"] = "☕ Spendiere mir einen Kaffee (PayPal)",
+        ["DonateTooltip"] = "Unterstützen Sie die kostenlose Entwicklung von CleanMacUSB durch Josan Sánchez (paypal.me/josansancheez)",
+
+        ["BtnCleanUsb"] = "Jetzt bereinigen",
+        ["BtnEjectUsb"] = "USB sicher auswerfen",
+        ["StatusReady"] = "Bereit. Wählen Sie ein USB-Laufwerk, eine Festplatte oder einen Ordner und klicken Sie auf „Jetzt bereinigen“.",
+        ["StatusDrivesUpdated"] = "Laufwerksliste aktualisiert ({0} verfügbar).",
+        ["StatusFolderSelected"] = "Ausgewählter Ordner zur Bereinigung: {0}",
+        ["StatusNewUsbConnected"] = "Neues USB-Laufwerk erkannt: {0}",
+        ["StatusUsbRemoved"] = "Ein USB-Laufwerk wurde getrennt.",
+
+        ["LogTabTitle"] = "Reinigungsprotokoll",
+        ["LogStatusScanning"] = "Scanne und bereinige {0}...",
+        ["LogStatusCompleted"] = "Bereinigung erfolgreich abgeschlossen auf {0}",
+        ["LogStatusAborted"] = "Bereinigung vom Benutzer abgebrochen auf {0}",
+        ["LogStatusNothingFound"] = "Bereinigung beendet: {0} war bereits vollkommen sauber.",
+        ["LogSummaryFormat"] = "Zusammenfassung: {0} Dateien gelöscht | {1} Ordner gelöscht | Freigegebener Speicherplatz: {2}",
+        ["LogSummaryAbortedFormat"] = "Vorgang abgebrochen — Bisher gelöscht: {0} Dateien | {1} Ordner | Freigegeben: {2}",
+        ["LogColType"] = "Typ",
+        ["LogColPath"] = "Vollständiger Pfad des gelöschten Elements",
+        ["LogColSize"] = "Größe",
+        ["LogTypeFile"] = "DATEI",
+        ["LogTypeFolder"] = "ORDNER",
+        ["LogTypeInfo"] = "INFO",
+        ["LogTypeError"] = "HINWEIS",
+        ["LogStartHeader"] = "Starte rekursiven Scan auf {0} ({1})...",
+        ["LogNoItemsMessage"] = "Es wurden keine versteckten Restdateien oder Ordner am ausgewählten Ort gefunden.",
+        ["LogAbortedEntryMsg"] = "Bereinigung auf Benutzerwunsch gestoppt und abgebrochen.",
+        ["BtnAbortClean"] = "⏹ Bereinigung abbrechen",
+        ["BtnAbortingClean"] = "Breche ab...",
+        ["BtnSaveLog"] = "Protokoll speichern (.txt)",
+        ["BtnCloseLog"] = "Protokoll schließen",
+        ["SaveLogDialogTitle"] = "CleanMacUSB-Reinigungsprotokoll speichern",
+        ["SaveLogSuccessTitle"] = "Protokoll gespeichert",
+        ["SaveLogSuccessMsg"] = "Die Protokolldatei wurde erfolgreich gespeichert unter:\n{0}",
+        ["LogFileHeaderTitle"] = "AKTIVITÄTSPROTOKOLL — CLEANMACUSB v1.0 (von Josan Sánchez)",
+        ["LogFileDate"] = "Datum & Uhrzeit",
+        ["LogFileDrive"] = "Gescanntes Ziel",
+
+        ["ConfirmCleanTitle"] = "Bereinigung bestätigen",
+        ["ConfirmCleanBody"] = "Sind Sie sicher, dass Sie die Bereinigung von Restdateien am folgenden Ort starten möchten?\n\n{0}\n\nGefundene Datenmüll-Dateien werden dauerhaft gelöscht.",
+        ["MsgSelectDriveTitle"] = "Kein Ziel ausgewählt",
+        ["MsgSelectDriveBody"] = "Bitte wählen Sie zuerst ein USB-Laufwerk, eine Festplatte oder einen Ordner aus.",
+        ["MsgSelectOptionTitle"] = "Keine Reinigungsoptionen gewählt",
+        ["MsgSelectOptionBody"] = "Bitte wählen Sie mindestens eine Kategorie aus, die bereinigt werden soll.",
+        ["MsgEjectOnlyUsbTitle"] = "Auswerfen nur für USB-Laufwerke",
+        ["MsgEjectOnlyUsbBody"] = "Das physische Auswerfen ist nur für Wechseldatenträger und externe USB-Laufwerke möglich.",
+        ["MsgEjectSuccessTitle"] = "Sicheres Auswerfen abgeschlossen",
+        ["MsgEjectSuccessBody"] = "Das Laufwerk {0} wurde sicher getrennt und ausgeworfen.\nSie können das USB-Gerät jetzt gefahrlos abziehen.",
+        ["MsgEjectFailTitle"] = "Laufwerk konnte nicht ausgeworfen werden",
+        ["MsgEjectFailBody"] = "Windows meldet, dass {0} derzeit von einem anderen Programm verwendet wird.\nBitte schließen Sie alle geöffneten Dateien oder Fenster und versuchen Sie es erneut.\n\nDetail: {1}",
+
+        ["TrayTooltip"] = "CleanMacUSB v1.0 — Läuft im Hintergrund",
+        ["TrayMenuOpen"] = "CleanMacUSB öffnen",
+        ["TrayMenuCleanNow"] = "Ausgewähltes Ziel bereinigen",
+        ["TrayMenuExit"] = "Vollständig beenden",
+        ["TrayMinimizedTitle"] = "CleanMacUSB ist weiterhin aktiv",
+        ["TrayMinimizedBody"] = "Die Anwendung bleibt in der Taskleiste minimiert. Wir benachrichtigen Sie, wenn ein USB-Stick angeschlossen wird.",
+        ["TrayUsbDetectedTitle"] = "USB-Laufwerk erkannt ({0})",
+        ["TrayUsbDetectedBody"] = "{0} wurde angeschlossen. Klicken Sie hier, um versteckte Restdateien zu löschen.",
+        ["TrayUsbPromptQuestion"] = "Das USB-Laufwerk {0} wurde erkannt.\nMöchten Sie es jetzt scannen und versteckte Restdateien bereinigen?",
+
+        ["CleanDoneWindowTitle"] = "Bereinigung abgeschlossen! — CleanMacUSB",
+        ["CleanDoneHeading"] = "✔ Ihr Laufwerk wurde erfolgreich bereinigt!",
+        ["CleanDoneSubheading"] = "{0} Restdateien und {1} Ordner wurden gelöscht ({2} freigegeben).",
+        ["CleanDoneSupportTitle"] = "💛 Wenn Ihnen diese App geholfen hat, helfen Sie auch mir!",
+        ["CleanDoneSupportBody"] = "CleanMacUSB ist ein zu 100 % kostenloses Tool von Josan Sánchez. Wenn Ihnen dieses Programm Zeit gespart und geholfen hat, können Sie das Projekt gerne mit einem kleinen Beitrag über PayPal unterstützen, damit ich es weiterentwickeln kann.",
+        ["CleanDoneBtnPayPal"] = "☕ Mit PayPal unterstützen",
+        ["CleanDoneBtnClose"] = "Schließen",
+
+        ["AboutWindowTitle"] = "Über CleanMacUSB",
+        ["AboutVersionText"] = "CleanMacUSB v1.0 (Windows 11 / 64-Bit Edition)",
+        ["AboutCopyrightText"] = "Kostenlose proprietäre Software (Freeware).\nEntwickelt von Josan Sánchez. Alle Rechte vorbehalten.",
+        ["AboutDescription"] = "Leistungsstarkes natives Dienstprogramm zum Entfernen versteckter Dateien von macOS (._*, .DS_Store, .Spotlight-V100), Windows (Thumbs.db, desktop.ini, $RECYCLE.BIN), Linux (.Trash-1000, .directory) und Smart-TVs / Android.",
+        ["AboutLicenseHeader"] = "Endbenutzer-Lizenzvertrag (EULA):",
+        ["AboutCloseButton"] = "Schließen"
+    };
+
+    // ==================== 4. FRANÇAIS / FRANCÉS (fr-FR) ====================
+    private readonly Dictionary<string, string> _fr = new()
+    {
+        ["AppTitle"] = "CleanMacUSB",
+        ["AppSubtitle"] = "Nettoyeur natif de fichiers résiduels (macOS, Windows, Linux et Smart TV) pour clés USB, disques et dossiers",
+        ["SettingsButton"] = "Paramètres",
+        ["AboutButton"] = "À propos",
+        ["LanguageLabel"] = "Langue :",
+
+        ["UsbSectionTitle"] = "Cible à nettoyer (Clé USB, Disque dur ou Dossier)",
+        ["UsbSectionSubtitle"] = "Sélectionnez une clé USB, un disque dur interne de l'ordinateur ou choisissez un dossier précis",
+        ["RefreshDrivesButton"] = "Actualiser",
+        ["BrowseFolderButton"] = "📁 Choisir un dossier...",
+        ["BrowseFolderDialogTitle"] = "Sélectionnez le dossier que vous souhaitez analyser et nettoyer",
+        ["NoUsbDetected"] = "Aucun lecteur disponible trouvé.",
+        ["NoLabel"] = "SANS NOM",
+        ["TagUsbDrive"] = "[USB]",
+        ["TagInternalDrive"] = "[DISQUE LOCAL]",
+        ["DriveFormatPattern"] = "{0} [{1}] — {2} libres sur {3} ({4})",
+        ["FolderFormatPattern"] = "[DOSSIER] {0}",
+        ["InternalDriveWarning"] = "⚠ Attention : Lors du nettoyage d'un disque dur interne, certaines applications, programmes ou jeux installés peuvent être affectés en raison de la similarité de certains fichiers (comme README, *.tmp ou *.bak).",
+
+        ["OptionsSectionTitle"] = "Configuration du nettoyage",
+        ["BtnSelectAll"] = "☑ Tout sélectionner",
+        ["BtnDeselectAll"] = "☐ Tout désélectionner",
+        ["BadgeMacOs"] = "macOS",
+        ["BadgeWindows"] = "Windows",
+        ["BadgeLinux"] = "Linux",
+        ["BadgeSmartTv"] = "Smart TV / Android",
+        ["OptAppleDoubleTitle"] = "Fichiers AppleDouble et dossiers d'archives Mac (._*, __MACOSX, .AppleDouble)",
+        ["OptAppleDoubleDesc"] = "Motif : Évite les fichiers fantômes en double (._*) et les dossiers __MACOSX (issus des ZIP Mac) qui provoquent des erreurs sur les autoradios, platines DJ et Smart TV.",
+        ["OptDsStoreTitle"] = "Paramètres d'affichage et icônes Mac (.DS_Store, .VolumeIcon.icns, .apdisk)",
+        ["OptDsStoreDesc"] = "Motif : Supprime les fichiers cachés de présentation créés par le Finder dans chaque dossier qui encombrent l'explorateur Windows et les lecteurs multimédias.",
+        ["OptSpotlightTrashTitle"] = "Index Spotlight, Aperçu et Corbeille (.Spotlight-V100/V200, .Trashes, .fseventsd, .ql_tcache)",
+        ["OptSpotlightTrashDesc"] = "Motif : Récupère l'espace réel retenu par la corbeille cachée (.Trashes) et supprime les bases d'indexation et d'aperçu de macOS (.TemporaryItems, .QuickLook, .hotfiles.btree).",
+        ["OptWinCacheTitle"] = "Caches de miniatures et dossier System Volume Information (Thumbs.db, desktop.ini, WPSettings.dat)",
+        ["OptWinCacheDesc"] = "Motif : Supprime les caches cachés de l'Explorateur (ehthumbs.db, ZbThumbnail.info) et nettoie System Volume Information pour éviter que les autoradios ne le lisent comme « Dossier 01 ».",
+        ["OptWinRecycleTitle"] = "Corbeille Windows et fragments de récupération ($RECYCLE.BIN, FOUND.000, *.chk)",
+        ["OptWinRecycleDesc"] = "Motif : Libère l'espace occupé par la corbeille cachée de Windows sur la clé USB ($RECYCLE.BIN, RECYCLER) et supprime les fragments orphelins CHKDSK.",
+        ["OptWinTempReadmeTitle"] = "Fichiers résiduels README., verrous Office et temporaires (README., ~$*, *.tmp, *.bak)",
+        ["OptWinTempReadmeDesc"] = "Motif : Supprime les fichiers README. auto-générés, les verrous cachés Word/Excel (~$*, ~WRL*.tmp) et les dossiers temporaires (msdownld.tmp).",
+        ["OptLinuxTitle"] = "Corbeilles, vues de dossiers et temporaires Linux (.Trash-1000, .directory, .fuse_hidden*)",
+        ["OptLinuxDesc"] = "Motif : Libère l'espace des corbeilles cachées Linux (.Trash-*), nettoie les préférences KDE/GNOME (.directory, .hidden) et les fichiers swap (.*.swp).",
+        ["OptSmartTvTitle"] = "Fichiers résiduels de Smart TV et mobiles Android (LOST.DIR, LG Smart TV, .thumbnails, Android vide)",
+        ["OptSmartTvDesc"] = "Motif : Connecter une clé USB à une Smart TV ou un mobile Android crée des dizaines de dossiers vides (Android, Alarms, Ringtones, LOST.DIR) et de lourds caches (.thumbdata*, .database_uuid). Les nettoie sans toucher à vos fichiers.",
+        ["OptAutoEjectTitle"] = "Éjecter automatiquement la clé USB à la fin du nettoyage",
+
+        ["SettingsPanelTitle"] = "Paramètres de l'application",
+        ["SettingsPanelSubtitle"] = "Configurez la langue, les mises à jour automatiques, l'arrière-plan et les informations légales",
+        ["SettingsBackButton"] = "← Retour",
+        ["SettingsGeneralHeader"] = "Langue, Mises à jour et Système",
+        ["SettingsLangTitle"] = "Langue de l'interface (Language)",
+        ["SettingsLangDesc"] = "Modifie en temps réel tous les textes, boutons, journaux et alertes sans redémarrer.",
+        ["OptAutoUpdateTitle"] = "Mises à jour automatiques",
+        ["OptAutoUpdateDesc"] = "Vérifie automatiquement au démarrage si une nouvelle version est disponible sur GitHub.",
+        ["BtnCheckUpdatesNow"] = "🔄 Rechercher des mises à jour",
+        ["BtnCheckingUpdates"] = "Recherche...",
+        ["UpdateStatusIdle"] = "Version actuelle installée : v1.0.0",
+        ["UpdateStatusChecking"] = "Recherche de nouvelles versions sur le dépôt officiel...",
+        ["UpdateStatusUpToDate"] = "✔ À jour : vous disposez déjà de la dernière version (v{0}).",
+        ["UpdateStatusAvailable"] = "⬇ Nouvelle version v{0} disponible ! Cliquez pour télécharger.",
+        ["UpdateStatusOffline"] = "Impossible de contacter le serveur de mise à jour. Vérifiez votre connexion.",
+        ["UpdatePromptTitle"] = "Nouvelle mise à jour disponible (v{0})",
+        ["UpdatePromptBody"] = "Une nouvelle version de CleanMacUSB (v{0}) est disponible.\nVersion actuelle : v{1}\n\n{2}\n\nVoulez-vous télécharger et installer la mise à jour automatiquement maintenant ?",
+        ["UpdateDownloadingStatus"] = "Téléchargement de l'installateur pour la version v{0}...",
+        ["OptTrayTitle"] = "Exécuter en arrière-plan (Barre d'état système)",
+        ["OptTrayDesc"] = "Lors de la fermeture de la fenêtre, CleanMacUSB reste actif près de l'horloge Windows et vous avertit lorsqu'une nouvelle clé USB est branchée.",
+        ["SettingsTrayStatusOn"] = "État actuel : ACTIF (Sera réduit dans la barre système à la fermeture)",
+        ["SettingsTrayStatusOff"] = "État actuel : DÉSACTIVÉ (L'application se fermera complètement)",
+        ["SettingsAboutSectionHeader"] = "À propos de CleanMacUSB et Version",
+        ["SettingsVersionLabel"] = "Version installée :",
+        ["SettingsVersionValue"] = "1.0.0 (Édition 64 bits — Windows 10 / 11)",
+        ["SettingsLicenseTypeLabel"] = "Type de licence :",
+        ["SettingsLicenseTypeValue"] = "Logiciel gratuit et propriétaire (Freeware)",
+        ["SettingsAuthorLabel"] = "Développeur et Auteur :",
+        ["SettingsAuthorValue"] = "Josan Sánchez — Tous droits réservés",
+        ["SettingsViewFullEulaBtn"] = "Voir la licence en plein écran",
+        ["BtnDonateCoffee"] = "☕ Offrez-moi un café (PayPal)",
+        ["DonateTooltip"] = "Soutenez le développement gratuit de CleanMacUSB par Josan Sánchez (paypal.me/josansancheez)",
+
+        ["BtnCleanUsb"] = "Nettoyer maintenant",
+        ["BtnEjectUsb"] = "Éjecter la clé USB en sécurité",
+        ["StatusReady"] = "Prêt. Sélectionnez une clé USB, un disque ou un dossier et cliquez sur « Nettoyer maintenant ».",
+        ["StatusDrivesUpdated"] = "Liste des lecteurs mise à jour ({0} disponibles).",
+        ["StatusFolderSelected"] = "Dossier sélectionné pour le nettoyage : {0}",
+        ["StatusNewUsbConnected"] = "Nouvelle clé USB détectée : {0}",
+        ["StatusUsbRemoved"] = "Une clé USB a été déconnectée.",
+
+        ["LogTabTitle"] = "Journal d'activité de nettoyage",
+        ["LogStatusScanning"] = "Analyse et nettoyage de {0}...",
+        ["LogStatusCompleted"] = "Nettoyage terminé avec succès sur {0}",
+        ["LogStatusAborted"] = "Nettoyage interrompu par l'utilisateur sur {0}",
+        ["LogStatusNothingFound"] = "Nettoyage terminé : {0} était déjà parfaitement propre.",
+        ["LogSummaryFormat"] = "Résumé final : {0} fichiers supprimés | {1} dossiers supprimés | Espace total libéré : {2}",
+        ["LogSummaryAbortedFormat"] = "Processus interrompu — Supprimés jusqu'ici : {0} fichiers | {1} dossiers | Espace libéré : {2}",
+        ["LogColType"] = "Type",
+        ["LogColPath"] = "Chemin complet de l'élément supprimé",
+        ["LogColSize"] = "Taille",
+        ["LogTypeFile"] = "FICHIER",
+        ["LogTypeFolder"] = "DOSSIER",
+        ["LogTypeInfo"] = "INFO",
+        ["LogTypeError"] = "AVIS",
+        ["LogStartHeader"] = "Démarrage de l'analyse récursive sur {0} ({1})...",
+        ["LogNoItemsMessage"] = "Aucun fichier ou dossier résiduel n'a été trouvé à l'emplacement sélectionné.",
+        ["LogAbortedEntryMsg"] = "Nettoyage arrêté et annulé à la demande de l'utilisateur.",
+        ["BtnAbortClean"] = "⏹ Arrêter le nettoyage",
+        ["BtnAbortingClean"] = "Arrêt en cours...",
+        ["BtnSaveLog"] = "Enregistrer le journal (.txt)",
+        ["BtnCloseLog"] = "Fermer le journal",
+        ["SaveLogDialogTitle"] = "Enregistrer le journal de nettoyage CleanMacUSB",
+        ["SaveLogSuccessTitle"] = "Journal enregistré",
+        ["SaveLogSuccessMsg"] = "Le fichier journal a été enregistré avec succès dans :\n{0}",
+        ["LogFileHeaderTitle"] = "JOURNAL D'ACTIVITÉ — CLEANMACUSB v1.0 (par Josan Sánchez)",
+        ["LogFileDate"] = "Date et heure",
+        ["LogFileDrive"] = "Cible analysée",
+
+        ["ConfirmCleanTitle"] = "Confirmer le nettoyage",
+        ["ConfirmCleanBody"] = "Êtes-vous sûr de vouloir lancer le nettoyage des fichiers résiduels à l'emplacement suivant ?\n\n{0}\n\nLes fichiers inutiles trouvés seront supprimés définitivement.",
+        ["MsgSelectDriveTitle"] = "Aucune cible sélectionnée",
+        ["MsgSelectDriveBody"] = "Veuillez sélectionner une clé USB, un disque dur ou un dossier avant de continuer.",
+        ["MsgSelectOptionTitle"] = "Aucune option sélectionnée",
+        ["MsgSelectOptionBody"] = "Veuillez cocher au moins une catégorie de fichiers résiduels à nettoyer.",
+        ["MsgEjectOnlyUsbTitle"] = "Éjection réservée aux clés USB",
+        ["MsgEjectOnlyUsbBody"] = "L'éjection matérielle physique n'est possible que pour les clés USB et disques externes amovibles.",
+        ["MsgEjectSuccessTitle"] = "Éjection sécurisée réussie",
+        ["MsgEjectSuccessBody"] = "Le lecteur {0} a été démonté et éjecté en toute sécurité.\nVous pouvez maintenant retirer physiquement le périphérique USB.",
+        ["MsgEjectFailTitle"] = "Impossible d'éjecter le lecteur",
+        ["MsgEjectFailBody"] = "Windows indique que le lecteur {0} est actuellement utilisé par un autre programme.\nVeuillez fermer tous les fichiers ou fenêtres ouverts et réessayer.\n\nDétail : {1}",
+
+        ["TrayTooltip"] = "CleanMacUSB v1.0 — En cours d'exécution en arrière-plan",
+        ["TrayMenuOpen"] = "Ouvrir CleanMacUSB",
+        ["TrayMenuCleanNow"] = "Nettoyer la cible sélectionnée",
+        ["TrayMenuExit"] = "Quitter complètement",
+        ["TrayMinimizedTitle"] = "CleanMacUSB reste actif",
+        ["TrayMinimizedBody"] = "L'application reste réduite dans la barre système. Nous vous avertirons lorsqu'une clé USB sera branchée.",
+        ["TrayUsbDetectedTitle"] = "Clé USB détectée ({0})",
+        ["TrayUsbDetectedBody"] = "{0} a été branchée. Cliquez ici pour nettoyer les fichiers cachés.",
+        ["TrayUsbPromptQuestion"] = "La clé USB {0} vient d'être branchée.\nVoulez-vous l'analyser et supprimer les fichiers résiduels maintenant ?",
+
+        ["CleanDoneWindowTitle"] = "Nettoyage terminé ! — CleanMacUSB",
+        ["CleanDoneHeading"] = "✔ Votre lecteur a été nettoyé avec succès !",
+        ["CleanDoneSubheading"] = "{0} fichiers et {1} dossiers résiduels supprimés ({2} libérés).",
+        ["CleanDoneSupportTitle"] = "💛 Si cette application vous a aidé, aidez-moi en retour !",
+        ["CleanDoneSupportBody"] = "CleanMacUSB est un outil 100 % gratuit créé par Josan Sánchez. Si cette application vous a été utile et vous a fait gagner du temps, vous pouvez soutenir le projet avec une petite contribution via PayPal pour m'aider à continuer de l'améliorer.",
+        ["CleanDoneBtnPayPal"] = "☕ Soutenir avec PayPal",
+        ["CleanDoneBtnClose"] = "Fermer",
+
+        ["AboutWindowTitle"] = "À propos de CleanMacUSB",
+        ["AboutVersionText"] = "CleanMacUSB v1.0 (Édition Windows 11 / 64 bits)",
+        ["AboutCopyrightText"] = "Logiciel gratuit et propriétaire (Freeware).\nDéveloppé par Josan Sánchez. Tous droits réservés.",
+        ["AboutDescription"] = "Utilitaire natif haute performance conçu pour éradiquer les fichiers cachés de macOS (._*, .DS_Store, .Spotlight-V100), Windows (Thumbs.db, desktop.ini, $RECYCLE.BIN), Linux (.Trash-1000, .directory) et Smart TV / Android.",
+        ["AboutLicenseHeader"] = "Contrat de Licence Utilisateur Final (CLUF / EULA) :",
+        ["AboutCloseButton"] = "Fermer"
+    };
+
+    // ==================== 5. 中文 / CHINO SIMPLIFICADO (zh-CN) ====================
+    private readonly Dictionary<string, string> _zh = new()
+    {
+        ["AppTitle"] = "CleanMacUSB",
+        ["AppSubtitle"] = "适用于 U 盘、硬盘和文件夹的原生垃圾清理工具（macOS、Windows、Linux 和智能电视）",
+        ["SettingsButton"] = "设置",
+        ["AboutButton"] = "关于",
+        ["LanguageLabel"] = "语言：",
+
+        ["UsbSectionTitle"] = "清理目标（U 盘、硬盘或文件夹）",
+        ["UsbSectionSubtitle"] = "选择可移动 U 盘、电脑内置硬盘或浏览指定文件夹",
+        ["RefreshDrivesButton"] = "刷新",
+        ["BrowseFolderButton"] = "📁 选择文件夹...",
+        ["BrowseFolderDialogTitle"] = "选择要扫描和清理的文件夹",
+        ["NoUsbDetected"] = "未找到可用的驱动器。",
+        ["NoLabel"] = "无卷标",
+        ["TagUsbDrive"] = "[U盘]",
+        ["TagInternalDrive"] = "[本地磁盘]",
+        ["DriveFormatPattern"] = "{0} [{1}] — 可用 {2} / 共 {3} ({4})",
+        ["FolderFormatPattern"] = "[文件夹] {0}",
+        ["InternalDriveWarning"] = "⚠ 注意：清理电脑内置硬盘时，部分已安装的应用程序、软件或游戏可能会因某些相似的临时文件（如 README、*.tmp 或 *.bak）而受到影响。",
+
+        ["OptionsSectionTitle"] = "清理配置",
+        ["BtnSelectAll"] = "☑ 全选",
+        ["BtnDeselectAll"] = "☐ 取消全选",
+        ["BadgeMacOs"] = "macOS",
+        ["BadgeWindows"] = "Windows",
+        ["BadgeLinux"] = "Linux",
+        ["BadgeSmartTv"] = "智能电视 / Android",
+        ["OptAppleDoubleTitle"] = "AppleDouble 文件与 Mac 解压残留文件夹 (._*, __MACOSX, .AppleDouble)",
+        ["OptAppleDoubleDesc"] = "原因：防止车载音响、DJ 设备和智能电视读取重复的幽灵文件 (._*) 和 Mac 压缩包产生的 __MACOSX 文件夹而报错。",
+        ["OptDsStoreTitle"] = "Mac 文件夹视图设置与图标 (.DS_Store, .VolumeIcon.icns, .apdisk)",
+        ["OptDsStoreDesc"] = "原因：清除 macOS Finder 在每个文件夹中生成的隐藏窗口布局文件，保持 Windows 和播放器列表整洁。",
+        ["OptSpotlightTrashTitle"] = "Spotlight 索引、快速预览缓存与废纸篓 (.Spotlight-V100/V200, .Trashes, .fseventsd, .ql_tcache)",
+        ["OptSpotlightTrashDesc"] = "原因：释放被 Mac 隐藏废纸篓 (.Trashes) 占用的真实存储空间，并删除索引数据库与缩略图缓存 (.TemporaryItems, .QuickLook)。",
+        ["OptWinCacheTitle"] = "缩略图缓存与 System Volume Information 文件夹 (Thumbs.db, desktop.ini, WPSettings.dat)",
+        ["OptWinCacheDesc"] = "原因：删除资源管理器隐藏缓存 (ehthumbs.db, ZbThumbnail.info) 并清理 System Volume Information，防止车载音响将其误读为“文件夹 01”。",
+        ["OptWinRecycleTitle"] = "Windows 回收站与磁盘修复碎片 ($RECYCLE.BIN, FOUND.000, *.chk)",
+        ["OptWinRecycleDesc"] = "原因：释放 U 盘上隐藏的 Windows 回收站 ($RECYCLE.BIN, RECYCLER) 空间，并清除 CHKDSK 扫描残留碎片。",
+        ["OptWinTempReadmeTitle"] = "残留 README. 文件、Office 锁文件与临时文件 (README., ~$*, *.tmp, *.bak)",
+        ["OptWinTempReadmeDesc"] = "原因：清除自动生成的 README. 文件（含带句尾点的特殊文件）、Word/Excel 隐藏锁文件 (~$*, ~WRL*.tmp) 及临时目录 (msdownld.tmp)。",
+        ["OptLinuxTitle"] = "Linux 回收站、文件夹配置与临时文件 (.Trash-1000, .directory, .fuse_hidden*)",
+        ["OptLinuxDesc"] = "原因：释放 Linux 隐藏回收站 (.Trash-*) 占用的空间，清除 KDE/GNOME 视图文件 (.directory, .hidden) 与编辑器交换文件 (.*.swp)。",
+        ["OptSmartTvTitle"] = "智能电视与 Android 手机残留垃圾 (LOST.DIR, LG Smart TV, .thumbnails, 空 Android 目录)",
+        ["OptSmartTvDesc"] = "原因：将 U 盘插入智能电视或 Android 手机 OTG 时会自动生成大量空目录（Android、Alarms、Ringtones、LOST.DIR）及大容量缓存 (.thumbdata*, .database_uuid)。安全清理且不伤用户文件。",
+        ["OptAutoEjectTitle"] = "清理完成后自动安全弹出 U 盘",
+
+        ["SettingsPanelTitle"] = "应用程序设置",
+        ["SettingsPanelSubtitle"] = "配置界面语言、自动更新、后台运行及查看版本与许可信息",
+        ["SettingsBackButton"] = "← 返回主页",
+        ["SettingsGeneralHeader"] = "语言、更新与系统行为",
+        ["SettingsLangTitle"] = "界面语言 (Language)",
+        ["SettingsLangDesc"] = "实时切换所有界面文字、按钮、日志和提示，无需重启软件。",
+        ["OptAutoUpdateTitle"] = "自动检查更新",
+        ["OptAutoUpdateDesc"] = "启动软件时自动检查 GitHub 是否发布了新版本。",
+        ["BtnCheckUpdatesNow"] = "🔄 检查更新",
+        ["BtnCheckingUpdates"] = "正在检查...",
+        ["UpdateStatusIdle"] = "当前已安装版本：v1.0.0",
+        ["UpdateStatusChecking"] = "正在连接官方仓库检查新版本...",
+        ["UpdateStatusUpToDate"] = "✔ 已是最新：您当前安装的已是最新版本 (v{0})。",
+        ["UpdateStatusAvailable"] = "⬇ 发现新版本 v{0}！点击下载并更新。",
+        ["UpdateStatusOffline"] = "无法连接到更新服务器，请检查您的网络连接。",
+        ["UpdatePromptTitle"] = "发现新版本 (v{0})",
+        ["UpdatePromptBody"] = "发现 CleanMacUSB 新版本 (v{0})。\n当前已安装版本：v{1}\n\n{2}\n\n是否立即自动下载并安装更新？",
+        ["UpdateDownloadingStatus"] = "正在下载 v{0} 安装程序...",
+        ["OptTrayTitle"] = "在后台运行（系统托盘）",
+        ["OptTrayDesc"] = "关闭窗口时，CleanMacUSB 将保留在 Windows 时钟旁的系统托盘中，并在插入新 U 盘时自动提醒。",
+        ["SettingsTrayStatusOn"] = "当前状态：已启用（关闭窗口时最小化到系统托盘）",
+        ["SettingsTrayStatusOff"] = "当前状态：已禁用（关闭窗口时完全退出程序）",
+        ["SettingsAboutSectionHeader"] = "关于 CleanMacUSB 与版本信息",
+        ["SettingsVersionLabel"] = "已安装版本：",
+        ["SettingsVersionValue"] = "1.0.0 (64 位正式版 — Windows 10 / 11)",
+        ["SettingsLicenseTypeLabel"] = "许可类型：",
+        ["SettingsLicenseTypeValue"] = "免费专有软件 (Freeware)",
+        ["SettingsAuthorLabel"] = "开发者与作者：",
+        ["SettingsAuthorValue"] = "Josan Sánchez — 保留所有权利",
+        ["SettingsViewFullEulaBtn"] = "在完整窗口中查看许可协议",
+        ["BtnDonateCoffee"] = "☕ 请我喝杯咖啡 (PayPal)",
+        ["DonateTooltip"] = "支持 Josan Sánchez 免费开发 CleanMacUSB (paypal.me/josansancheez)",
+
+        ["BtnCleanUsb"] = "立即清理",
+        ["BtnEjectUsb"] = "安全弹出 U 盘",
+        ["StatusReady"] = "就绪。请选择 U 盘、硬盘或文件夹，然后点击“立即清理”。",
+        ["StatusDrivesUpdated"] = "驱动器列表已更新（共 {0} 个可用）。",
+        ["StatusFolderSelected"] = "已选择要清理的文件夹：{0}",
+        ["StatusNewUsbConnected"] = "检测到新 U 盘：{0}",
+        ["StatusUsbRemoved"] = "U 盘已断开连接。",
+
+        ["LogTabTitle"] = "清理活动日志",
+        ["LogStatusScanning"] = "正在扫描并清理 {0}...",
+        ["LogStatusCompleted"] = "{0} 清理已成功完成",
+        ["LogStatusAborted"] = "用户已中止对 {0} 的清理",
+        ["LogStatusNothingFound"] = "清理完成：{0} 已经非常干净，未发现垃圾文件。",
+        ["LogSummaryFormat"] = "最终统计：已删除 {0} 个文件 | 已删除 {1} 个文件夹 | 共释放空间：{2}",
+        ["LogSummaryAbortedFormat"] = "操作已中止 — 目前已删除：{0} 个文件 | {1} 个文件夹 | 已释放：{2}",
+        ["LogColType"] = "类型",
+        ["LogColPath"] = "已删除项目的完整路径",
+        ["LogColSize"] = "大小",
+        ["LogTypeFile"] = "文件",
+        ["LogTypeFolder"] = "文件夹",
+        ["LogTypeInfo"] = "信息",
+        ["LogTypeError"] = "提示",
+        ["LogStartHeader"] = "正在对 {0} ({1}) 启动递归扫描...",
+        ["LogNoItemsMessage"] = "在所选位置未发现任何残留垃圾文件或文件夹。",
+        ["LogAbortedEntryMsg"] = "应用户请求，清理已停止并中止。",
+        ["BtnAbortClean"] = "⏹ 中止清理",
+        ["BtnAbortingClean"] = "正在中止...",
+        ["BtnSaveLog"] = "保存日志 (.txt)",
+        ["BtnCloseLog"] = "关闭日志",
+        ["SaveLogDialogTitle"] = "保存 CleanMacUSB 清理日志",
+        ["SaveLogSuccessTitle"] = "日志已保存",
+        ["SaveLogSuccessMsg"] = "活动日志文件已成功保存至：\n{0}",
+        ["LogFileHeaderTitle"] = "活动日志 — CLEANMACUSB v1.0 (作者：Josan Sánchez)",
+        ["LogFileDate"] = "日期与时间",
+        ["LogFileDrive"] = "扫描目标",
+
+        ["ConfirmCleanTitle"] = "确认清理",
+        ["ConfirmCleanBody"] = "您确定要开始清理以下位置中的残留垃圾文件吗？\n\n{0}\n\n查找到的残留垃圾文件将被永久删除。",
+        ["MsgSelectDriveTitle"] = "未选择目标",
+        ["MsgSelectDriveBody"] = "请先选择一个 U 盘、内置硬盘或文件夹，然后再继续。",
+        ["MsgSelectOptionTitle"] = "未选择清理选项",
+        ["MsgSelectOptionBody"] = "请至少勾选一类要清理的残留垃圾文件。",
+        ["MsgEjectOnlyUsbTitle"] = "仅支持弹出 U 盘",
+        ["MsgEjectOnlyUsbBody"] = "物理硬件弹出仅适用于可移动 U 盘和外置移动硬盘。",
+        ["MsgEjectSuccessTitle"] = "安全弹出完成",
+        ["MsgEjectSuccessBody"] = "驱动器 {0} 已安全卸载并弹出。\n您现在可以从电脑上拔下该 USB 设备。",
+        ["MsgEjectFailTitle"] = "无法弹出驱动器",
+        ["MsgEjectFailBody"] = "Windows 提示驱动器 {0} 当前正被其他程序占用。\n请关闭该驱动器上打开的所有文件或窗口后重试。\n\n详情：{1}",
+
+        ["TrayTooltip"] = "CleanMacUSB v1.0 — 正在后台运行",
+        ["TrayMenuOpen"] = "打开 CleanMacUSB",
+        ["TrayMenuCleanNow"] = "清理所选目标",
+        ["TrayMenuExit"] = "完全退出",
+        ["TrayMinimizedTitle"] = "CleanMacUSB 仍在后台运行",
+        ["TrayMinimizedBody"] = "程序已最小化到系统托盘。当插入新 U 盘时我们会通知您。",
+        ["TrayUsbDetectedTitle"] = "检测到 U 盘 ({0})",
+        ["TrayUsbDetectedBody"] = "已连接 {0}。点击此处清理隐藏垃圾文件。",
+        ["TrayUsbPromptQuestion"] = "检测到刚插入 U 盘 {0}。\n是否立即扫描并清理其中的残留垃圾文件？",
+
+        ["CleanDoneWindowTitle"] = "清理完成！— CleanMacUSB",
+        ["CleanDoneHeading"] = "✔ 您的驱动器已成功清理完毕！",
+        ["CleanDoneSubheading"] = "已删除 {0} 个残留文件和 {1} 个文件夹（共释放 {2}）。",
+        ["CleanDoneSupportTitle"] = "💛 如果这款软件帮到了您，也请支持一下我！",
+        ["CleanDoneSupportBody"] = "CleanMacUSB 是由 Josan Sánchez 开发的 100% 免费工具。如果这款软件对您有所帮助并为您节省了时间，欢迎通过 PayPal 进行小额赞赏支持，帮助我持续维护和改进它。",
+        ["CleanDoneBtnPayPal"] = "☕ 通过 PayPal 支持",
+        ["CleanDoneBtnClose"] = "关闭",
+
+        ["AboutWindowTitle"] = "关于 CleanMacUSB",
+        ["AboutVersionText"] = "CleanMacUSB v1.0 (Windows 11 / 64 位版)",
+        ["AboutCopyrightText"] = "免费专有软件 (Freeware)。\n由 Josan Sánchez 开发。保留所有权利。",
+        ["AboutDescription"] = "高性能原生实用工具，专为彻底清除 U 盘中由 macOS (._*, .DS_Store, .Spotlight-V100)、Windows (Thumbs.db, desktop.ini, $RECYCLE.BIN)、Linux (.Trash-1000, .directory) 及智能电视 / Android 产生的隐藏垃圾文件而设计。",
+        ["AboutLicenseHeader"] = "最终用户许可协议 (EULA)：",
+        ["AboutCloseButton"] = "关闭"
     };
 
     private LocalizationService()
     {
         var osLang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLowerInvariant();
-        _currentCulture = osLang == "es" ? "es-ES" : "en-US";
+        _currentCulture = NormalizeCulture(osLang);
+    }
+
+    private static string NormalizeCulture(string code)
+    {
+        if (string.IsNullOrWhiteSpace(code)) return "en-US";
+        code = code.Trim().ToLowerInvariant();
+        if (code.StartsWith("es")) return "es-ES";
+        if (code.StartsWith("de")) return "de-DE";
+        if (code.StartsWith("fr")) return "fr-FR";
+        if (code.StartsWith("zh")) return "zh-CN";
+        return "en-US";
     }
 
     public string CurrentCulture
@@ -353,7 +814,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
         get => _currentCulture;
         set
         {
-            var normalized = value.StartsWith("es", StringComparison.OrdinalIgnoreCase) ? "es-ES" : "en-US";
+            var normalized = NormalizeCulture(value);
             if (_currentCulture == normalized) return;
             _currentCulture = normalized;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentCulture)));
@@ -365,12 +826,26 @@ public sealed class LocalizationService : INotifyPropertyChanged
 
     public bool IsSpanish => _currentCulture == "es-ES";
 
+    private Dictionary<string, string> GetActiveDictionary()
+    {
+        return _currentCulture switch
+        {
+            "es-ES" => _es,
+            "de-DE" => _de,
+            "fr-FR" => _fr,
+            "zh-CN" => _zh,
+            _ => _en
+        };
+    }
+
     public string this[string key]
     {
         get
         {
-            var dict = IsSpanish ? _es : _en;
-            return dict.TryGetValue(key, out var val) ? val : key;
+            var dict = GetActiveDictionary();
+            if (dict.TryGetValue(key, out var val))
+                return val;
+            return _en.TryGetValue(key, out var fallback) ? fallback : key;
         }
     }
 

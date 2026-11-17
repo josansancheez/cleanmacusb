@@ -625,7 +625,7 @@
 
                                 <ComboBox x:Name="LanguageComboBox"
                                           Grid.Column="1"
-                                          Width="150"
+                                          Width="170"
                                           Height="34"
                                           VerticalAlignment="Center"
                                           VerticalContentAlignment="Center"
@@ -634,6 +634,9 @@
                                           SelectionChanged="LanguageComboBox_SelectionChanged">
                                     <ComboBoxItem Content="🇪🇸 Español (ES)" Tag="es-ES" />
                                     <ComboBoxItem Content="🇬🇧 English (EN)" Tag="en-US" />
+                                    <ComboBoxItem Content="🇩🇪 Deutsch (DE)" Tag="de-DE" />
+                                    <ComboBoxItem Content="🇫🇷 Français (FR)" Tag="fr-FR" />
+                                    <ComboBoxItem Content="🇨🇳 中文 (ZH)" Tag="zh-CN" />
                                 </ComboBox>
                             </Grid>
 

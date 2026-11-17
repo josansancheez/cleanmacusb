@@ -88,7 +88,15 @@ public partial class MainWindow : Window
 
     private void InitializeLanguageSelector()
     {
-        LanguageComboBox.SelectedIndex = Loc.IsSpanish ? 0 : 1;
+        foreach (ComboBoxItem item in LanguageComboBox.Items)
+        {
+            if (item.Tag is string tag && string.Equals(tag, Loc.CurrentCulture, StringComparison.OrdinalIgnoreCase))
+            {
+                LanguageComboBox.SelectedItem = item;
+                return;
+            }
+        }
+        LanguageComboBox.SelectedIndex = 1; // English fallback
     }
 
     private void LanguageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
