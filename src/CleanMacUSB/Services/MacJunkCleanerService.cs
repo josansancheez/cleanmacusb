@@ -102,7 +102,10 @@ public static class MacJunkCleanerService
     {
         "$RECYCLE.BIN",
         "RECYCLER",
-        "RECYCLED"
+        "RECYCLED",
+        "Recycle",
+        ".Recycle",
+        "$Recycle"
     };
 
     private static readonly HashSet<string> WindowsTempFolderNames = new(StringComparer.OrdinalIgnoreCase)
@@ -112,9 +115,7 @@ public static class MacJunkCleanerService
 
     private static readonly HashSet<string> ReadmeResidualFileNames = new(StringComparer.OrdinalIgnoreCase)
     {
-        "README.",
-        "README",
-        "README.txt"
+        "README."
     };
 
     private static readonly HashSet<string> LinuxJunkFileNames = new(StringComparer.OrdinalIgnoreCase)
@@ -456,8 +457,10 @@ public static class MacJunkCleanerService
         if (options.CleanSpotlightAndTrash && SpotlightAndTrashNames.Contains(fileName))
             return true;
 
-        // 4. Windows Caches (Thumbs.db, ehthumbs.db, desktop.ini, WPSettings.dat, IndexerVolumeGuid, ZbThumbnail.info)
-        if (options.CleanWindowsCaches && WindowsCacheFileNames.Contains(fileName))
+        // 4. Windows Caches (Thumbs.db, ehthumbs.db, desktop.ini, *.ini, WPSettings.dat, IndexerVolumeGuid, ZbThumbnail.info)
+        if (options.CleanWindowsCaches &&
+            (WindowsCacheFileNames.Contains(fileName) ||
+             fileName.EndsWith(".ini", StringComparison.OrdinalIgnoreCase)))
             return true;
 
         // 5. Windows CHKDSK fragments (*.chk)
