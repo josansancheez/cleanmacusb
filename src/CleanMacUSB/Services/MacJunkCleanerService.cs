@@ -263,6 +263,59 @@ public static class MacJunkCleanerService
         }, CancellationToken.None);
     }
 
+    /// <summary>
+    /// Elimina únicamente los archivos y carpetas específicos seleccionados por el usuario tras un análisis previo.
+    /// </summary>
+    public static async Task<CleanSummary> DeleteSelectedItemsAsync(
+        IReadOnlyList<CleanLogEntry> selectedItems,
+        IProgress<CleanLogEntry> logProgress,
+        IProgress<double> percentProgress,
+        CancellationToken cancellationToken = default)
+    {
+        return await Task.Run(() =>
+        {
+            var summary = new CleanSummary { IsDryRun = false };
+            try
+            {
+                int total = Math.Max(1, selectedItems.Count);
+                int processed = 0;
+
+                foreach (var item in selectedItems)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    if (item.Kind == CleanItemKind.File)
+                    {
+                        var fi = new FileInfo(item.FullPath);
+                        if (fi.Exists)
+                        {
+                            TryDeleteFile(fi, summary, logProgress, dryRun: false);
+                        }
+                    }
+                    else if (item.Kind == CleanItemKind.Folder)
+                    {
+                        var di = new DirectoryInfo(item.FullPath);
+                        if (di.Exists)
+                        {
+                            TryDeleteDirectoryTree(di, summary, logProgress, cancellationToken, dryRun: false);
+                        }
+                    }
+
+                    processed++;
+                    percentProgress.Report((processed * 100.0) / total);
+                }
+
+                percentProgress.Report(100.0);
+                return summary;
+            }
+            catch (OperationCanceledException)
+            {
+                summary.WasAborted = true;
+                return summary;
+            }
+        }, CancellationToken.None);
+    }
+
     private static bool IsSkippedSystemFolder(DirectoryInfo dir, CleanOptions options)
     {
         string dirName = dir.Name;

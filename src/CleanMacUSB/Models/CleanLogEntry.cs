@@ -16,10 +16,25 @@ public enum CleanItemKind
 /// </summary>
 public sealed class CleanLogEntry : INotifyPropertyChanged
 {
+    private bool _isSelected = true;
+
     public DateTime Timestamp { get; init; } = DateTime.Now;
     public CleanItemKind Kind { get; init; }
     public string FullPath { get; init; } = string.Empty;
     public long SizeBytes { get; init; }
+
+    public bool CanSelect => Kind is CleanItemKind.File or CleanItemKind.Folder;
+
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set
+        {
+            if (_isSelected == value) return;
+            _isSelected = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelected)));
+        }
+    }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

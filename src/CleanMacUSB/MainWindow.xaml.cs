@@ -173,11 +173,16 @@ public partial class MainWindow : Window
         LogListView.Items.Refresh();
 
         // Actualizar encabezados de columnas del GridView
-        if (LogListView.View is GridView gv && gv.Columns.Count >= 3)
+        if (LogListView.View is GridView gv && gv.Columns.Count >= 4)
         {
-            gv.Columns[0].Header = Loc["LogColType"];
-            gv.Columns[1].Header = Loc["LogColPath"];
-            gv.Columns[2].Header = Loc["LogColSize"];
+            gv.Columns[1].Header = Loc["LogColType"];
+            gv.Columns[2].Header = Loc["LogColPath"];
+            gv.Columns[3].Header = Loc["LogColSize"];
+        }
+
+        if (DryRunSelectionBar.Visibility == Visibility.Visible)
+        {
+            UpdateDryRunSelectionSummary();
         }
 
         // Actualizar resumen del log si está visible
@@ -657,10 +662,151 @@ public partial class MainWindow : Window
         await ExecuteCleaningAsync(selectedDrive, askConfirmation: false, dryRun: true);
     }
 
+    private void LogSelectAllButton_Click(object sender, RoutedEventArgs e)
+    {
+        foreach (var entry in LogEntries)
+        {
+            if (entry.CanSelect) entry.IsSelected = true;
+        }
+        UpdateDryRunSelectionSummary();
+    }
+
+    private void LogDeselectAllButton_Click(object sender, RoutedEventArgs e)
+    {
+        foreach (var entry in LogEntries)
+        {
+            if (entry.CanSelect) entry.IsSelected = false;
+        }
+        UpdateDryRunSelectionSummary();
+    }
+
+    private void LogItemCheckBox_Changed(object sender, RoutedEventArgs e)
+    {
+        UpdateDryRunSelectionSummary();
+    }
+
+    private void UpdateDryRunSelectionSummary()
+    {
+        var selected = LogEntries.Where(x => x.CanSelect && x.IsSelected).ToList();
+        int count = selected.Count;
+        DryRunCleanNowButton.Content = Loc.Format("BtnCleanSelected", count);
+        DryRunCleanNowButton.IsEnabled = count > 0;
+    }
+
     private async void DryRunCleanNowButton_Click(object sender, RoutedEventArgs e)
     {
         if (UsbDrivesComboBox.SelectedItem is not UsbDriveItem selectedDrive) return;
-        await ExecuteCleaningAsync(selectedDrive, askConfirmation: true, dryRun: false);
+
+        var selectedItems = LogEntries.Where(x => x.CanSelect && x.IsSelected).ToList();
+        if (selectedItems.Count == 0) return;
+
+        long selectedBytes = selectedItems.Sum(x => x.SizeBytes);
+        string sizeStr = UsbDriveItem.FormatBytes(selectedBytes);
+        var confirmResult = System.Windows.MessageBox.Show(
+            this,
+            Loc.Format("ConfirmCleanSelectedBody", selectedItems.Count, sizeStr, selectedDrive.DisplayName),
+            Loc["ConfirmCleanTitle"],
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question,
+            MessageBoxResult.Yes);
+
+        if (confirmResult != MessageBoxResult.Yes) return;
+
+        _isCleaning = true;
+        _lastCleanedDriveName = selectedDrive.DisplayName;
+        _lastCleanSummary = null;
+        _cleanCts = new CancellationTokenSource();
+
+        DryRunSelectionBar.Visibility = Visibility.Collapsed;
+        DryRunCleanNowButton.Visibility = Visibility.Collapsed;
+        LogCheckColumn.Width = 0;
+        AbortCleanButton.IsEnabled = true;
+        AbortCleanButton.Content = Loc["BtnAbortClean"];
+        SaveLogButton.IsEnabled = false;
+        CloseLogButton.IsEnabled = false;
+        CleanProgressBar.Value = 0;
+        LogEntries.Clear();
+
+        LogProgressStatusText.Text = Loc.Format("LogStatusScanning", selectedDrive.DisplayName);
+        LogSummaryTextBlock.Text = Loc.Format("LogStartHeader", selectedDrive.DriveRoot, selectedDrive.FileSystem);
+
+        long lastScrollTick = 0;
+        var logProgress = new Progress<CleanLogEntry>(entry =>
+        {
+            LogEntries.Add(entry);
+            long now = Environment.TickCount64;
+            if (now - lastScrollTick >= 80)
+            {
+                lastScrollTick = now;
+                LogListView.ScrollIntoView(entry);
+            }
+        });
+
+        var percentProgress = new Progress<double>(pct =>
+        {
+            CleanProgressBar.Value = pct;
+        });
+
+        CleanSummary? summary = null;
+        try
+        {
+            summary = await MacJunkCleanerService.DeleteSelectedItemsAsync(
+                selectedItems, logProgress, percentProgress, _cleanCts.Token);
+
+            _lastCleanSummary = summary;
+
+            if (summary.WasAborted)
+            {
+                LogEntries.Add(new CleanLogEntry
+                {
+                    Kind = CleanItemKind.Notice,
+                    FullPath = Loc["LogAbortedEntryMsg"],
+                    SizeBytes = 0
+                });
+            }
+            else if (summary.DeletedFilesCount == 0 && summary.DeletedFoldersCount == 0)
+            {
+                LogEntries.Add(new CleanLogEntry
+                {
+                    Kind = CleanItemKind.Info,
+                    FullPath = Loc["LogNoItemsMessage"],
+                    SizeBytes = 0
+                });
+            }
+
+            if (LogEntries.Count > 0)
+            {
+                LogListView.ScrollIntoView(LogEntries[^1]);
+            }
+
+            UpdateLogSummaryTexts(selectedDrive.DisplayName, summary);
+        }
+        finally
+        {
+            _isCleaning = false;
+            _cleanCts?.Dispose();
+            _cleanCts = null;
+
+            AbortCleanButton.IsEnabled = false;
+            AbortCleanButton.Content = Loc["BtnAbortClean"];
+            SaveLogButton.IsEnabled = true;
+            CloseLogButton.IsEnabled = true;
+            RefreshUsbDrives(isInitialLoad: false, preferredRoot: selectedDrive.DriveRoot);
+        }
+
+        if (summary != null && !summary.WasAborted)
+        {
+            var doneWindow = new CleanCompletedWindow(selectedDrive.DisplayName, summary)
+            {
+                Owner = this
+            };
+            doneWindow.ShowDialog();
+        }
+
+        if (ChkAutoEject.IsChecked == true && selectedDrive.CanEject && summary != null && !summary.WasAborted)
+        {
+            PerformSafeEject(selectedDrive);
+        }
     }
 
     private async void CleanUsbButton_Click(object sender, RoutedEventArgs e)
@@ -732,7 +878,9 @@ public partial class MainWindow : Window
         LogActivityPanel.Visibility = Visibility.Visible;
         UpdateSettingsButtonVisualState();
 
+        DryRunSelectionBar.Visibility = Visibility.Collapsed;
         DryRunCleanNowButton.Visibility = Visibility.Collapsed;
+        LogCheckColumn.Width = dryRun ? 38 : 0;
         AbortCleanButton.IsEnabled = true;
         AbortCleanButton.Content = Loc["BtnAbortClean"];
         SaveLogButton.IsEnabled = false;
@@ -826,11 +974,13 @@ public partial class MainWindow : Window
             RefreshUsbDrives(isInitialLoad: false, preferredRoot: targetDrive.DriveRoot);
         }
 
-        // Si fue vista previa (Analizar sin borrar) y encontró basura, mostrar botón para limpiar ahora mismo
+        // Si fue vista previa (Analizar sin borrar) y encontró basura, mostrar barra de selección y botón para limpiar seleccionados
         if (dryRun && summary != null && !summary.WasAborted &&
             (summary.DeletedFilesCount > 0 || summary.DeletedFoldersCount > 0))
         {
+            DryRunSelectionBar.Visibility = Visibility.Visible;
             DryRunCleanNowButton.Visibility = Visibility.Visible;
+            UpdateDryRunSelectionSummary();
         }
 
         // Mostrar ventana de limpieza completada con opción de apoyar por PayPal (solo en limpieza real no abortada)
