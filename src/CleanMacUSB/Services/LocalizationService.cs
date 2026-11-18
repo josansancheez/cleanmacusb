@@ -106,7 +106,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["BtnDonateCoffee"] = "☕ Invítame a un café (PayPal)",
         ["DonateTooltip"] = "Apoya el desarrollo gratuito de CleanMacUSB por Josan Sánchez (paypal.me/josansancheez)",
 
-        ["BtnAnalyzeOnly"] = "Analizar sin borrar",
+        ["BtnAnalyzeOnly"] = "Analizar",
         ["BtnCleanUsb"] = "Limpiar ahora",
         ["BtnEjectUsb"] = "Expulsar USB de forma segura",
         ["StatusReady"] = "Listo. Selecciona una unidad USB, disco duro o carpeta y pulsa «Limpiar ahora».",
@@ -277,7 +277,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["BtnDonateCoffee"] = "☕ Buy me a coffee (PayPal)",
         ["DonateTooltip"] = "Support the free development of CleanMacUSB by Josan Sánchez (paypal.me/josansancheez)",
 
-        ["BtnAnalyzeOnly"] = "Analyze (Dry Run)",
+        ["BtnAnalyzeOnly"] = "Analyze",
         ["BtnCleanUsb"] = "Clean Now",
         ["BtnEjectUsb"] = "Safely Eject USB",
         ["StatusReady"] = "Ready. Select a USB drive, hard disk, or folder and click \"Clean Now\".",
@@ -448,7 +448,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["BtnDonateCoffee"] = "☕ Spendiere mir einen Kaffee (PayPal)",
         ["DonateTooltip"] = "Unterstützen Sie die kostenlose Entwicklung von CleanMacUSB durch Josan Sánchez (paypal.me/josansancheez)",
 
-        ["BtnAnalyzeOnly"] = "Nur analysieren",
+        ["BtnAnalyzeOnly"] = "Analysieren",
         ["BtnCleanUsb"] = "Jetzt bereinigen",
         ["BtnEjectUsb"] = "USB sicher auswerfen",
         ["StatusReady"] = "Bereit. Wählen Sie ein USB-Laufwerk, eine Festplatte oder einen Ordner und klicken Sie auf „Jetzt bereinigen“.",
@@ -619,7 +619,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["BtnDonateCoffee"] = "☕ Offrez-moi un café (PayPal)",
         ["DonateTooltip"] = "Soutenez le développement gratuit de CleanMacUSB par Josan Sánchez (paypal.me/josansancheez)",
 
-        ["BtnAnalyzeOnly"] = "Analyser sans supprimer",
+        ["BtnAnalyzeOnly"] = "Analyser",
         ["BtnCleanUsb"] = "Nettoyer maintenant",
         ["BtnEjectUsb"] = "Éjecter la clé USB en sécurité",
         ["StatusReady"] = "Prêt. Sélectionnez une clé USB, un disque ou un dossier et cliquez sur « Nettoyer maintenant ».",
@@ -790,7 +790,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
         ["BtnDonateCoffee"] = "☕ 请我喝杯咖啡 (PayPal)",
         ["DonateTooltip"] = "支持 Josan Sánchez 免费开发 CleanMacUSB (paypal.me/josansancheez)",
 
-        ["BtnAnalyzeOnly"] = "仅扫描预览",
+        ["BtnAnalyzeOnly"] = "扫描分析",
         ["BtnCleanUsb"] = "立即清理",
         ["BtnEjectUsb"] = "安全弹出 U 盘",
         ["StatusReady"] = "就绪。请选择 U 盘、硬盘或文件夹，然后点击“立即清理”。",

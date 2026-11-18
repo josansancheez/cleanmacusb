@@ -440,8 +440,6 @@
                 <!-- Botones de Acción Principales -->
                 <Grid Grid.Row="2">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="10" />
                         <ColumnDefinition Width="1.15*" />
                         <ColumnDefinition Width="10" />
                         <ColumnDefinition Width="*" />
@@ -449,29 +447,17 @@
 
                     <Button x:Name="AnalyzeButton"
                             Grid.Column="0"
-                            Style="{StaticResource FluentSecondaryButtonStyle}"
-                            Height="46"
-                            FontSize="13.5"
-                            Click="AnalyzeButton_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="🔍" FontSize="15" Margin="0,0,7,0" VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding Loc[BtnAnalyzeOnly]}" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-
-                    <Button x:Name="CleanUsbButton"
-                            Grid.Column="2"
                             Style="{StaticResource FluentPrimaryButtonStyle}"
                             Height="46"
-                            Click="CleanUsbButton_Click">
+                            Click="AnalyzeButton_Click">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="🧹" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding Loc[BtnCleanUsb]}" FontSize="15" VerticalAlignment="Center" />
+                            <TextBlock Text="🔍" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding Loc[BtnAnalyzeOnly]}" FontSize="15" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
 
                     <Button x:Name="EjectUsbButton"
-                            Grid.Column="4"
+                            Grid.Column="2"
                             Style="{StaticResource FluentSecondaryButtonStyle}"
                             Height="46"
                             FontSize="13.5"

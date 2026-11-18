@@ -460,7 +460,6 @@ public partial class MainWindow : Window
         if (UsbDrivesComboBox.SelectedItem is UsbDriveItem selected)
         {
             AnalyzeButton.IsEnabled = !_isCleaning;
-            CleanUsbButton.IsEnabled = !_isCleaning;
             EjectUsbButton.IsEnabled = !_isCleaning && selected.CanEject;
             ChkAutoEject.IsEnabled = selected.CanEject;
             if (!selected.CanEject)
@@ -478,7 +477,6 @@ public partial class MainWindow : Window
         else
         {
             AnalyzeButton.IsEnabled = false;
-            CleanUsbButton.IsEnabled = false;
             EjectUsbButton.IsEnabled = false;
             if (InternalDriveWarningBorder != null)
             {
@@ -807,22 +805,6 @@ public partial class MainWindow : Window
         {
             PerformSafeEject(selectedDrive);
         }
-    }
-
-    private async void CleanUsbButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (UsbDrivesComboBox.SelectedItem is not UsbDriveItem selectedDrive)
-        {
-            System.Windows.MessageBox.Show(
-                this,
-                Loc["MsgSelectDriveBody"],
-                Loc["MsgSelectDriveTitle"],
-                MessageBoxButton.OK,
-                MessageBoxImage.Warning);
-            return;
-        }
-
-        await ExecuteCleaningAsync(selectedDrive, askConfirmation: true, dryRun: false);
     }
 
     private async Task ExecuteCleaningAsync(UsbDriveItem targetDrive, bool askConfirmation = true, bool dryRun = false)
