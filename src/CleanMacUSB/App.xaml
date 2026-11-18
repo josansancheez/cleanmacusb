@@ -3,17 +3,29 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <!-- Paleta de colores Windows 11 Fluent Light/Clean -->
+        <!-- Paleta de colores Windows 11 Fluent (Light por defecto, adaptable a Dark Mode) -->
         <SolidColorBrush x:Key="AppBgBrush" Color="#F3F5F8" />
         <SolidColorBrush x:Key="CardBgBrush" Color="#FFFFFF" />
         <SolidColorBrush x:Key="CardBorderBrush" Color="#E2E8F0" />
+        <SolidColorBrush x:Key="SubCardBgBrush" Color="#F8FAFC" />
+        <SolidColorBrush x:Key="SubCardBorderBrush" Color="#E2E8F0" />
         <SolidColorBrush x:Key="PrimaryBlueBrush" Color="#0284C7" />
         <SolidColorBrush x:Key="PrimaryBlueHoverBrush" Color="#0369A1" />
         <SolidColorBrush x:Key="PrimaryBluePressedBrush" Color="#075985" />
         <SolidColorBrush x:Key="SecondaryBgBrush" Color="#F1F5F9" />
         <SolidColorBrush x:Key="SecondaryHoverBrush" Color="#E2E8F0" />
+        <SolidColorBrush x:Key="SecondaryBorderBrush" Color="#CBD5E1" />
         <SolidColorBrush x:Key="TextPrimaryBrush" Color="#0F172A" />
         <SolidColorBrush x:Key="TextSecondaryBrush" Color="#475569" />
+        <SolidColorBrush x:Key="StatusBarBgBrush" Color="#E2E8F0" />
+        <SolidColorBrush x:Key="StatusBarTextBrush" Color="#334155" />
+        <SolidColorBrush x:Key="EulaBoxBgBrush" Color="#FFFFFF" />
+        <SolidColorBrush x:Key="EulaTextBrush" Color="#334155" />
+        <SolidColorBrush x:Key="GroupHeaderBgBrush" Color="#F1F5F9" />
+        <SolidColorBrush x:Key="GroupHeaderTextBrush" Color="#0369A1" />
+        <SolidColorBrush x:Key="SummaryBannerBgBrush" Color="#F0F9FF" />
+        <SolidColorBrush x:Key="SummaryBannerBorderBrush" Color="#BAE6FD" />
+        <SolidColorBrush x:Key="SummaryBannerTextBrush" Color="#0369A1" />
 
         <!-- Estilo de Botón Principal (Fluent Accent) -->
         <Style x:Key="FluentPrimaryButtonStyle" TargetType="Button">
@@ -52,9 +64,9 @@
 
         <!-- Estilo de Botón Secundario (Fluent Subtle/Outline) -->
         <Style x:Key="FluentSecondaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource SecondaryBgBrush}" />
-            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
-            <Setter Property="BorderBrush" Value="#CBD5E1" />
+            <Setter Property="Background" Value="{DynamicResource SecondaryBgBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SecondaryBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="FontSize" Value="13" />
@@ -73,13 +85,13 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="btnBorder" Property="Background" Value="{StaticResource SecondaryHoverBrush}" />
+                                <Setter TargetName="btnBorder" Property="Background" Value="{DynamicResource SecondaryHoverBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="btnBorder" Property="Background" Value="#CBD5E1" />
+                                <Setter TargetName="btnBorder" Property="Background" Value="{DynamicResource CardBorderBrush}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="btnBorder" Property="Opacity" Value="0.55" />
+                                <Setter TargetName="btnBorder" Property="Opacity" Value="0.45" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>

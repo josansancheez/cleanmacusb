@@ -58,7 +58,8 @@ public partial class MainWindow : Window
 
         Loc.LanguageChanged += OnLanguageChanged;
 
-        RefreshUsbDrives(isInitialLoad: true);
+        string? initialPreferredRoot = ResolveInitialTargetPath();
+        RefreshUsbDrives(isInitialLoad: string.IsNullOrEmpty(initialPreferredRoot), preferredRoot: initialPreferredRoot);
         BottomStatusText.Text = Loc["StatusReady"];
 
         // Si se ejecuta desde la Microsoft Store, ocultar la sección de actualizaciones propias
@@ -72,11 +73,47 @@ public partial class MainWindow : Window
         }
     }
 
+    private string? ResolveInitialTargetPath()
+    {
+        if (string.IsNullOrWhiteSpace(App.InitialTargetPath))
+            return null;
+
+        string path = App.InitialTargetPath;
+        if (Directory.Exists(path))
+        {
+            var root = Path.GetPathRoot(path);
+            if (!string.Equals(path.TrimEnd(Path.DirectorySeparatorChar), root?.TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase))
+            {
+                if (!_customFolders.Any(f => string.Equals(f.DriveRoot, path, StringComparison.OrdinalIgnoreCase)))
+                {
+                    _customFolders.Insert(0, new UsbDriveItem
+                    {
+                        TargetKind = CleanTargetKind.CustomFolder,
+                        DriveRoot = path,
+                        DriveLetter = char.ToUpperInvariant(path[0]),
+                        VolumeLabel = Path.GetFileName(path.TrimEnd(Path.DirectorySeparatorChar)),
+                        FileSystem = "Folder"
+                    });
+                }
+            }
+            else
+            {
+                return root;
+            }
+            return path;
+        }
+        return null;
+    }
+
     private void LoadPersistedUserSettings()
     {
         var settings = AppSettingsService.Load();
         ToggleAutoUpdates.IsChecked = settings.AutoUpdateEnabled;
         ToggleBackgroundTray.IsChecked = settings.RunInBackground;
+        ToggleDarkMode.IsChecked = settings.DarkMode;
+        ToggleContextMenu.IsChecked = CleanMacUSB.Services.ContextMenuService.IsRegistered();
+        App.ApplyTheme(settings.DarkMode);
+
         if (!string.IsNullOrWhiteSpace(settings.Language))
         {
             Loc.CurrentCulture = settings.Language;
@@ -149,9 +186,13 @@ public partial class MainWindow : Window
             UpdateLogSummaryTexts(_lastCleanedDriveName, _lastCleanSummary);
         }
 
-        // Actualizar textos del apartado de Ajustes y de la bandeja del sistema
+        // Actualizar textos del apartado de Ajustes, menú contextual (si está activo) y bandeja del sistema
         UpdateSettingsPanelTexts();
         UpdateTrayLocalization();
+        if (ToggleContextMenu?.IsChecked == true)
+        {
+            CleanMacUSB.Services.ContextMenuService.SetEnabled(true, Loc["ContextMenuVerb"]);
+        }
 
         BottomStatusText.Text = Loc["StatusReady"];
     }
@@ -215,6 +256,22 @@ public partial class MainWindow : Window
             AppSettingsService.Current.AutoUpdateEnabled = ToggleAutoUpdates.IsChecked == true;
             AppSettingsService.Save();
         }
+    }
+
+    private void ToggleDarkMode_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!IsInitialized) return;
+        bool isDark = ToggleDarkMode.IsChecked == true;
+        App.ApplyTheme(isDark);
+        AppSettingsService.Current.DarkMode = isDark;
+        AppSettingsService.Save();
+    }
+
+    private void ToggleContextMenu_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!IsInitialized) return;
+        bool enabled = ToggleContextMenu.IsChecked == true;
+        CleanMacUSB.Services.ContextMenuService.SetEnabled(enabled, Loc["ContextMenuVerb"]);
     }
 
     private async void CheckUpdatesButton_Click(object sender, RoutedEventArgs e)
@@ -397,6 +454,7 @@ public partial class MainWindow : Window
 
         if (UsbDrivesComboBox.SelectedItem is UsbDriveItem selected)
         {
+            AnalyzeButton.IsEnabled = !_isCleaning;
             CleanUsbButton.IsEnabled = !_isCleaning;
             EjectUsbButton.IsEnabled = !_isCleaning && selected.CanEject;
             ChkAutoEject.IsEnabled = selected.CanEject;
@@ -414,6 +472,7 @@ public partial class MainWindow : Window
         }
         else
         {
+            AnalyzeButton.IsEnabled = false;
             CleanUsbButton.IsEnabled = false;
             EjectUsbButton.IsEnabled = false;
             if (InternalDriveWarningBorder != null)
@@ -582,6 +641,28 @@ public partial class MainWindow : Window
 
     // ==================== LIMPIEZA RECURSIVA Y LOG EN TIEMPO REAL ====================
 
+    private async void AnalyzeButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (UsbDrivesComboBox.SelectedItem is not UsbDriveItem selectedDrive)
+        {
+            System.Windows.MessageBox.Show(
+                this,
+                Loc["MsgSelectDriveBody"],
+                Loc["MsgSelectDriveTitle"],
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+        await ExecuteCleaningAsync(selectedDrive, askConfirmation: false, dryRun: true);
+    }
+
+    private async void DryRunCleanNowButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (UsbDrivesComboBox.SelectedItem is not UsbDriveItem selectedDrive) return;
+        await ExecuteCleaningAsync(selectedDrive, askConfirmation: true, dryRun: false);
+    }
+
     private async void CleanUsbButton_Click(object sender, RoutedEventArgs e)
     {
         if (UsbDrivesComboBox.SelectedItem is not UsbDriveItem selectedDrive)
@@ -595,10 +676,10 @@ public partial class MainWindow : Window
             return;
         }
 
-        await ExecuteCleaningAsync(selectedDrive);
+        await ExecuteCleaningAsync(selectedDrive, askConfirmation: true, dryRun: false);
     }
 
-    private async Task ExecuteCleaningAsync(UsbDriveItem targetDrive, bool askConfirmation = true)
+    private async Task ExecuteCleaningAsync(UsbDriveItem targetDrive, bool askConfirmation = true, bool dryRun = false)
     {
         if (_isCleaning) return;
 
@@ -651,6 +732,7 @@ public partial class MainWindow : Window
         LogActivityPanel.Visibility = Visibility.Visible;
         UpdateSettingsButtonVisualState();
 
+        DryRunCleanNowButton.Visibility = Visibility.Collapsed;
         AbortCleanButton.IsEnabled = true;
         AbortCleanButton.Content = Loc["BtnAbortClean"];
         SaveLogButton.IsEnabled = false;
@@ -658,7 +740,9 @@ public partial class MainWindow : Window
         CleanProgressBar.Value = 0;
         LogEntries.Clear();
 
-        LogProgressStatusText.Text = Loc.Format("LogStatusScanning", targetDrive.DisplayName);
+        LogProgressStatusText.Text = dryRun
+            ? Loc.Format("LogStatusAnalyzing", targetDrive.DisplayName)
+            : Loc.Format("LogStatusScanning", targetDrive.DisplayName);
         LogSummaryTextBlock.Text = Loc.Format("LogStartHeader", targetDrive.DriveRoot, targetDrive.FileSystem);
 
         var options = new CleanOptions
@@ -698,7 +782,8 @@ public partial class MainWindow : Window
                 options,
                 logProgress,
                 percentProgress,
-                _cleanCts.Token);
+                _cleanCts.Token,
+                dryRun: dryRun);
 
             _lastCleanSummary = summary;
 
@@ -741,8 +826,15 @@ public partial class MainWindow : Window
             RefreshUsbDrives(isInitialLoad: false, preferredRoot: targetDrive.DriveRoot);
         }
 
-        // Mostrar ventana de limpieza completada con opción de apoyar por PayPal (si no fue abortado)
-        if (summary != null && !summary.WasAborted)
+        // Si fue vista previa (Analizar sin borrar) y encontró basura, mostrar botón para limpiar ahora mismo
+        if (dryRun && summary != null && !summary.WasAborted &&
+            (summary.DeletedFilesCount > 0 || summary.DeletedFoldersCount > 0))
+        {
+            DryRunCleanNowButton.Visibility = Visibility.Visible;
+        }
+
+        // Mostrar ventana de limpieza completada con opción de apoyar por PayPal (solo en limpieza real no abortada)
+        if (!dryRun && summary != null && !summary.WasAborted)
         {
             var doneWindow = new CleanCompletedWindow(targetDrive.DisplayName, summary)
             {
@@ -751,8 +843,8 @@ public partial class MainWindow : Window
             doneWindow.ShowDialog();
         }
 
-        // Si el usuario marcó "Expulsar automáticamente al terminar la limpieza", es un USB y NO fue abortado
-        if (ChkAutoEject.IsChecked == true && targetDrive.CanEject && summary != null && !summary.WasAborted)
+        // Si el usuario marcó "Expulsar automáticamente al terminar la limpieza", es un USB, es limpieza real y NO fue abortado
+        if (!dryRun && ChkAutoEject.IsChecked == true && targetDrive.CanEject && summary != null && !summary.WasAborted)
         {
             PerformSafeEject(targetDrive);
         }
@@ -778,6 +870,22 @@ public partial class MainWindow : Window
                 summary.DeletedFilesCount,
                 summary.DeletedFoldersCount,
                 UsbDriveItem.FormatBytes(summary.TotalBytesFreed));
+            BottomStatusText.Text = LogSummaryTextBlock.Text;
+            return;
+        }
+
+        if (summary.IsDryRun)
+        {
+            LogProgressStatusText.Text = (summary.DeletedFilesCount == 0 && summary.DeletedFoldersCount == 0)
+                ? Loc.Format("LogStatusNothingFound", driveDisplay)
+                : Loc.Format("LogStatusDryRunCompleted", driveDisplay);
+
+            LogSummaryTextBlock.Text = Loc.Format(
+                "LogDryRunSummaryFormat",
+                summary.DeletedFilesCount,
+                summary.DeletedFoldersCount,
+                UsbDriveItem.FormatBytes(summary.TotalBytesFreed));
+
             BottomStatusText.Text = LogSummaryTextBlock.Text;
             return;
         }

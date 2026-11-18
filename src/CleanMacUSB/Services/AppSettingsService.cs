@@ -7,6 +7,7 @@ public sealed class UserSettings
 {
     public bool AutoUpdateEnabled { get; set; } = true;
     public bool RunInBackground { get; set; } = false;
+    public bool DarkMode { get; set; } = false;
     public string? Language { get; set; }
 }
 
